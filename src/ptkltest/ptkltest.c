@@ -1,5 +1,5 @@
 /*
- * ptkl - Partikle Runtime
+ * Unit tests for Partikle Runtime
  *
  * MIT License
  *
@@ -23,10 +23,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef PTKL_H
-#define PTKL_H
+#include <stdio.h>
+#include <stdlib.h>
 
-#define FOO 1
-
-#endif
-
+int main() {
+  printf("ok\n");
+  exit(EXIT_SUCCESS);
+}

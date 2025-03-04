@@ -31,20 +31,33 @@ BINDIR = bin
 OBJDIR = obj
 SRCDIR = src
 
-###############################################################################
-# ptkl
-
-PTKL = ptkl
-PTKL_SRCDIR = $(SRCDIR)/$(PTKL)
-PTKL_SRCS = $(wildcard $(PTKL_SRCDIR)/*.c)
-PTKL_OBJS = $(patsubst $(PTKL_SRCDIR)/%.c,$(OBJDIR)/%.o,$(PTKL_SRCS))
+# cmake
+BUILDDIR = build
 
 ###############################################################################
 # targets
 
 PTKL = ptkl
+PTKLTEST = $(PTKL)test
 
-TARGETS = $(BINDIR)/$(PTKL)
+TARGETS = $(BINDIR)/$(PTKL) $(BINDIR)/$(PTKLTEST)
+
+###############################################################################
+# sources
+
+PTKL_SRCDIR = $(SRCDIR)/$(PTKL)
+PTKL_SRCS = $(wildcard $(PTKL_SRCDIR)/*.c)
+PTKL_OBJS = $(patsubst $(PTKL_SRCDIR)/%.c,$(OBJDIR)/%.o,$(PTKL_SRCS))
+
+PTKLTEST_SRCDIR = $(SRCDIR)/$(PTKLTEST)
+PTKLTEST_SRCS = $(wildcard $(PTKLTEST_SRCDIR)/*.c)
+PTKLTEST_OBJS = $(patsubst $(PTKLTEST_SRCDIR)/%.c,$(OBJDIR)/%.o,$(PTKLTEST_SRCS))
+
+ADT_SRCDIR = $(SRCDIR)/adt
+ADT_SRCS = $(wildcard $(ADT_SRCDIR)/*.c)
+ADT_OBJS = $(patsubst $(ADT_SRCDIR)/%.c,$(OBJDIR)/%.o,$(ADT_SRCS))
+
+SRC_DIRS = $(PTKL_SRCDIR) $(PTKLTEST_SRCDIR) $(ADT_SRCDIR)
 
 ###############################################################################
 # compiler
@@ -53,12 +66,12 @@ TARGETS = $(BINDIR)/$(PTKL)
 .SUFFIXES: .c .o
 
 vpath %.h include
-vpath %.c $(PTKL_SRCDIR)
+vpath %.c $(SRC_DIRS)
 
 CC = gcc
 
 CFLAGS = -std=c23
-CFLAGS = -g
+CFLAGS += -g
 CFLAGS += -Wall -Werror
 CFLAGS += -Iinclude
 CFLAGS += -MMD -MF $(OBJDIR)/$(@F).d
@@ -70,24 +83,57 @@ LIBS=
 ###############################################################################
 # rules
 
-.phony: all $(BINDIR) $(OBJDIR) clean
+.PHONY: all $(BINDIR) $(OBJDIR) clean cmake-setup cmake-clean cmake-clean-all
 
 all: $(TARGETS)
 
 $(BINDIR):
-	mkdir -p $(BINDIR)
+	@mkdir -p $(BINDIR)
 
 $(OBJDIR):
-	mkdir -p $(OBJDIR)
+	@mkdir -p $(OBJDIR)
 
 clean:
-	rm -rf $(BINDIR) $(OBJDIR)
+	@rm -rf $(BINDIR) $(OBJDIR)
 
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BINDIR)/$(PTKL): $(PTKL_OBJS) | $(BINDIR)
-	$(CC) $(LDFLAGS) $(LDEXPORT) -o $@ $^ $(LIBS)
+	@$(CC) $(LDFLAGS) $(LDEXPORT) -o $@ $^ $(LIBS)
+
+$(BINDIR)/$(PTKLTEST): $(PTKLTEST_OBJS) | $(BINDIR)
+	@$(CC) $(LDFLAGS) $(LDEXPORT) -o $@ $^ $(LIBS)
+
+###############################################################################
+# cmake support
+
+CMAKE = cmake -DCMAKE_C_COMPILER=clang
+
+$(BUILDDIR):
+	@mkdir -p $(BUILDDIR)
+
+
+# Initialize cmake build debug and release directories
+cmake-init: $(BUILDDIR)
+	@$(CMAKE) -DCMAKE_BUILD_TYPE=Debug -S . -B $(BUILDDIR)/debug
+	@$(CMAKE) -DCMAKE_BUILD_TYPE=Release -S . -B $(BUILDDIR)/release
+
+# Removes CMakeCache.txt so CMakeLists.txt can be reloaded in CLion
+cmake-clean:
+	@rm -rf \
+	$(BUILDDIR)/debug/CMakeCache.txt $(BUILDDIR)/debug/bin/* \
+	$(BUILDDIR)/release/CMakeCache.txt $(BUILDDIR)/release/bin/*
+
+# Removes all cmake artifacts (will need to rerun `make cmake-init`)
+cmake-clean-all:
+	@rm -rf \
+	$(BUILDDIR) \
+	CMakeFiles/ \
+	cmake-build-debug/ \
+	cmake-build-release/ \
+	CMakeCache.txt \
+	cmake_install.cmake
 
 ###############################################################################
 -include $(wildcard $(OBJDIR)/*.d)
