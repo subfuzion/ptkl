@@ -23,10 +23,5 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef PTKL_H
-#define PTKL_H
 
-#define FOO 1
-
-#endif
-
+#include "buffer.h"

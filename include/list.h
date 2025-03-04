@@ -23,10 +23,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef PTKL_H
-#define PTKL_H
-
-#define FOO 1
+#ifndef LIST_H
+#define LIST_H
 
 #endif
 

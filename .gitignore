@@ -1,2 +1,9 @@
 bin/
 obj/
+
+# cmake
+CMakeFiles/
+cmake-build-debug
+cmake-build-release
+CMakeCache.txt
+cmake_install.cmake
