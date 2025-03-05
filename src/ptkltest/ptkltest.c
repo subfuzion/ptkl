@@ -26,6 +26,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MUNIT_ENABLE_ASSERT_ALIASES
+#include "munit.h"
+
 int main() {
   printf("ok\n");
   exit(EXIT_SUCCESS);
