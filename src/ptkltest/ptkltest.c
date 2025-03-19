@@ -26,7 +26,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "vector.h"
+
 int main() {
+  Vector v = {};
+  vector_init(&v);
+  vector_add(&v, "foo");
+  vector_add(&v, "bar");
+  vector_add(&v, "baz");
+
+  char *s = vector_get(&v, 1);
+  printf("v[1]: %s\n", s);
+
   printf("ok\n");
   exit(EXIT_SUCCESS);
 }

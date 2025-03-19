@@ -55,7 +55,6 @@ set(ADT_SOURCES
         src/adt/buffer.c
         src/adt/list.c
         src/adt/map.c
-        src/adt/string.c
         src/adt/vector.c
     )
 set(PTKL_LIB_SOURCES
@@ -67,7 +66,6 @@ set(PTKL_SOURCES
 )
 set(PTKLTEST_SOURCES
         src/ptkltest/ptkltest.c
-        ${PTKL_LIB_SOURCES}
 )
 set(CLEAN_ALL_ARTIFACTS
         bin
@@ -92,7 +90,37 @@ target_compile_options(ptkl
         $<$<CONFIG:Release>:-std=c23 -Wall -Werror -O3>
 )
 
-add_executable(ptkltest ${PTKLTEST_SOURCES})
+
+#################################################
+# adt library
+
+add_library(
+        adt
+        STATIC
+        ${ADT_SOURCES}
+)
+target_include_directories(
+        adt
+        PUBLIC
+            include
+)
+
+#################################################
+# ptkltest
+
+add_executable(
+        ptkltest
+        ${PTKLTEST_SOURCES}
+)
+target_include_directories(
+        ptkltest
+        PUBLIC
+            include
+)
+target_link_libraries(
+        ptkltest
+        adt
+)
 target_compile_options(ptkltest
         PUBLIC
         $<$<CONFIG:Debug>:-std=c23 -Wall -Werror -g>

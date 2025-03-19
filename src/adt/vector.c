@@ -23,5 +23,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
+#include <string.h>
 #include "vector.h"
+
+void vector_init(Vector *vector) {
+    vector->capacity = 4;
+    vector->size = 0;
+    vector->items = malloc(sizeof(void *) * vector->capacity);
+}
+
+void vector_add(Vector *vector, void *item) {
+    if (vector->size == vector->capacity) {
+        vector->capacity *= 2;
+        vector->items = realloc(vector->items, sizeof(void *) * vector->capacity);
+    }
+    vector->items[vector->size++] = item;
+}
+
+void vector_set(Vector *vector, size_t index, void *item) {
+    if (index < vector->size) {
+        vector->items[index] = item;
+    }
+}
+
+void *vector_get(Vector *vector, size_t index) {
+    if (index < vector->size) {
+        return vector->items[index];
+    }
+    return NULL;
+}
+
+void vector_delete(Vector *vector, size_t index) {
+    if (index < vector->size) {
+        memmove(&vector->items[index], &vector->items[index + 1], sizeof(void *) * (vector->size - index - 1));
+        vector->size--;
+    }
+}
+
+void vector_free(Vector *vector) {
+    free(vector->items);
+}

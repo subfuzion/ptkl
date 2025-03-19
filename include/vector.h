@@ -26,5 +26,19 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#endif
+#include <stdlib.h>
 
+typedef struct {
+	void **items;
+	size_t capacity;
+	size_t size;
+} Vector;
+
+void vector_init(Vector *vector);
+void vector_add(Vector *vector, void *item);
+void vector_set(Vector *vector, size_t index, void *item);
+void *vector_get(Vector *vector, size_t index);
+void vector_delete(Vector *vector, size_t index);
+void vector_free(Vector *vector);
+
+#endif // VECTOR_H
