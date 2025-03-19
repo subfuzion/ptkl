@@ -23,7 +23,72 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef STRING_H
-#define STRING_H
 
-#endif
+#include "stack.h"
+#include <stdlib.h>
+
+void
+stack_init( stack *s )
+{
+	s->head = nullptr;
+	s->size = 0;
+}
+
+bool
+stack_push( stack *s, void *data )
+{
+	stacknode *new_node = malloc(sizeof(stacknode));
+	if (new_node == nullptr) {
+		return false;
+	}
+	new_node->data = data;
+	new_node->next = s->head;
+	s->head = new_node;
+	s->size++;
+	return true;
+}
+
+void *
+stack_pop( stack *s )
+{
+	void *data = nullptr;
+	stacknode *node = s->head;
+	if (node != nullptr) {
+		s->head = node->next;
+		data = node->data;
+		free(node);
+		s->size--;
+	}
+	return data;
+}
+
+void *
+stack_peek( const stack *s )
+{
+	void *data = nullptr;
+	stacknode *node = s->head;
+	if (node != nullptr) {
+		data = node->data;
+	}
+	return data;
+}
+
+
+void
+stack_free( stack *s )
+{
+	stacknode *current = s->head;
+	while (current != nullptr) {
+		stacknode *next = current->next;
+		free(current);
+		current = next;
+	}
+	s->head = nullptr;
+	s->size = 0;
+}
+
+size_t
+stack_size( stack *s )
+{
+	return s->size;
+}

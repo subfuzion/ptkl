@@ -15,7 +15,6 @@ apps with the following features:
 This work is licensed under the [MIT License]. This license is considered to be
 compatible with the licenses of the forked projects listed below.
 
-
 ## QuickJS
 
 [QuickJS] is an embeddable JavaScript engine created by Fabrice Bellard.
@@ -48,9 +47,15 @@ on character-cell terminals.
 
 
 [MIT License]: https://opensource.org/license/mit
+
 [ncurses]: https://github.com/mirror/ncurses
+
 [ncurses License]: https://github.com/mirror/ncurses/blob/master/COPYING
+
 [QuickJS]: https://github.com/bellard/quickjs
+
 [QuickJS License]: https://github.com/bellard/quickjs/blob/master/LICENSE
+
 [SQLite]: https://github.com/sqlite/sqlite
+
 [SQLite License]: https://github.com/sqlite/sqlite/blob/master/LICENSE.md

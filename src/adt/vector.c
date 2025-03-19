@@ -23,5 +23,70 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
+#include <string.h>
 #include "vector.h"
+
+void
+vector_init( vector *v )
+{
+	v->capacity = 4;
+	v->size = 0;
+	v->items = malloc(sizeof(void *) * v->capacity);
+}
+
+bool
+vector_add( vector *v, void *item )
+{
+	if (v->size == v->capacity) {
+		v->capacity *= 2;
+		void **buf = realloc(v->items, sizeof(void *) * v->capacity);
+		if (buf == nullptr) {
+			return false;
+		}
+		v->items = buf;
+	}
+	v->items[v->size++] = item;
+	return true;
+}
+
+void
+vector_set( const vector *v, const size_t index, void *item )
+{
+	if (index < v->size) {
+		v->items[index] = item;
+	}
+}
+
+void *
+vector_get( const vector *v, const size_t index )
+{
+	if (index < v->size) {
+		return v->items[index];
+	}
+	return nullptr;
+}
+
+bool
+vector_delete( vector *v, const size_t index )
+{
+	if (index < v->size) {
+		memmove(&v->items[index], &v->items[index + 1], sizeof(void *) * (v->size - index - 1));
+		v->size--;
+		return true;
+	}
+	return false;
+}
+
+void
+vector_free( vector *v )
+{
+	v->size = 0;
+	v->capacity = 0;
+	free(v->items);
+}
+
+size_t
+vector_size( const vector *v )
+{
+	return v->size;
+}

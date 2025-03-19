@@ -107,8 +107,10 @@ $(BINDIR)/$(PTKLTEST): $(PTKLTEST_OBJS) | $(BINDIR)
 
 ###############################################################################
 # cmake support
+.PHONY: cmake-init cmake-debug cmake-release cmake-fresh cmake-clean cmake-clean-all
 
-CMAKE = cmake -DCMAKE_C_COMPILER=clang
+CMAKE_INIT = cmake -DCMAKE_C_COMPILER=clang
+CLION_CMAKE_DIRS = cmake-build-debug*/ cmake-build-release*/
 
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)
@@ -116,10 +118,29 @@ $(BUILDDIR):
 
 # Initialize cmake build debug and release directories
 cmake-init: $(BUILDDIR)
-	@$(CMAKE) -DCMAKE_BUILD_TYPE=Debug -S . -B $(BUILDDIR)/debug
-	@$(CMAKE) -DCMAKE_BUILD_TYPE=Release -S . -B $(BUILDDIR)/release
+	@$(CMAKE_INIT) -DCMAKE_BUILD_TYPE=Debug -S . -B $(BUILDDIR)/debug
+	@$(CMAKE_INIT) -DCMAKE_BUILD_TYPE=Release -S . -B $(BUILDDIR)/release
 
-# Removes CMakeCache.txt so CMakeLists.txt can be reloaded in CLion
+cmake-debug:
+	@cmake --build build/debug
+	@echo [ OK ] build/debug/bin/
+
+cmake-test-debug: cmake-debug
+	build/debug/bin/ptkltest
+
+cmake-release:
+	@cmake --build build/release
+	@echo [ OK ] build/release/bin/
+
+cmake-test-release: cmake-release
+	build/release/bin/ptkltest
+
+# Refreshes CMakeCache.txt
+cmake-fresh:
+	@cmake -B $(BUILDDIR)/debug --fresh
+	@cmake -B $(BUILDDIR)/release --fresh
+
+# Removes CMakeCache.txt so CMakeLists.txt can be reloaded in CLion (if using the same build dir)
 cmake-clean:
 	@rm -rf \
 	$(BUILDDIR)/debug/CMakeCache.txt $(BUILDDIR)/debug/bin/* \
@@ -130,10 +151,9 @@ cmake-clean-all:
 	@rm -rf \
 	$(BUILDDIR) \
 	CMakeFiles/ \
-	cmake-build-debug*/ \
-	cmake-build-release*/ \
 	CMakeCache.txt \
-	cmake_install.cmake
+	cmake_install.cmake \
+	$(CLION_CMAKE_DIRS)
 
 ###############################################################################
 -include $(wildcard $(OBJDIR)/*.d)
