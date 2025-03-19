@@ -130,8 +130,8 @@ cmake-clean-all:
 	@rm -rf \
 	$(BUILDDIR) \
 	CMakeFiles/ \
-	cmake-build-debug/ \
-	cmake-build-release/ \
+	cmake-build-debug*/ \
+	cmake-build-release*/ \
 	CMakeCache.txt \
 	cmake_install.cmake
 
