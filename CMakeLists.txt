@@ -45,84 +45,120 @@
 # </project>
 #
 ###############################################################################
+# Using 3.31.3 without issue, but specifying 3.30.x so CLion doesn't complain.
 cmake_minimum_required(VERSION 3.30.0)
 project(ptkl)
 
+# global default include directory path
 include_directories(. include)
 
+# global default binary output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+###############################################################################
+# sources
+
 set(ADT_SOURCES
-        src/adt/buffer.c
-        src/adt/list.c
-        src/adt/map.c
-        src/adt/vector.c
-    )
+	src/adt/buffer.c
+	src/adt/list.c
+	src/adt/map.c
+	src/adt/vector.c
+)
+
 set(PTKL_LIB_SOURCES
-        ${ADT_SOURCE_FILES}
+	${ADT_SOURCE_FILES}
 )
+
 set(PTKL_SOURCES
-        src/ptkl/ptkl.c
-        ${PTKL_LIB_SOURCES}
+	src/ptkl/ptkl.c
 )
+
 set(PTKLTEST_SOURCES
-        src/ptkltest/ptkltest.c
+	src/ptkltest/ptkltest.c
 )
+
 set(CLEAN_ALL_ARTIFACTS
-        bin
-        CMakeFiles
-        cmake-build-debug
-        cmake-build-release
-        CMakeCache.txt
-        cmake_install.cmake
+	bin
+	lib
+	build
+	CMakeFiles
+	CMakeCache.txt
+	cmake_install.cmake
+	# cmake - JetBrains CLion
+	cmake-build-debug*
+	cmake-build-release*
 )
 
 add_custom_target(
-        cleanall
-        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CLEAN_ALL_ARTIFACTS}
-        COMMAND ${CMAKE_COMMAND} -E remove ${CLEAN_ALL_ARTIFACTS}
-        COMMENT "clean all"
+	cleanall
+	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CLEAN_ALL_ARTIFACTS}
+	COMMAND ${CMAKE_COMMAND} -E remove ${CLEAN_ALL_ARTIFACTS}
+	COMMENT "clean all"
 )
 
-add_executable(ptkl ${PTKL_SOURCES})
-target_compile_options(ptkl
-        PUBLIC
-        $<$<CONFIG:Debug>:-std=c23 -Wall -Werror -g>
-        $<$<CONFIG:Release>:-std=c23 -Wall -Werror -O3>
-)
-
-
-#################################################
-# adt library
+###############################################################################
+# libpartikle
 
 add_library(
-        adt
-        STATIC
-        ${ADT_SOURCES}
+	partikle
+	STATIC
+	${ADT_SOURCES}
 )
 target_include_directories(
-        adt
-        PUBLIC
-            include
+	partikle
+	PUBLIC
+		include
+)
+set_target_properties(
+	partikle
+	PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 )
 
-#################################################
+###############################################################################
 # ptkltest
 
 add_executable(
-        ptkltest
-        ${PTKLTEST_SOURCES}
+	ptkltest
+	${PTKLTEST_SOURCES}
 )
 target_include_directories(
-        ptkltest
-        PUBLIC
-            include
+	ptkltest
+	PUBLIC
+		include
 )
 target_link_libraries(
-        ptkltest
-        adt
+	ptkltest
+	partikle
 )
-target_compile_options(ptkltest
-        PUBLIC
-        $<$<CONFIG:Debug>:-std=c23 -Wall -Werror -g>
-        $<$<CONFIG:Release>:-std=c23 -Wall -Werror -O3>
+target_compile_options(
+	ptkltest
+	PUBLIC
+	$<$<CONFIG:Debug>:-std=c23 -Wall -Werror -g>
+	$<$<CONFIG:Release>:-std=c23 -Wall -Werror -O3>
 )
+
+###############################################################################
+# ptkl
+
+add_executable(
+	ptkl
+	${PTKL_SOURCES}
+)
+target_include_directories(
+	ptkl
+	PUBLIC
+		include
+)
+target_link_libraries(
+	ptkl
+	partikle
+)
+target_compile_options(
+	ptkl
+	PUBLIC
+	$<$<CONFIG:Debug>:-std=c23 -Wall -Werror -g>
+	$<$<CONFIG:Release>:-std=c23 -Wall -Werror -O3>
+)
+
