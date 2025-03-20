@@ -109,7 +109,7 @@ add_library(
 target_include_directories(
 	partikle
 	PUBLIC
-		include
+	include
 )
 set_target_properties(
 	partikle
@@ -126,7 +126,7 @@ add_executable(
 target_include_directories(
 	ptkltest
 	PUBLIC
-		include
+	include
 )
 target_link_libraries(
 	ptkltest
@@ -149,7 +149,7 @@ add_executable(
 target_include_directories(
 	ptkl
 	PUBLIC
-		include
+	include
 )
 target_link_libraries(
 	ptkl
