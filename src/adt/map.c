@@ -25,8 +25,12 @@
  */
 
 #include "map.h"
+#include <stdio.h> /* for debugging */
 #include <stdlib.h>
 #include <string.h>
+
+static bool
+map_resize( map *m, size_t new_capacity );
 
 /*
  * map implemented using a hashmap with chaining for simplicity and good
@@ -35,14 +39,12 @@
  */
 
 #define INITIAL_CAPACITY 16
+#define MAX_LOAD_FACTOR 0.75
 
-/* Set a limit for string duplication without being too restrictive */
-#define MAX_KEY_LENGTH (8 * 1024)
-
+/* hash function based on djb2 algorithm */
 unsigned long
 hash( const char *str )
 {
-	/* djb2 algorithm */
 	unsigned long hash = 5381;
 	unsigned c;
 	while ((c = (unsigned char)*str++)) {
@@ -57,22 +59,55 @@ map_init( map *m )
 	m->capacity = INITIAL_CAPACITY;
 	m->size = 0;
 	m->buckets = calloc(m->capacity, sizeof(mapnode *));
+	if (m->buckets == nullptr) {
+		fprintf(stderr, "Error: map_init: failed to allocate memory for buckets\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
 bool
 map_put( map *m, const char *key, void *value )
 {
+	/* check load factor to determine whether resizing is necessary */
+	if ((double)m->size / (double)m->capacity >= MAX_LOAD_FACTOR && !map_resize(m, m->capacity * 2)) {
+		fprintf(stderr, "Error: map_put: unable to resize map\n");
+		goto fail;
+	}
+
 	const unsigned long index = hash(key) % m->capacity;
 	mapnode *new_node = malloc(sizeof(mapnode));
 	if (new_node == nullptr) {
-		return false;
+		fprintf(stderr, "Error: map_put: unable to allocate new mapnode\n");
+		goto fail;
 	}
-	new_node->key = strndup(key, MAX_KEY_LENGTH);
+
+	new_node->key = strdup(key);
+	if (new_node->key == nullptr) {
+		fprintf(stderr, "Error: map_put: unable to allocate new key\n");
+		free(new_node);
+		goto fail;
+	}
+
 	new_node->value = value;
+
+	/* if key already exists, then update the value */
+	mapnode *current = m->buckets[index];
+	while (current != nullptr) {
+		if (strcmp(current->key, key) == 0) {
+			free(new_node->key);
+			free(new_node);
+			current->value = value;
+			return true;
+		}
+		current = current->next;
+	}
+
 	new_node->next = m->buckets[index];
 	m->buckets[index] = new_node;
 	m->size++;
 	return true;
+
+	fail: return false;
 }
 
 void *
@@ -81,7 +116,7 @@ map_get( const map *m, const char *key )
 	const unsigned long index = hash(key) % m->capacity;
 	const mapnode *current = m->buckets[index];
 	while (current != nullptr) {
-		if (strncmp(current->key, key, MAX_KEY_LENGTH) == 0) {
+		if (strcmp(current->key, key) == 0) {
 			return current->value;
 		}
 		current = current->next;
@@ -96,7 +131,7 @@ map_delete( map *m, const char *key )
 	mapnode *current = m->buckets[index];
 	mapnode *previous = nullptr;
 	while (current != nullptr) {
-		if (strncmp(current->key, key, MAX_KEY_LENGTH) == 0) {
+		if (strcmp(current->key, key) == 0) {
 			if (previous == nullptr) {
 				m->buckets[index] = current->next;
 			} else {
@@ -130,10 +165,38 @@ map_free( map *m )
 	free(m->buckets);
 }
 
+/* get number of elements in hashmap */
 size_t
 map_size( const map *m )
 {
 	return m->size;
+}
+
+/* resize hashmap when load factor is exceeded */
+static bool
+map_resize( map *m, const size_t new_capacity )
+{
+	mapnode **new_buckets = calloc(new_capacity, sizeof(mapnode *));
+	if (new_buckets == nullptr) {
+		return false;
+	}
+
+	/* existing elements must be rehashed into new buckets */
+	for (size_t i = 0; i < m->capacity; i++) {
+		mapnode *current = m->buckets[i];
+		while (current != nullptr) {
+			mapnode *next = current->next;
+			const unsigned long new_index = hash(current->key) % new_capacity;
+			current->next = new_buckets[new_index];
+			new_buckets[new_index] = current;
+			current = next;
+		}
+	}
+
+	free(m->buckets);
+	m->buckets = new_buckets;
+	m->capacity = new_capacity;
+	return true;
 }
 
 void

@@ -104,7 +104,7 @@ list_free( list *list )
 }
 
 size_t
-list_size( list *list )
+list_size( const list *list )
 {
 	return list->size;
 }
