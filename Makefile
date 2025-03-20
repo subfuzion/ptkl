@@ -125,9 +125,15 @@ cmake-debug:
 	@cmake --build build/debug
 	@echo [ OK ] build/debug/bin/
 
+cmake-test-debug: cmake-debug
+	build/debug/bin/ptkltest
+
 cmake-release:
 	@cmake --build build/release
 	@echo [ OK ] build/release/bin/
+
+cmake-test-release: cmake-release
+	build/release/bin/ptkltest
 
 # Refreshes CMakeCache.txt
 cmake-fresh:

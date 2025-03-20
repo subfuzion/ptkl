@@ -23,8 +23,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 #ifndef LIST_H
 #define LIST_H
 
-#endif
+#include <stdlib.h>
 
+typedef struct listnode {
+	void *data;
+	struct listnode *next;
+} listnode;
+
+typedef struct {
+	listnode *head;
+	size_t size;
+} list;
+
+void list_init( list *list );
+bool list_add( list *list, void *data );
+void *list_get( const list *list, size_t index );
+bool list_delete( list *list, size_t index );
+void list_free( list *list );
+size_t list_size( list *list );
+
+#endif /* LIST_H */

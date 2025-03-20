@@ -30,15 +30,16 @@
 
 typedef struct {
 	void **items;
-	size_t capacity;
+	unsigned capacity;
 	size_t size;
-} Vector;
+} vector;
 
-void vector_init(Vector *vector);
-void vector_add(Vector *vector, void *item);
-void vector_set(Vector *vector, size_t index, void *item);
-void *vector_get(Vector *vector, size_t index);
-void vector_delete(Vector *vector, size_t index);
-void vector_free(Vector *vector);
+void vector_init( vector *v );
+bool vector_add( vector *v, void *item );
+void vector_set( const vector *v, size_t index, void *item );
+void *vector_get( const vector *v, size_t index );
+bool vector_delete( vector *v, size_t index );
+void vector_free( vector *v );
+size_t vector_size( const vector *v );
 
-#endif // VECTOR_H
+#endif /* VECTOR_H */
