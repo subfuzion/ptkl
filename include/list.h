@@ -44,6 +44,6 @@ bool list_add( list *list, void *data );
 void *list_get( const list *list, size_t index );
 bool list_delete( list *list, size_t index );
 void list_free( list *list );
-size_t list_size( list *list );
+size_t list_size( const list *list );
 
 #endif /* LIST_H */
