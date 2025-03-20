@@ -64,6 +64,7 @@ set(ADT_SOURCES
 	src/adt/buffer.c
 	src/adt/list.c
 	src/adt/map.c
+	src/adt/stack.c
 	src/adt/vector.c
 )
 
@@ -77,6 +78,7 @@ set(PTKL_SOURCES
 
 set(PTKLTEST_SOURCES
 	src/ptkltest/ptkltest.c
+	src/ptkltest/test.h
 )
 
 set(CLEAN_ALL_ARTIFACTS
@@ -113,7 +115,9 @@ target_include_directories(
 )
 set_target_properties(
 	partikle
-	PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+	PROPERTIES
+	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+	C_STANDARD 23
 )
 
 ###############################################################################
@@ -138,6 +142,10 @@ target_compile_options(
 	$<$<CONFIG:Debug>:-std=c23 -Wall -Werror -g>
 	$<$<CONFIG:Release>:-std=c23 -Wall -Werror -O3>
 )
+set_property(
+	TARGET ptkltest
+	PROPERTY C_STANDARD 23
+)
 
 ###############################################################################
 # ptkl
@@ -161,4 +169,7 @@ target_compile_options(
 	$<$<CONFIG:Debug>:-std=c23 -Wall -Werror -g>
 	$<$<CONFIG:Release>:-std=c23 -Wall -Werror -O3>
 )
-
+set_property(
+	TARGET ptkl
+	PROPERTY C_STANDARD 23
+)

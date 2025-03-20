@@ -23,23 +23,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef VECTOR_H
-#define VECTOR_H
+
+#ifndef STACK_H
+#define STACK_H
 
 #include <stdlib.h>
 
+typedef struct stacknode {
+	void *data;
+	struct stacknode *next;
+} stacknode;
+
 typedef struct {
-	void **items;
-	unsigned capacity;
+	stacknode *head;
 	size_t size;
-} vector;
+} stack;
 
-void vector_init( vector *v );
-bool vector_add( vector *v, void *item );
-void vector_set( const vector *v, size_t index, void *item );
-void *vector_get( const vector *v, size_t index );
-bool vector_delete( vector *v, size_t index );
-void vector_free( vector *v );
-size_t vector_size( const vector *v );
+void stack_init( stack *s );
+bool stack_push( stack *s, void *data );
+void *stack_pop( stack *s );
+void *stack_peek( const stack *s );
+void stack_free( stack *s );
+size_t stack_size( stack *s );
 
-#endif /* VECTOR_H */
+#endif /* STACK_H */
