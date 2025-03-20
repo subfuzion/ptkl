@@ -23,70 +23,72 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <string.h>
-#include "vector.h"
+
+#include "stack.h"
+#include <stdlib.h>
 
 void
-vector_init( vector *v )
+stack_init( stack *s )
 {
-	v->capacity = 4;
-	v->size = 0;
-	v->items = malloc(sizeof(void *) * v->capacity);
+	s->head = nullptr;
+	s->size = 0;
 }
 
 bool
-vector_add( vector *v, void *item )
+stack_push( stack *s, void *data )
 {
-	if (v->size == v->capacity) {
-		v->capacity *= 2;
-		void **buf = realloc(v->items, sizeof(void *) * v->capacity);
-		if (buf == nullptr) {
-			return false;
-		}
-		v->items = buf;
+	stacknode *new_node = malloc(sizeof(stacknode));
+	if (new_node == nullptr) {
+		return false;
 	}
-	v->items[v->size++] = item;
+	new_node->data = data;
+	new_node->next = s->head;
+	s->head = new_node;
+	s->size++;
 	return true;
 }
 
-void
-vector_set( const vector *v, const size_t index, void *item )
+void *
+stack_pop( stack *s )
 {
-	if (index < v->size) {
-		v->items[index] = item;
+	void *data = nullptr;
+	stacknode *node = s->head;
+	if (node != nullptr) {
+		s->head = node->next;
+		data = node->data;
+		free(node);
+		s->size--;
 	}
+	return data;
 }
 
 void *
-vector_get( const vector *v, const size_t index )
+stack_peek( const stack *s )
 {
-	if (index < v->size) {
-		return v->items[index];
+	void *data = nullptr;
+	stacknode *node = s->head;
+	if (node != nullptr) {
+		data = node->data;
 	}
-	return nullptr;
+	return data;
 }
 
-bool
-vector_delete( vector *v, const size_t index )
-{
-	if (index < v->size) {
-		memmove(&v->items[index], &v->items[index + 1], sizeof(void *) * (v->size - index - 1));
-		v->size--;
-		return true;
-	}
-	return false;
-}
 
 void
-vector_free( vector *v )
+stack_free( stack *s )
 {
-	v->size = 0;
-	v->capacity = 0;
-	free(v->items);
+	stacknode *current = s->head;
+	while (current != nullptr) {
+		stacknode *next = current->next;
+		free(current);
+		current = next;
+	}
+	s->head = nullptr;
+	s->size = 0;
 }
 
 size_t
-vector_size( const vector *v )
+stack_size( stack *s )
 {
-	return v->size;
+	return s->size;
 }
