@@ -45,9 +45,16 @@
 # </project>
 #
 ###############################################################################
-# Using 3.31.3 without issue, but specifying 3.30.x so CLion doesn't complain.
+# Using 4.0.0-rc4 (because of improvements on macOS integrating with XCode)
+# without any issues, but 3.30.x is specified here so CLion doesn't complain.
 cmake_minimum_required(VERSION 3.30.0)
-project(ptkl)
+
+project(
+	ptkl
+	VERSION 0.0.1
+	LANGUAGES C
+	HOMEPAGE_URL https://github.com/subfuzion/ptkl
+)
 
 # global default include directory path
 include_directories(. include)
