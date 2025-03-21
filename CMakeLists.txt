@@ -12,10 +12,10 @@
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do
 # so, subject to the following conditions:
-
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-
+#
 # THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -45,9 +45,17 @@
 # </project>
 #
 ###############################################################################
-# Using 3.31.3 without issue, but specifying 3.30.x so CLion doesn't complain.
+# Using 4.0.0-rc4 (because of improvements on macOS integrating with XCode)
+# without any issues, but 3.30.x is specified here so CLion doesn't complain.
+
 cmake_minimum_required(VERSION 3.30.0)
-project(ptkl)
+
+project(
+	ptkl
+	VERSION 0.0.1
+	LANGUAGES C
+	HOMEPAGE_URL https://github.com/subfuzion/ptkl
+)
 
 # global default include directory path
 include_directories(. include)
