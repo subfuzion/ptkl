@@ -69,11 +69,11 @@ set(LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # sources
 
 set(ADT_SOURCES
-	src/adt/buffer.c
-	src/adt/list.c
-	src/adt/map.c
-	src/adt/stack.c
-	src/adt/vector.c
+	src/libptkl/adt/buffer.c
+	src/libptkl/adt/list.c
+	src/libptkl/adt/map.c
+	src/libptkl/adt/stack.c
+	src/libptkl/adt/vector.c
 )
 
 set(PTKL_LIB_SOURCES
@@ -85,8 +85,8 @@ set(PTKL_SOURCES
 )
 
 set(PTKLTEST_SOURCES
-	src/test/ptkl/ptkltest.c
-	src/test/ptkl/test.h
+	src/test/libptkl/ptkltest.c
+	src/test/libptkl/test.h
 )
 
 set(CLEAN_ALL_ARTIFACTS
@@ -180,4 +180,16 @@ target_compile_options(
 set_property(
 	TARGET ptkl
 	PROPERTY C_STANDARD 23
+)
+
+###############################################################################
+# test
+
+enable_testing(
+	ptkltest
+)
+
+add_test(
+	NAME ptkltest
+	COMMAND $<TARGET_FILE:ptkltest>
 )
