@@ -5,16 +5,10 @@ project(
 	LANGUAGES C
 )
 
-##############################################################################
-# sources
-
 set(PTKLTEST_SOURCES
 	ptkltest.c
 	test.h
 )
-
-###############################################################################
-# ptkltest
 
 add_executable(
 	ptkltest

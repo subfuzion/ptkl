@@ -5,9 +5,6 @@ project(
 	LANGUAGES C
 )
 
-###############################################################################
-# sources
-
 include_directories(include)
 
 set(
@@ -18,9 +15,6 @@ set(
 	adt/stack.c
 	adt/vector.c
 )
-
-###############################################################################
-# libptkl
 
 add_library(
 	libptkl
