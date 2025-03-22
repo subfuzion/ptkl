@@ -31,16 +31,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define expect_null(expr) do { \
-	if ((expr) != nullptr) { \
-		printf("❌  %s:%d: expected to be null: %s\n", __FILE__, __LINE__, #expr); \
+#define expect_true(expr) do { \
+	if (!(expr)) { \
+		printf("❌   FAIL (%s:%d): expected to be true: %s\n", __FILE__, __LINE__, #expr); \
 		exit(EXIT_FAILURE); \
 	} \
 } while (0)
 
-#define expect_true(expr) do { \
-	if (!(expr)) { \
-		printf("❌   FAIL (%s:%d): expected to be true: %s\n", __FILE__, __LINE__, #expr); \
+#define expect expect_true
+
+#define expect_false(expr) do { \
+	if ((expr)) { \
+		printf("❌   FAIL (%s:%d): expected to be false: %s\n", __FILE__, __LINE__, #expr); \
+		exit(EXIT_FAILURE); \
+	} \
+} while (0)
+
+#define expect_null(expr) do { \
+	if ((expr) != nullptr) { \
+		printf("❌  %s:%d: expected to be null: %s\n", __FILE__, __LINE__, #expr); \
 		exit(EXIT_FAILURE); \
 	} \
 } while (0)
@@ -67,7 +76,7 @@
 } while (0)
 
 #define run_test(test) do { \
-	printf("%s ... ", #test); \
+	printf("▷ %s ... ", #test); \
 	test(); \
 	printf ("✅  OK\n"); \
 } while (0)

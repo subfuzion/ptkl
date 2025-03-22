@@ -85,8 +85,8 @@ set(PTKL_SOURCES
 )
 
 set(PTKLTEST_SOURCES
-	src/ptkltest/ptkltest.c
-	src/ptkltest/test.h
+	src/test/ptkl/ptkltest.c
+	src/test/ptkl/test.h
 )
 
 set(CLEAN_ALL_ARTIFACTS
