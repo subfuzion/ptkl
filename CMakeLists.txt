@@ -111,22 +111,22 @@ add_custom_target(
 ###############################################################################
 # libpartikle
 
-add_library(
-	partikle
-	STATIC
-	${ADT_SOURCES}
-)
-target_include_directories(
-	partikle
-	PUBLIC
-	include
-)
-set_target_properties(
-	partikle
-	PROPERTIES
-	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-	C_STANDARD 23
-)
+#add_library(
+#	partikle
+#	STATIC
+#	${ADT_SOURCES}
+#)
+#target_include_directories(
+#	partikle
+#	PUBLIC
+#	include
+#)
+#set_target_properties(
+#	partikle
+#	PROPERTIES
+#	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+#	C_STANDARD 23
+#)
 
 ###############################################################################
 # ptkltest
@@ -169,7 +169,9 @@ target_include_directories(
 )
 target_link_libraries(
 	ptkl
-	partikle
+#	partikle
+	PRIVATE
+	libptkl
 )
 target_compile_options(
 	ptkl
@@ -193,3 +195,8 @@ add_test(
 	NAME ptkltest
 	COMMAND $<TARGET_FILE:ptkltest>
 )
+
+###############################################################################
+# libptkl
+
+add_subdirectory(src/libptkl)
