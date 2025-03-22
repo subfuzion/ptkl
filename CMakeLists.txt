@@ -57,25 +57,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-set(CLEAN_ALL_ARTIFACTS
-	bin/
-	lib/
-	build/
-	CMakeFiles
-	CMakeCache.txt
-	cmake_install.cmake
-	# CLion cmake directories
-	cmake-build-debug*/
-	cmake-build-release*/
-)
-
-add_custom_target(
-	cleanall
-	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CLEAN_ALL_ARTIFACTS}
-	COMMAND ${CMAKE_COMMAND} -E remove ${CLEAN_ALL_ARTIFACTS}
-	COMMENT "clean all"
-)
-
 enable_testing(
 	test
 )

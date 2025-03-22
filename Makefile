@@ -107,7 +107,7 @@ $(BINDIR)/$(PTKLTEST): $(PTKLTEST_OBJS) | $(BINDIR)
 
 ###############################################################################
 # cmake support
-.PHONY: cmake-init cmake-debug cmake-release cmake-fresh cmake-clean cmake-clean-all
+.PHONY: cmake-init cmake-debug cmake-release cmake-fresh cmake-clean cmake-clean-all cleanall
 
 CMAKE_INIT = cmake -DCMAKE_C_COMPILER=clang
 CLION_CMAKE_DIRS = cmake-build-debug*/ cmake-build-release*/
@@ -155,6 +155,8 @@ cmake-clean-all:
 	CMakeCache.txt \
 	cmake_install.cmake \
 	$(CLION_CMAKE_DIRS)
+
+cleanall: clean cmake-clean-all
 
 ###############################################################################
 -include $(wildcard $(OBJDIR)/*.d)
