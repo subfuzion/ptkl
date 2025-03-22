@@ -8,3 +8,5 @@ cmake_install.cmake
 # cmake - JetBrains CLion
 cmake-build-debug*
 cmake-build-release*
+# ctest
+Testing/
