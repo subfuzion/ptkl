@@ -26,12 +26,8 @@
 
 #include <assert.h>
 
+#include "adt.h"
 #include "test.h"
-
-#include "list.h"
-#include "map.h"
-#include "stack.h"
-#include "vector.h"
 
 void
 test_list()

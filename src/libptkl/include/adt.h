@@ -4,8 +4,6 @@
  * MIT License
  *
  * Copyright (c) 2025 Tony Pujals
- * Copyright (c) 2017-2024 Charlie Gordon
- * Copyright (c) 2017-2024 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,23 +24,7 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
-
-#include "ptkl.h"
+#include "list.h"
 #include "map.h"
-
-int
-main()
-{
-	printf("foo: %d\n", FOO);
-	printf("ok\n");
-
-
-	map m = {};
-	map_init(&m);
-	map_put(&m, "foo", "bar");
-	const auto v = (char *)map_get(&m, "foo");
-	printf("map[foo] = %s\n", v);
-
-	return EXIT_SUCCESS;
-}
+#include "stack.h"
+#include "vector.h"
