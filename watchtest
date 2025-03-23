@@ -1,0 +1,5 @@
+#!/bin/sh
+
+#FILES=$(find . -type f -name Makefile -or -name *.[c,h,txt] -not -path "./src/libqjs/quickjs/*" -not -path "./build/*" -not -path "./cmake-*")
+
+watchexec -c=clear make cmake-test-debug-run

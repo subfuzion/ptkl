@@ -68,7 +68,10 @@ SRC_DIRS = $(PTKL_SRCDIR) $(PTKLTEST_SRCDIR) $(ADT_SRCDIR)
 vpath %.h include
 vpath %.c $(SRC_DIRS)
 
-CC = gcc
+# Ensure default CC if env var isn't set.
+# HOWEVER, the best practice is to invoke make with CC explicitly. Ex:
+# make -D CC=/opt/local/bin/clang
+CC ?= clang
 
 CFLAGS = -std=c23
 CFLAGS += -g
@@ -83,7 +86,7 @@ LIBS=
 ###############################################################################
 # rules
 
-.PHONY: all $(BINDIR) $(OBJDIR) clean cmake-setup cmake-clean cmake-clean-all
+.PHONY: all $(BINDIR) $(OBJDIR) clean format tidy
 
 all: $(TARGETS)
 
@@ -96,6 +99,15 @@ $(OBJDIR):
 clean:
 	@rm -rf $(BINDIR) $(OBJDIR)
 
+format:
+	@clang-format -i $$(find src -type f -name *.[c,h] \
+		-not -path "src/libqjs/quickjs/*" \
+		-not -path "src/libstd/sds/*" \
+		)
+
+tidy:
+	@clang-tidy $$(find src -type f -name *.[c,h] -not -path "src/libqjs/quickjs/*")
+
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -107,20 +119,24 @@ $(BINDIR)/$(PTKLTEST): $(PTKLTEST_OBJS) | $(BINDIR)
 
 ###############################################################################
 # cmake support
-.PHONY: cmake-init cmake-debug cmake-release cmake-fresh cmake-clean cmake-clean-all cleanall
+.PHONY: cmake-init
+.PHONY: cmake-debug cmake-test-debug cmake-test-debug-run
+.PHONY: cmake-release cmake-test-release
+.PHONY: cmake-fresh cmake-clean cmake-clean-all cleanall
+.PHONY: cmake-watch
 
-CMAKE_INIT = cmake -DCMAKE_C_COMPILER=clang
+CMAKE_INIT = cmake -DCMAKE_C_COMPILER=$(CC)
 CLION_CMAKE_DIRS = cmake-build-debug*/ cmake-build-release*/
 
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)
 
-
 # Initialize cmake build debug and release directories
 cmake-init: $(BUILDDIR)
 	@$(CMAKE_INIT) -DCMAKE_BUILD_TYPE=Debug -S . -B $(BUILDDIR)/debug
 	@$(CMAKE_INIT) -DCMAKE_BUILD_TYPE=Release -S . -B $(BUILDDIR)/release
-cmake-debug:
+
+cmake-debug: format
 	@cmake --build $(BUILDDIR)/debug
 	@echo [ OK ] $(BUILDDIR)/debug/bin/
 
@@ -128,7 +144,11 @@ cmake-test-debug: cmake-debug
 	#$(BUILDDIR)/debug/bin/ptkltest
 	@cd $(BUILDDIR)/debug && ctest --verbose
 
-cmake-release:
+cmake-test-debug-run: cmake-debug
+	@clear
+	@$(BUILDDIR)/debug/bin/ptkltest
+
+cmake-release: format
 	@cmake --build build/release
 	@echo [ OK ] build/release/bin/
 
@@ -157,6 +177,9 @@ cmake-clean-all:
 	$(CLION_CMAKE_DIRS)
 
 cleanall: clean cmake-clean-all
+
+cmake-watch:
+	@watchexec -c=clear make cmake-test-debug-run
 
 ###############################################################################
 -include $(wildcard $(OBJDIR)/*.d)

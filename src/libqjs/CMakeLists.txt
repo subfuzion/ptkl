@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.30.0)
 
 project(
 	libqjs
+	VERSION 0.0.1
 	LANGUAGES C
 )
 
@@ -9,7 +10,7 @@ add_definitions(
 	-DCONFIG_VERSION="${PROJECT_VERSION}"
 )
 
-include_directories(include)
+include_directories(include quickjs)
 
 set(
 	QJS_SRC
@@ -19,6 +20,7 @@ set(
 	quickjs/libunicode.c
 	quickjs/quickjs.c
 	quickjs/quickjs-libc.c
+	quickjs/repl.c
 )
 
 add_library(
@@ -37,6 +39,12 @@ target_include_directories(
 	libqjs
 	PUBLIC
 	include
+	quickjs
+)
+target_link_libraries(
+	libqjs
+	PUBLIC
+	libstd
 )
 
 add_executable(
