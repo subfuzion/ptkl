@@ -1,11 +1,8 @@
 /*
- * ptkl - Partikle Runtime
+ * Partikle Compiler
  *
- * MIT License
- *
+ * Copyright (c) 2018-2021 Fabrice Bellard
  * Copyright (c) 2025 Tony Pujals
- * Copyright (c) 2017-2024 Charlie Gordon
- * Copyright (c) 2017-2024 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,44 +22,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+extern int compile(int argc, char **argv);
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "ptkl.h"
-#include "args.h"
-
-void
-help( const int exit_code )
-{
-	printf(
-		"Partikle Runtime (version " CONFIG_VERSION ")\n"
-		"usage: " PTKL " [options] [file [args]]\n"
-		"-e  --eval EXPR            evaluate EXPR\n"
-		"-v  --version              print version\n"
-		"-h  --help                 show this help\n"
-	);
-	exit(exit_code);
-}
-
-void
-version()
-{
-	printf("%s %s\n", PTKL, CONFIG_VERSION);
-	exit(EXIT_SUCCESS);
-}
-
-int
-main( const int argc, char **argv)
-{
-	struct opts opts = {};
-	if (!parse_args(argc, argv, &opts)) {
-		fprintf(stderr, "%s\n", opts.error);
-		help(EXIT_FAILURE);
-	}
-
-	if (opts.cmd.version) version();
-	if (opts.cmd.help) help(EXIT_SUCCESS);
-
-	return EXIT_SUCCESS;
+int main(const int argc, char **argv) {
+	return compile(argc, argv);
 }

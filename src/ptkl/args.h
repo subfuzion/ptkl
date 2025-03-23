@@ -1,11 +1,7 @@
 /*
- * ptkl - Partikle Runtime
- *
- * MIT License
+* ptkl command line args
  *
  * Copyright (c) 2025 Tony Pujals
- * Copyright (c) 2017-2024 Charlie Gordon
- * Copyright (c) 2017-2024 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,43 +22,46 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef ARGS_H
+#define ARGS_H
 
-#include "ptkl.h"
-#include "args.h"
+#include <stddef.h>
 
-void
-help( const int exit_code )
-{
-	printf(
-		"Partikle Runtime (version " CONFIG_VERSION ")\n"
-		"usage: " PTKL " [options] [file [args]]\n"
-		"-e  --eval EXPR            evaluate EXPR\n"
-		"-v  --version              print version\n"
-		"-h  --help                 show this help\n"
-	);
-	exit(exit_code);
-}
+struct cmd_opts {
+	bool help;
+	bool version;
+};
 
-void
-version()
-{
-	printf("%s %s\n", PTKL, CONFIG_VERSION);
-	exit(EXIT_SUCCESS);
-}
+struct runtime_opts {
+	char *expr;
+	int interactive;
+	int dump_memory;
+	int trace_memory;
+	int empty_run;
+	int module;
+	int load_std;
+	int dump_unhandled_promise_rejection;
+	size_t memory_limit;
+	char *include_list[32];
+	int include_count;
+	size_t stack_size;
+	int bignum_ext;
+};
 
-int
-main( const int argc, char **argv)
-{
-	struct opts opts = {};
-	if (!parse_args(argc, argv, &opts)) {
-		fprintf(stderr, "%s\n", opts.error);
-		help(EXIT_FAILURE);
-	}
+struct compiler_opts {};
 
-	if (opts.cmd.version) version();
-	if (opts.cmd.help) help(EXIT_SUCCESS);
+struct opts {
+	int optind;
+	char error[256];
+	struct cmd_opts cmd;
+	struct runtime_opts runtime;
+	struct compiler_opts compiler;
+};
 
-	return EXIT_SUCCESS;
-}
+void help( int exit_code );
+
+void version();
+
+bool parse_args( int argc, char **argv, struct opts *opts );
+
+#endif  /* ARGS_H */

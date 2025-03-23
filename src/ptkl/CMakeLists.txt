@@ -2,12 +2,24 @@ cmake_minimum_required(VERSION 3.30.0)
 
 project(
 	ptkl
+	VERSION 0.0.1
 	LANGUAGES C
+)
+
+add_definitions(
+	-DCONFIG_VERSION="${PROJECT_VERSION}"
+)
+
+add_definitions(
+	-DCONFIG_VERSION="${PROJECT_VERSION}"
+	-DPTKL="ptkl"
 )
 
 set(
 	PTKL_SRC
 	ptkl.c
+	args.c
+	args.h
 )
 
 add_executable(
@@ -23,13 +35,15 @@ set_target_properties(
 target_include_directories(
 	ptkl
 	PUBLIC
-	libptkl
-	libqjs
+	../libptkl/include
+	../libqjs/include
+	../libqjs/quickjs
 )
 target_link_libraries(
 	ptkl
 	PUBLIC
 	libptkl
+	libqjs
 )
 target_compile_options(
 	ptkl

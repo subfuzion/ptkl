@@ -6,8 +6,10 @@ project(
 )
 
 set(PTKLTEST_SOURCES
-	ptkltest.c
 	test.h
+	test_main.c
+	adt_test.c
+	cli_test.c
 )
 
 add_executable(
