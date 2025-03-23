@@ -21,15 +21,15 @@ add_library(
 	STATIC
 	${ADT_SRC}
 )
-target_include_directories(
-	libptkl
-	PUBLIC
-	include
-)
 set_target_properties(
 	libptkl
 	PROPERTIES
 	ARCHIVE_OUTPUT_NAME ptkl
 	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 	C_STANDARD 23
+)
+target_include_directories(
+	libptkl
+	PUBLIC
+	include
 )
