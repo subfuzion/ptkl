@@ -83,7 +83,7 @@ LIBS=
 ###############################################################################
 # rules
 
-.PHONY: all $(BINDIR) $(OBJDIR) clean cmake-setup cmake-clean cmake-clean-all
+.PHONY: all $(BINDIR) $(OBJDIR) clean format tidy
 
 all: $(TARGETS)
 
@@ -96,6 +96,15 @@ $(OBJDIR):
 clean:
 	@rm -rf $(BINDIR) $(OBJDIR)
 
+format:
+	@clang-format -i $$(find src -type f -name *.[c,h] \
+		-not -path "src/libqjs/quickjs/*" \
+		-not -path "src/libstd/sds/*" \
+		)
+
+tidy:
+	@clang-tidy $$(find src -type f -name *.[c,h] -not -path "src/libqjs/quickjs/*")
+
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -107,14 +116,17 @@ $(BINDIR)/$(PTKLTEST): $(PTKLTEST_OBJS) | $(BINDIR)
 
 ###############################################################################
 # cmake support
-.PHONY: cmake-init cmake-debug cmake-release cmake-fresh cmake-clean cmake-clean-all cleanall
+.PHONY: cmake-init
+.PHONY: cmake-debug cmake-test-debug cmake-test-debug-run
+.PHONY: cmake-release cmake-test-release
+.PHONY: cmake-fresh cmake-clean cmake-clean-all cleanall
+.PHONY: cmake-watch
 
 CMAKE_INIT = cmake -DCMAKE_C_COMPILER=clang
 CLION_CMAKE_DIRS = cmake-build-debug*/ cmake-build-release*/
 
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)
-
 
 # Initialize cmake build debug and release directories
 cmake-init: $(BUILDDIR)
@@ -127,6 +139,9 @@ cmake-debug:
 cmake-test-debug: cmake-debug
 	#$(BUILDDIR)/debug/bin/ptkltest
 	@cd $(BUILDDIR)/debug && ctest --verbose
+
+cmake-test-debug-run: cmake-debug
+	@$(BUILDDIR)/debug/bin/ptkltest
 
 cmake-release:
 	@cmake --build build/release
@@ -157,6 +172,9 @@ cmake-clean-all:
 	$(CLION_CMAKE_DIRS)
 
 cleanall: clean cmake-clean-all
+
+cmake-watch:
+	@watchexec -c=clear make cmake-test-debug-run
 
 ###############################################################################
 -include $(wildcard $(OBJDIR)/*.d)

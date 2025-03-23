@@ -1,11 +1,7 @@
 /*
- * ptkl - Partikle Runtime
- *
- * MIT License
+ * ptkl command line args
  *
  * Copyright (c) 2025 Tony Pujals
- * Copyright (c) 2017-2024 Charlie Gordon
- * Copyright (c) 2017-2024 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,54 +22,42 @@
  * THE SOFTWARE.
  */
 
-#include <getopt.h>
-#include <stdio.h>
-#include <unistd.h>
+#ifndef ARGS_H
+#define ARGS_H
 
-#include "args.h"
-#include "dstring.h"
-#include "errors.h"
-#include "ptkl.h"
+#include <stddef.h>
 
+struct cmd_opts {
+	bool help;
+	bool version;
+};
 
+struct runtime_opts {
+	char *expr;
+	int interactive;
+	int dump_memory;
+	int trace_memory;
+	int empty_run;
+	int module;
+	int load_std;
+	int dump_unhandled_promise_rejection;
+	size_t memory_limit;
+	char *include_list[32];
+	int include_count;
+	size_t stack_size;
+	int bignum_ext;
+};
 
-void help ()
-{
-	printf ("Partikle Runtime (version " CONFIG_VERSION ")\n"
-		"usage: " PTKL " [options] [file [args]]\n"
-		"-v  --version              print version\n"
-		"-h  --help                 show this help\n");
-}
+struct compiler_opts {};
 
+struct opts {
+	int optind;
+	char error[256];
+	struct cmd_opts cmd;
+	struct runtime_opts runtime;
+	struct compiler_opts compiler;
+};
 
-void version ()
-{
-	printf ("%s %s\n", PTKL, CONFIG_VERSION);
-}
+bool parse_args (int argc, char **argv, struct opts *opts);
 
-
-int main (const int argc, char **argv)
-{
-	int exit_code;
-	register_signal_panic_handlers();
-
-	auto cli = cli_new();
-	cli_add_command (cli, "version", version);
-	cli_add_command (cli, "help", help);
-
-	struct parse_result result = {};
-	parse_args (argc, argv, cli, &result);
-
-	if (!result.ok) {
-		fprintf (stderr, "error: %s\n", result.error);
-		exit_code = EXIT_FAILURE;
-		goto done;
-	}
-
-	struct command *cmd = result.cmd;
-	if (cmd->fn) cmd->fn();
-	exit_code = EXIT_SUCCESS;
-
-done: cli_free (cli);
-	return exit_code;
-}
+#endif /* ARGS_H */

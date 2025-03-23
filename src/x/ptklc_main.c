@@ -1,8 +1,7 @@
 /*
- * ptkl - Partikle Runtime
+ * Partikle Compiler
  *
- * MIT License
- *
+ * Copyright (c) 2018-2021 Fabrice Bellard
  * Copyright (c) 2025 Tony Pujals
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,11 +22,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+extern int compile (int argc, char **argv);
 
-#ifndef PTKL_H
-#define PTKL_H
-
-#define FOO 1
-
-#endif
-
+int main (const int argc, char **argv)
+{
+	return compile (argc, argv);
+}

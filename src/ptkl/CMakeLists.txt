@@ -2,7 +2,13 @@ cmake_minimum_required(VERSION 3.30.0)
 
 project(
 	ptkl
+	VERSION 0.0.1
 	LANGUAGES C
+)
+
+add_definitions(
+	-DCONFIG_VERSION="${PROJECT_VERSION}"
+	-DPTKL="ptkl"
 )
 
 set(
@@ -20,16 +26,13 @@ set_target_properties(
 	OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 	C_STANDARD 23
 )
-target_include_directories(
-	ptkl
-	PUBLIC
-	libptkl
-	libqjs
-)
 target_link_libraries(
 	ptkl
 	PUBLIC
+	libcli
 	libptkl
+	libqjs
+	libstd
 )
 target_compile_options(
 	ptkl

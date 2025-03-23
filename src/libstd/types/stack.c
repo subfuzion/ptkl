@@ -24,87 +24,65 @@
  * THE SOFTWARE.
  */
 
-#include "list.h"
+#include "stack.h"
 #include <stdlib.h>
 
-void
-list_init( list *list )
+void stack_init (stack *s)
 {
-	list->head = nullptr;
-	list->size = 0;
+	s->head = nullptr;
+	s->size = 0;
 }
 
-bool
-list_add( list *list, void *data )
+bool stack_push (stack *s, void *data)
 {
-	listnode *new_node = malloc(sizeof(listnode));
+	stacknode *new_node = malloc (sizeof (stacknode));
 	if (new_node == nullptr) {
 		return false;
 	}
 	new_node->data = data;
-	listnode *node = list->head;
-	if (node == nullptr) {
-		list->head = new_node;
-		goto success;
-	}
-	while (node->next != nullptr) {
-		node = node->next;
-	}
-	node->next = new_node;
-success: list->size++;
+	new_node->next = s->head;
+	s->head = new_node;
+	s->size++;
 	return true;
 }
 
-void *
-list_get( const list *list, const size_t index )
+void *stack_pop (stack *s)
 {
-	if (index >= list->size) {
-		return nullptr; // Index out of bounds
+	void *data = nullptr;
+	stacknode *node = s->head;
+	if (node != nullptr) {
+		s->head = node->next;
+		data = node->data;
+		free (node);
+		s->size--;
 	}
-	const listnode *current = list->head;
-	for (size_t i = 0; i < index; i++) {
-		current = current->next;
-	}
-	return current->data;
+	return data;
 }
 
-bool
-list_delete( list *list, const size_t index )
+void *stack_peek (const stack *s)
 {
-	if (index >= list->size) {
-		return false;
+	void *data = nullptr;
+	stacknode *node = s->head;
+	if (node != nullptr) {
+		data = node->data;
 	}
-	listnode *current = list->head;
-	listnode *previous = nullptr;
-	for (size_t i = 0; i < index; i++) {
-		previous = current;
-		current = current->next;
-	}
-	if (previous == nullptr) {
-		list->head = current->next;
-	} else {
-		previous->next = current->next;
-	}
-	free(current);
-	list->size--;
-	return true;
+	return data;
 }
 
-void
-list_free( list *list )
+
+void stack_free (stack *s)
 {
-	listnode *current = list->head;
+	stacknode *current = s->head;
 	while (current != nullptr) {
-		listnode *next = current->next;
-		free(current);
+		stacknode *next = current->next;
+		free (current);
 		current = next;
 	}
-	list->head = nullptr;
-	list->size = 0;
+	s->head = nullptr;
+	s->size = 0;
 }
 
-size_t
-list_size( const list *list )
+size_t stack_size (stack *s)
 {
-	return list->size;
+	return s->size;
 }

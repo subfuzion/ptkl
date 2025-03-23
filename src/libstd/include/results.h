@@ -24,26 +24,52 @@
  * THE SOFTWARE.
  */
 
-#ifndef LIST_H
-#define LIST_H
+#ifndef RESULTS_H
+#define RESULTS_H
 
-#include <stdlib.h>
+#include "dstring.h"
 
-typedef struct listnode {
-	void *data;
-	struct listnode *next;
-} listnode;
+typedef struct error {
+	char *message;
+} error;
 
-typedef struct {
-	listnode *head;
-	size_t size;
-} list;
+typedef union result {
+	error *error;
+	bool bool_val;
+	char char_val;
+	dstring dstring_val;
+	int int_val;
+	long long_val;
+	double double_val;
+	void *pointer;
+} result;
 
-void list_init( list *list );
-bool list_add( list *list, void *data );
-void *list_get( const list *list, size_t index );
-bool list_delete( list *list, size_t index );
-void list_free( list *list );
-size_t list_size( const list *list );
+/* result constructors */
 
-#endif /* LIST_H */
+result make_error_result (const char *err);
+result make_bool_result (bool val);
+result make_char_result (char ch);
+result make_dstring_result (const char *string);
+result make_int_result (int n);
+result make_long_result (long n);
+result make_double_result (double val);
+result make_pointer_result (void *pointer);
+
+/* result accessors */
+
+error *result_error (const result res);
+bool result_bool (const result res);
+char result_char (const result res);
+dstring result_dstring (const result res);
+int result_int (const result res);
+long result_long (const result res);
+double result_double (const result res);
+void *result_pointer (const result res);
+
+/* result helpers */
+
+bool succeeded (const result res);
+bool failed (const result res);
+void check (const result res);
+
+#endif // RESULTS_H

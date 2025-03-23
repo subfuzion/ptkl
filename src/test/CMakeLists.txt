@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 3.30.0)
 
 project(
-	test
+	ptkltest
 	LANGUAGES C
 )
 
 set(PTKLTEST_SOURCES
-	ptkltest.c
-	test.h
+	../libstd/include/test.h
+	test_main.c
+	adt_test.c
+	cli_test.c
+	expect_test.c
+	string_test.c
+	utils_test.c
 )
 
 add_executable(
@@ -20,15 +25,12 @@ set_target_properties(
 	OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 	C_STANDARD 23
 )
-target_include_directories(
-	libptkl
-	PUBLIC
-	include
-)
 target_link_libraries(
 	ptkltest
 	PUBLIC
+	libcli
 	libptkl
+	libstd
 )
 target_compile_options(
 	ptkltest

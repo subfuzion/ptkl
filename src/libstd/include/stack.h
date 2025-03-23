@@ -4,8 +4,6 @@
  * MIT License
  *
  * Copyright (c) 2025 Tony Pujals
- * Copyright (c) 2017-2024 Charlie Gordon
- * Copyright (c) 2017-2024 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,54 +24,26 @@
  * THE SOFTWARE.
  */
 
-#include <getopt.h>
-#include <stdio.h>
-#include <unistd.h>
+#ifndef STACK_H
+#define STACK_H
 
-#include "args.h"
-#include "dstring.h"
-#include "errors.h"
-#include "ptkl.h"
+#include <stdlib.h>
 
+typedef struct stacknode {
+	void *data;
+	struct stacknode *next;
+} stacknode;
 
+typedef struct {
+	stacknode *head;
+	size_t size;
+} stack;
 
-void help ()
-{
-	printf ("Partikle Runtime (version " CONFIG_VERSION ")\n"
-		"usage: " PTKL " [options] [file [args]]\n"
-		"-v  --version              print version\n"
-		"-h  --help                 show this help\n");
-}
+void stack_init (stack *s);
+bool stack_push (stack *s, void *data);
+void *stack_pop (stack *s);
+void *stack_peek (const stack *s);
+void stack_free (stack *s);
+size_t stack_size (stack *s);
 
-
-void version ()
-{
-	printf ("%s %s\n", PTKL, CONFIG_VERSION);
-}
-
-
-int main (const int argc, char **argv)
-{
-	int exit_code;
-	register_signal_panic_handlers();
-
-	auto cli = cli_new();
-	cli_add_command (cli, "version", version);
-	cli_add_command (cli, "help", help);
-
-	struct parse_result result = {};
-	parse_args (argc, argv, cli, &result);
-
-	if (!result.ok) {
-		fprintf (stderr, "error: %s\n", result.error);
-		exit_code = EXIT_FAILURE;
-		goto done;
-	}
-
-	struct command *cmd = result.cmd;
-	if (cmd->fn) cmd->fn();
-	exit_code = EXIT_SUCCESS;
-
-done: cli_free (cli);
-	return exit_code;
-}
+#endif /* STACK_H */

@@ -1,11 +1,9 @@
 /*
- * ptkl - Partikle Runtime
+ * Unit tests for Partikle Runtime
  *
  * MIT License
  *
  * Copyright (c) 2025 Tony Pujals
- * Copyright (c) 2017-2024 Charlie Gordon
- * Copyright (c) 2017-2024 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,54 +24,27 @@
  * THE SOFTWARE.
  */
 
-#include <getopt.h>
-#include <stdio.h>
-#include <unistd.h>
-
-#include "args.h"
 #include "dstring.h"
-#include "errors.h"
-#include "ptkl.h"
+#include "test.h"
 
-
-
-void help ()
+void test_dstring ()
 {
-	printf ("Partikle Runtime (version " CONFIG_VERSION ")\n"
-		"usage: " PTKL " [options] [file [args]]\n"
-		"-v  --version              print version\n"
-		"-h  --help                 show this help\n");
+	dstring s = dstring_new ("foo");
+
+	expect_not_null (s);
+	expect_eq_int (1, s->count);
+	expect (3 == dstring_len (s));
+
+	dstring_clear (s);
+	expect (0 == dstring_len (s));
+
+	dstring_release (s);
+	expect_eq_int (0, s->count);
+	expect_null (s->str);
 }
 
 
-void version ()
+void string_test ()
 {
-	printf ("%s %s\n", PTKL, CONFIG_VERSION);
-}
-
-
-int main (const int argc, char **argv)
-{
-	int exit_code;
-	register_signal_panic_handlers();
-
-	auto cli = cli_new();
-	cli_add_command (cli, "version", version);
-	cli_add_command (cli, "help", help);
-
-	struct parse_result result = {};
-	parse_args (argc, argv, cli, &result);
-
-	if (!result.ok) {
-		fprintf (stderr, "error: %s\n", result.error);
-		exit_code = EXIT_FAILURE;
-		goto done;
-	}
-
-	struct command *cmd = result.cmd;
-	if (cmd->fn) cmd->fn();
-	exit_code = EXIT_SUCCESS;
-
-done: cli_free (cli);
-	return exit_code;
+	test (test_dstring);
 }

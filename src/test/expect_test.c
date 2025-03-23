@@ -1,5 +1,5 @@
 /*
- * ptkl - Partikle Runtime
+ * Unit tests for Partikle Runtime
  *
  * MIT License
  *
@@ -24,23 +24,33 @@
  * THE SOFTWARE.
  */
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#include "args.h"
+#include "test.h"
 
-#include <stdlib.h>
+void test_expect ()
+{
+	expect (strlen ("") == 0);
+}
 
-typedef struct {
-	void **items;
-	unsigned capacity;
-	size_t size;
-} vector;
+void test_null ()
+{
+	expect_null (nullptr);
+}
 
-void vector_init( vector *v );
-bool vector_add( vector *v, void *item );
-void vector_set( const vector *v, size_t index, void *item );
-void *vector_get( const vector *v, size_t index );
-bool vector_delete( vector *v, size_t index );
-void vector_free( vector *v );
-size_t vector_size( const vector *v );
+void test_not_null ()
+{
+	expect_not_null ("foo");
+}
 
-#endif /* VECTOR_H */
+void test_empty_str ()
+{
+	expect_empty_str ((char *)nullptr);
+}
+
+void expect_test ()
+{
+	test (test_expect);
+	test (test_null);
+	test (test_not_null);
+	test (test_empty_str);
+}

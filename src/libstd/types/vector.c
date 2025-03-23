@@ -23,32 +23,63 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include "vector.h"
+#include <string.h>
 
-#ifndef MAP_H
-#define MAP_H
+void vector_init (vector *v)
+{
+	v->capacity = 4;
+	v->size = 0;
+	v->items = malloc (sizeof (void *) * v->capacity);
+}
 
-#include <stdlib.h>
+bool vector_add (vector *v, void *item)
+{
+	if (v->size == v->capacity) {
+		v->capacity *= 2;
+		void **buf = realloc (v->items, sizeof (void *) * v->capacity);
+		if (buf == nullptr) {
+			return false;
+		}
+		v->items = buf;
+	}
+	v->items[v->size++] = item;
+	return true;
+}
 
-typedef struct mapnode {
-	char *key;
-	void *value;
-	struct mapnode *next;
-} mapnode;
+void vector_set (const vector *v, const size_t index, void *item)
+{
+	if (index < v->size) {
+		v->items[index] = item;
+	}
+}
 
-typedef struct {
-	mapnode **buckets;
-	size_t capacity;
-	size_t size;
-} map;
+void *vector_get (const vector *v, const size_t index)
+{
+	if (index < v->size) {
+		return v->items[index];
+	}
+	return nullptr;
+}
 
-void map_init( map *m );
-bool map_put( map *m, const char *key, void *value );
-void *map_get( const map *m, const char *key );
-bool map_delete( map *m, const char *key );
-void map_free( map *m );
-size_t map_size( const map *m );
-void map_keys( const map *m, char **keys );
-void map_values( const map *m, void **values );
-void map_items( const map *m, char **keys, void **values );
+bool vector_delete (vector *v, const size_t index)
+{
+	if (index < v->size) {
+		memmove (&v->items[index], &v->items[index + 1], sizeof (void *) * (v->size - index - 1));
+		v->size--;
+		return true;
+	}
+	return false;
+}
 
-#endif /* MAP_H */
+void vector_free (vector *v)
+{
+	v->size = 0;
+	v->capacity = 0;
+	free (v->items);
+}
+
+size_t vector_size (const vector *v)
+{
+	return v->size;
+}

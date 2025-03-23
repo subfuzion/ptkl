@@ -1,8 +1,7 @@
 /*
- * ptkl - Partikle Runtime
+ * Partikle Compiler
  *
- * MIT License
- *
+ * Copyright (c) 2018-2021 Fabrice Bellard
  * Copyright (c) 2025 Tony Pujals
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,27 +22,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+extern int compile (int argc, char **argv);
 
-#ifndef STACK_H
-#define STACK_H
-
-#include <stdlib.h>
-
-typedef struct stacknode {
-	void *data;
-	struct stacknode *next;
-} stacknode;
-
-typedef struct {
-	stacknode *head;
-	size_t size;
-} stack;
-
-void stack_init( stack *s );
-bool stack_push( stack *s, void *data );
-void *stack_pop( stack *s );
-void *stack_peek( const stack *s );
-void stack_free( stack *s );
-size_t stack_size( stack *s );
-
-#endif /* STACK_H */
+int main (const int argc, char **argv)
+{
+	return compile (argc, argv);
+}
