@@ -14,6 +14,12 @@ add_executable(
 	ptkltest
 	${PTKLTEST_SOURCES}
 )
+set_target_properties(
+	ptkltest
+	PROPERTIES
+	OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+	C_STANDARD 23
+)
 target_include_directories(
 	libptkl
 	PUBLIC
@@ -21,16 +27,12 @@ target_include_directories(
 )
 target_link_libraries(
 	ptkltest
-	PRIVATE
+	PUBLIC
 	libptkl
 )
 target_compile_options(
 	ptkltest
 	PUBLIC
-	$<$<CONFIG:Debug>:-std=c23 -Wall -Werror -g>
-	$<$<CONFIG:Release>:-std=c23 -Wall -Werror -O3>
-)
-set_property(
-	TARGET ptkltest
-	PROPERTY C_STANDARD 23
+	$<$<CONFIG:Debug>:-Wall -Werror -g>
+	$<$<CONFIG:Release>:-Wall -Werror -O3>
 )

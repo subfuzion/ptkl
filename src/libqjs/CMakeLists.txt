@@ -5,6 +5,10 @@ project(
 	LANGUAGES C
 )
 
+add_definitions(
+	-DCONFIG_VERSION="${PROJECT_VERSION}"
+)
+
 include_directories(include)
 
 set(
@@ -17,8 +21,22 @@ set(
 	quickjs/quickjs-libc.c
 )
 
-add_definitions(
-	-DCONFIG_VERSION="${PROJECT_VERSION}"
+add_library(
+	libqjs
+	STATIC
+	${QJS_SRC}
+)
+set_target_properties(
+	libqjs
+	PROPERTIES
+	ARCHIVE_OUTPUT_NAME qjs
+	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+	C_STANDARD 23
+)
+target_include_directories(
+	libqjs
+	PUBLIC
+	include
 )
 
 add_executable(
@@ -27,28 +45,21 @@ add_executable(
 	quickjs/repl.c
 	${QJS_SRC}
 )
+target_link_libraries(
+	qjs
+	PUBLIC
+	libqjs
+)
+target_compile_options(
+	qjs
+	PUBLIC
+	$<$<CONFIG:Debug>:-Wall -Werror -g>
+	$<$<CONFIG:Release>:-Wall -Werror -O3>
+)
 set_target_properties(
 	qjs
 	PROPERTIES
 	OUTPUT_NAME qjs
 	OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-	C_STANDARD 23
-)
-
-add_library(
-	libqjs
-	STATIC
-	${QJS_SRC}
-)
-target_include_directories(
-	libqjs
-	PUBLIC
-	include
-)
-set_target_properties(
-	libqjs
-	PROPERTIES
-	ARCHIVE_OUTPUT_NAME qjs
-	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 	C_STANDARD 23
 )
