@@ -1,39 +1,49 @@
 cmake_minimum_required(VERSION 3.30.0)
 
 project(
-	libptkl
+	libcli
 	VERSION 0.0.1
 	LANGUAGES C
+)
+
+add_definitions(
+	-DCONFIG_VERSION="${PROJECT_VERSION}"
+	-DPTKL="ptkl"
 )
 
 include_directories(include)
 
 set(
-	SRC
-	src/libmain.c
+	CLI_SRC
+	src/command.c
 )
 
 add_library(
-	libptkl
+	libcli
 	STATIC
-	${SRC}
+	${CLI_SRC}
 )
-
 set_target_properties(
-	libptkl
+	libcli
 	PROPERTIES
-	ARCHIVE_OUTPUT_NAME ptkl
+	ARCHIVE_OUTPUT_NAME cli
 	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 	C_STANDARD 23
 )
 target_include_directories(
-	libptkl
+	libcli
 	PUBLIC
 	include
 )
 target_link_libraries(
-	libptkl
+	libcli
 	PUBLIC
-	libqjs
+	libptkl
 	libstd
+)
+target_compile_options(
+	libcli
+	PUBLIC
+	$<$<CONFIG:Debug>:-Wall -Werror -g>
+	$<$<CONFIG:Release>:-Wall -Werror -O3>
 )
