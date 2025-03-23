@@ -9,7 +9,7 @@ add_definitions(
 	-DCONFIG_VERSION="${PROJECT_VERSION}"
 )
 
-include_directories(include)
+include_directories(include quickjs)
 
 set(
 	QJS_SRC
@@ -37,6 +37,7 @@ target_include_directories(
 	libqjs
 	PUBLIC
 	include
+	quickjs
 )
 
 add_executable(
