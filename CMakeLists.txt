@@ -50,18 +50,20 @@ project(
 	HOMEPAGE_URL https://github.com/subfuzion/ptkl
 )
 
-include_directories(include)
-add_subdirectory(src)
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-enable_testing(
-	test
-)
+enable_testing(test)
+add_test(NAME test COMMAND $<TARGET_FILE:ptkltest>)
 
-add_test(
-	NAME test
-	COMMAND $<TARGET_FILE:ptkltest>
-)
+include_directories(include)
+add_subdirectory(src)
+
+###############################################################################
+# Defaults
+
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+
