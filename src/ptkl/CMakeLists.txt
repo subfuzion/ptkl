@@ -14,10 +14,17 @@ add_executable(
 	ptkl
 	${PTKL_SRC}
 )
+set_target_properties(
+	ptkl
+	PROPERTIES
+	OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+	C_STANDARD 23
+)
 target_include_directories(
 	ptkl
 	PUBLIC
 	libptkl
+	libqjs
 )
 target_link_libraries(
 	ptkl
@@ -27,12 +34,6 @@ target_link_libraries(
 target_compile_options(
 	ptkl
 	PUBLIC
-	$<$<CONFIG:Debug>:-std=c23 -Wall -Werror -g>
-	$<$<CONFIG:Release>:-std=c23 -Wall -Werror -O3>
-)
-set_target_properties(
-	ptkl
-	PROPERTIES
-	OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-	C_STANDARD 23
+	$<$<CONFIG:Debug>:-Wall -Werror -g>
+	$<$<CONFIG:Release>:-Wall -Werror -O3>
 )
