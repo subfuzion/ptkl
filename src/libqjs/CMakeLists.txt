@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.30.0)
 
 project(
 	libqjs
+	VERSION 0.0.1
 	LANGUAGES C
 )
 
@@ -19,6 +20,7 @@ set(
 	quickjs/libunicode.c
 	quickjs/quickjs.c
 	quickjs/quickjs-libc.c
+	quickjs/repl.c
 )
 
 add_library(

@@ -1,11 +1,9 @@
 /*
- * ptkl - Partikle Runtime
+ * Unit tests for Partikle Runtime
  *
  * MIT License
  *
  * Copyright (c) 2025 Tony Pujals
- * Copyright (c) 2017-2024 Charlie Gordon
- * Copyright (c) 2017-2024 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,43 +24,27 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <assert.h>
 
-#include "ptkl.h"
-#include "args.h"
+#include "test.h"
 
-void
-help( const int exit_code )
-{
-	printf(
-		"Partikle Runtime (version " CONFIG_VERSION ")\n"
-		"usage: " PTKL " [options] [file [args]]\n"
-		"-e  --eval EXPR            evaluate EXPR\n"
-		"-v  --version              print version\n"
-		"-h  --help                 show this help\n"
-	);
-	exit(exit_code);
-}
-
-void
-version()
-{
-	printf("%s %s\n", PTKL, CONFIG_VERSION);
-	exit(EXIT_SUCCESS);
-}
+extern void adt_test();
+extern void cli_test();
 
 int
-main( const int argc, char **argv)
+main()
 {
-	struct opts opts = {};
-	if (!parse_args(argc, argv, &opts)) {
-		fprintf(stderr, "%s\n", opts.error);
-		help(EXIT_FAILURE);
-	}
+	printf("Running tests\n\n");
 
-	if (opts.cmd.version) version();
-	if (opts.cmd.help) help(EXIT_SUCCESS);
+	printf("▶︎ ADT tests\n");
+	adt_test();
+	printf("\n");
 
+	printf("▶︎ CLI tests\n");
+	cli_test();
+	printf("\n");
+
+
+	printf("All tests passed.\n");
 	return EXIT_SUCCESS;
 }

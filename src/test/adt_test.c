@@ -184,16 +184,11 @@ test_map()
 }
 
 
-int
-main()
+void
+adt_test()
 {
-	printf("RUNNING TESTS...\n");
-
 	run_test(test_list);
 	run_test(test_stack);
 	run_test(test_vector);
 	run_test(test_map);
-
-	printf("[100%%] All tests passed.\n");
-	return EXIT_SUCCESS;
 }

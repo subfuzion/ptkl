@@ -1,11 +1,9 @@
 /*
- * ptkl - Partikle Runtime
+ * Unit tests for Partikle Runtime
  *
  * MIT License
  *
  * Copyright (c) 2025 Tony Pujals
- * Copyright (c) 2017-2024 Charlie Gordon
- * Copyright (c) 2017-2024 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,43 +24,41 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <assert.h>
 
-#include "ptkl.h"
-#include "args.h"
+#include "adt.h"
+#include "test.h"
 
 void
-help( const int exit_code )
+test_args()
 {
-	printf(
-		"Partikle Runtime (version " CONFIG_VERSION ")\n"
-		"usage: " PTKL " [options] [file [args]]\n"
-		"-e  --eval EXPR            evaluate EXPR\n"
-		"-v  --version              print version\n"
-		"-h  --help                 show this help\n"
-	);
-	exit(exit_code);
+	list l;
+	list_init(&l);
+
+	/* Test list_add and list_get */
+	expect(list_add(&l, "foo"));
+	expect(list_add(&l, "bar"));
+	expect(list_add(&l, "baz"));
+
+	expect_eq_str("foo", (char *)list_get(&l, 0));
+	expect_eq_str("bar", (char *)list_get(&l, 1));
+	expect_eq_str("baz", (char *)list_get(&l, 2));
+
+	/* Test list_size */
+	expect_eq_int(3, list_size(&l));
+
+	/* Test list_delete */
+	expect(list_delete(&l, 2));
+	expect_null(list_get(&l, 2));
+	expect_eq_int(2, list_size(&l));
+
+	/* Test list_free */
+	list_free(&l);
+	expect_eq_int(0, list_size(&l));
 }
 
 void
-version()
+cli_test()
 {
-	printf("%s %s\n", PTKL, CONFIG_VERSION);
-	exit(EXIT_SUCCESS);
-}
-
-int
-main( const int argc, char **argv)
-{
-	struct opts opts = {};
-	if (!parse_args(argc, argv, &opts)) {
-		fprintf(stderr, "%s\n", opts.error);
-		help(EXIT_FAILURE);
-	}
-
-	if (opts.cmd.version) version();
-	if (opts.cmd.help) help(EXIT_SUCCESS);
-
-	return EXIT_SUCCESS;
+	run_test(test_args);
 }

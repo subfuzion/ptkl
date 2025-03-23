@@ -42,35 +42,40 @@
 
 #define expect_false(expr) do { \
 	if ((expr)) { \
-		printf("❌   FAIL (%s:%d): expected to be false: %s\n", __FILE__, __LINE__, #expr); \
+		printf("\r\x1b[K"); \
+		printf("❌ %s:%d: expected to be false: %s\n", __FILE__, __LINE__, #expr); \
 		exit(EXIT_FAILURE); \
 	} \
 } while (0)
 
 #define expect_null(expr) do { \
 	if ((expr) != nullptr) { \
-		printf("❌  %s:%d: expected to be null: %s\n", __FILE__, __LINE__, #expr); \
+		printf("\r\x1b[K"); \
+		printf("❌ %s: expected to be null: %s (%s:%d)\n", __func__, #expr, __FILE__, __LINE__); \
 		exit(EXIT_FAILURE); \
 	} \
 } while (0)
 
 #define expect_eq(expected, actual) do { \
 	if ((expected) != (actual)) { \
-		printf ("❌  FAIL (%s:%d): expected %d, got %d\n", __FILE__, __LINE__, (expected), (actual)); \
+		printf("\r\x1b[K"); \
+		printf ("❌ %s: expected %d, got %d (%s:%d)\n", __func__, (expected), (actual), __FILE__, __LINE__); \
 		exit(EXIT_FAILURE); \
 	} \
 } while (0)
 
 #define expect_eq_int(expected, actual) do { \
 	if ((int)(expected) != (int)(actual)) { \
-		printf ("❌  FAIL (%s:%d): expected %d, got %d\n", __FILE__, __LINE__, (int)(expected), (int)(actual)); \
+		printf("\r\x1b[K"); \
+		printf ("❌ %s: expected %d, got %d (%s:%d)\n", __func__, (int)(expected), (int)(actual), __FILE__, __LINE__); \
 		exit(EXIT_FAILURE); \
 	} \
 } while (0)
 
 #define expect_eq_str(expected, actual) do { \
 	if (strcmp((expected), (actual)) != 0) { \
-		printf ("❌  FAIL (%s:%d): expected %s, got %s\n", __FILE__, __LINE__, (expected), (actual)); \
+		printf("\r\x1b[K"); \
+		printf ("❌ %s: expected %s, got %s (%s:%d)\n", __func__, (expected), (actual), __FILE__, __LINE__); \
 		exit(EXIT_FAILURE); \
 	} \
 } while (0)
@@ -78,7 +83,8 @@
 #define run_test(test) do { \
 	printf("▷ %s ... ", #test); \
 	test(); \
-	printf ("✅  OK\n"); \
+	printf("\r\x1b[K"); \
+	printf ("✅%s\n", #test); \
 } while (0)
 
 #endif /* TEST_H */
