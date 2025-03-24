@@ -69,7 +69,7 @@ parse_args( const int argc, char **argv, struct opts *opts )
 			if (opt) arg++;
 			if (opt == 'h' || opt == '?' || !
 				strcmp(longopt, "help")) {
-				help(0);
+				opts->cmd.help = true;
 				continue;
 			}
 			if (opt == 'e' || !strcmp(longopt, "eval")) {
