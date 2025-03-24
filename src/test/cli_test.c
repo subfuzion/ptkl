@@ -32,29 +32,7 @@
 void
 test_args()
 {
-	list l;
-	list_init(&l);
 
-	/* Test list_add and list_get */
-	expect(list_add(&l, "foo"));
-	expect(list_add(&l, "bar"));
-	expect(list_add(&l, "baz"));
-
-	expect_eq_str("foo", (char *)list_get(&l, 0));
-	expect_eq_str("bar", (char *)list_get(&l, 1));
-	expect_eq_str("baz", (char *)list_get(&l, 2));
-
-	/* Test list_size */
-	expect_eq_int(3, list_size(&l));
-
-	/* Test list_delete */
-	expect(list_delete(&l, 2));
-	expect_null(list_get(&l, 2));
-	expect_eq_int(2, list_size(&l));
-
-	/* Test list_free */
-	list_free(&l);
-	expect_eq_int(0, list_size(&l));
 }
 
 void

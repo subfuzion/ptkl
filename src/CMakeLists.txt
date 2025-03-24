@@ -1,3 +1,4 @@
+add_subdirectory(libcli)
 add_subdirectory(libptkl)
 add_subdirectory(libqjs)
 add_subdirectory(ptkl)

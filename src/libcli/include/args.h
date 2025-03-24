@@ -58,10 +58,6 @@ struct opts {
 	struct compiler_opts compiler;
 };
 
-void help( int exit_code );
-
-void version();
-
 bool parse_args( int argc, char **argv, struct opts *opts );
 
 #endif  /* ARGS_H */

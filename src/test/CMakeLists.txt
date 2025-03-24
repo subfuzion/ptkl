@@ -22,11 +22,6 @@ set_target_properties(
 	OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 	C_STANDARD 23
 )
-target_include_directories(
-	libptkl
-	PUBLIC
-	include
-)
 target_link_libraries(
 	ptkltest
 	PUBLIC
