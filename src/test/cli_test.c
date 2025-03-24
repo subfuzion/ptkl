@@ -24,9 +24,7 @@
  * THE SOFTWARE.
  */
 
-#include <assert.h>
-
-#include "adt.h"
+#include "args.h"
 #include "test.h"
 
 void

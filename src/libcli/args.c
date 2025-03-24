@@ -176,3 +176,4 @@ parse_args( const int argc, char **argv, struct opts *opts )
 		opts->optind = optind;
 		return strnlen(opts->error, 256) == 0;
 }
+

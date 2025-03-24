@@ -25,6 +25,7 @@ set_target_properties(
 target_link_libraries(
 	ptkltest
 	PUBLIC
+	libcli
 	libptkl
 )
 target_compile_options(
