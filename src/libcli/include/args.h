@@ -76,8 +76,8 @@ struct cli {
 	map *options;
 };
 
-void init_cli(struct cli *cli);
-bool add_option(struct cli *cli, struct ptkl_option_spec spec);
+void init_cli( struct cli *cli );
+bool add_option( struct cli *cli, struct ptkl_option_spec spec );
 
 bool parse_option( struct ptkl_option *opt );
 
