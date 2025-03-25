@@ -83,7 +83,7 @@ LIBS=
 ###############################################################################
 # rules
 
-.PHONY: all $(BINDIR) $(OBJDIR) clean format cmake-setup cmake-clean cmake-clean-all
+.PHONY: all $(BINDIR) $(OBJDIR) clean format tidy
 
 all: $(TARGETS)
 
@@ -98,6 +98,9 @@ clean:
 
 format:
 	@clang-format -i $$(find src -type f -name *.[c,h] -not -path "src/libqjs/quickjs/*")
+
+tidy:
+	@clang-tidy $$(find src -type f -name *.[c,h] -not -path "src/libqjs/quickjs/*")
 
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
 	@$(CC) $(CFLAGS) -c -o $@ $<
