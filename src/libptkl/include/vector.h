@@ -35,12 +35,12 @@ typedef struct {
 	size_t size;
 } vector;
 
-void vector_init( vector *v );
-bool vector_add( vector *v, void *item );
-void vector_set( const vector *v, size_t index, void *item );
-void *vector_get( const vector *v, size_t index );
-bool vector_delete( vector *v, size_t index );
-void vector_free( vector *v );
-size_t vector_size( const vector *v );
+void vector_init (vector *v);
+bool vector_add (vector *v, void *item);
+void vector_set (const vector *v, size_t index, void *item);
+void *vector_get (const vector *v, size_t index);
+bool vector_delete (vector *v, size_t index);
+void vector_free (vector *v);
+size_t vector_size (const vector *v);
 
 #endif /* VECTOR_H */

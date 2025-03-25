@@ -26,11 +26,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "ptklargs.h"
 #include "cutils.h"
+#include "ptklargs.h"
 
-void help(const int exit_code) {
-	printf("Partikle Runtime (version " CONFIG_VERSION ")\n"
+void
+help (const int exit_code)
+{
+	printf ("Partikle Runtime (version " CONFIG_VERSION ")\n"
 		"usage: " PTKL " [options] [file [args]]\n"
 		"-e  --eval EXPR            evaluate EXPR\n"
 		"-v  --version              print version\n"
@@ -51,16 +53,20 @@ void help(const int exit_code) {
 		//           "-q  --quit                 just instantiate the interpreter and quit\n"
 		//
 	);
-	exit(exit_code);
+	exit (exit_code);
 }
 
-void version() {
-	printf("%s %s\n", PTKL, CONFIG_VERSION);
-	exit(0);
+void
+version ()
+{
+	printf ("%s %s\n", PTKL, CONFIG_VERSION);
+	exit (0);
 }
 
 // Don't use getopt so we can pass command line to scripts
-int parse_runtime_args(const int argc, char **argv, struct runtime_opts *opts) {
+int
+parse_runtime_args (const int argc, char **argv, struct runtime_opts *opts)
+{
 	opts->expr = nullptr;
 	opts->interactive = 0;
 	opts->dump_memory = 0;
@@ -80,26 +86,22 @@ int parse_runtime_args(const int argc, char **argv, struct runtime_opts *opts) {
 		char *arg = argv[optind] + 1;
 		const char *longopt = "";
 		// A single - is not an option, it also stops argument scanning
-		if (!*arg)
-			break;
+		if (!*arg) break;
 		optind++;
 		if (*arg == '-') {
 			longopt = arg + 1;
-			arg += strlen(arg);
+			arg += strlen (arg);
 			// -- stops argument scanning
-			if (!*longopt)
-				break;
+			if (!*longopt) break;
 		}
 		for (; *arg || *longopt; longopt = "") {
 			const char opt = *arg;
-			if (opt)
-				arg++;
-			if (opt == 'h' || opt == '?' || !
-			    strcmp(longopt, "help")) {
-				help(0);
+			if (opt) arg++;
+			if (opt == 'h' || opt == '?' || !strcmp (longopt, "help")) {
+				help (0);
 				continue;
 			}
-			if (opt == 'e' || !strcmp(longopt, "eval")) {
+			if (opt == 'e' || !strcmp (longopt, "eval")) {
 				if (*arg) {
 					opts->expr = arg;
 					break;
@@ -108,91 +110,78 @@ int parse_runtime_args(const int argc, char **argv, struct runtime_opts *opts) {
 					opts->expr = argv[optind++];
 					break;
 				}
-				fprintf(
-					stderr,
-					"%s: missing expression for -e\n",
-					PTKL);
-				exit(1);
+				fprintf (stderr, "%s: missing expression for -e\n", PTKL);
+				exit (1);
 			}
-			if (opt == 'I' || !strcmp(longopt, "include")) {
+			if (opt == 'I' || !strcmp (longopt, "include")) {
 				if (optind >= argc) {
-					fprintf(stderr, "expecting filename");
-					exit(1);
+					fprintf (stderr, "expecting filename");
+					exit (1);
 				}
-				if (opts->include_count >= countof(
-					    opts->include_list)) {
-					fprintf(
-						stderr,
-						"too many included files");
-					exit(1);
+				if (opts->include_count >= countof (opts->include_list)) {
+					fprintf (stderr, "too many included files");
+					exit (1);
 				}
-				opts->include_list[opts->include_count++] = argv
-						[optind++];
+				opts->include_list[opts->include_count++] = argv[optind++];
 				continue;
 			}
-			if (opt == 'm' || !strcmp(longopt, "module")) {
+			if (opt == 'm' || !strcmp (longopt, "module")) {
 				opts->module = 1;
 				continue;
 			}
-			if (!strcmp(longopt, "script")) {
+			if (!strcmp (longopt, "script")) {
 				opts->module = 0;
 				continue;
 			}
-			if (opt == 'd' || !strcmp(longopt, "dump")) {
+			if (opt == 'd' || !strcmp (longopt, "dump")) {
 				opts->dump_memory++;
 				continue;
 			}
-			if (opt == 'T' || !strcmp(longopt, "trace")) {
+			if (opt == 'T' || !strcmp (longopt, "trace")) {
 				opts->trace_memory++;
 				continue;
 			}
-			if (!strcmp(longopt, "std")) {
+			if (!strcmp (longopt, "std")) {
 				opts->load_std = 1;
 				continue;
 			}
-			if (!strcmp(longopt, "unhandled-rejection")) {
+			if (!strcmp (longopt, "unhandled-rejection")) {
 				opts->dump_unhandled_promise_rejection = 1;
 				continue;
 			}
-			if (!strcmp(longopt, "bignum")) {
+			if (!strcmp (longopt, "bignum")) {
 				opts->bignum_ext = 1;
 				continue;
 			}
-			if (opt == 'q' || !strcmp(longopt, "quit")) {
+			if (opt == 'q' || !strcmp (longopt, "quit")) {
 				opts->empty_run++;
 				continue;
 			}
-			if (!strcmp(longopt, "memory-limit")) {
+			if (!strcmp (longopt, "memory-limit")) {
 				if (optind >= argc) {
-					fprintf(
-						stderr,
-						"expecting memory limit");
-					exit(1);
+					fprintf (stderr, "expecting memory limit");
+					exit (1);
 				}
-				opts->memory_limit = (size_t) strtod(
-					argv[optind++], nullptr);
+				opts->memory_limit = (size_t)strtod (argv[optind++], nullptr);
 				continue;
 			}
-			if (!strcmp(longopt, "stack-size")) {
+			if (!strcmp (longopt, "stack-size")) {
 				if (optind >= argc) {
-					fprintf(stderr, "expecting stack size");
-					exit(1);
+					fprintf (stderr, "expecting stack size");
+					exit (1);
 				}
-				opts->stack_size = (size_t) strtod(
-					argv[optind++], nullptr);
+				opts->stack_size = (size_t)strtod (argv[optind++], nullptr);
 				continue;
 			}
-			if (opt == 'v' || !strcmp(longopt, "version")) {
+			if (opt == 'v' || !strcmp (longopt, "version")) {
 				version();
 			}
 			if (opt) {
-				fprintf(stderr, "%s: unknown option '-%c'\n",
-					PTKL, opt);
+				fprintf (stderr, "%s: unknown option '-%c'\n", PTKL, opt);
 			} else {
-				fprintf(stderr, "%s: unknown option '--%s'\n",
-					PTKL, longopt);
+				fprintf (stderr, "%s: unknown option '--%s'\n", PTKL, longopt);
 			}
-			help(1);
+			help (1);
 		}
 	}
 	return optind;

@@ -28,16 +28,16 @@
 #include <stdlib.h>
 
 void
-stack_init( stack *s )
+stack_init (stack *s)
 {
 	s->head = nullptr;
 	s->size = 0;
 }
 
 bool
-stack_push( stack *s, void *data )
+stack_push (stack *s, void *data)
 {
-	stacknode *new_node = malloc(sizeof(stacknode));
+	stacknode *new_node = malloc (sizeof (stacknode));
 	if (new_node == nullptr) {
 		return false;
 	}
@@ -49,21 +49,21 @@ stack_push( stack *s, void *data )
 }
 
 void *
-stack_pop( stack *s )
+stack_pop (stack *s)
 {
 	void *data = nullptr;
 	stacknode *node = s->head;
 	if (node != nullptr) {
 		s->head = node->next;
 		data = node->data;
-		free(node);
+		free (node);
 		s->size--;
 	}
 	return data;
 }
 
 void *
-stack_peek( const stack *s )
+stack_peek (const stack *s)
 {
 	void *data = nullptr;
 	stacknode *node = s->head;
@@ -75,12 +75,12 @@ stack_peek( const stack *s )
 
 
 void
-stack_free( stack *s )
+stack_free (stack *s)
 {
 	stacknode *current = s->head;
 	while (current != nullptr) {
 		stacknode *next = current->next;
-		free(current);
+		free (current);
 		current = next;
 	}
 	s->head = nullptr;
@@ -88,7 +88,7 @@ stack_free( stack *s )
 }
 
 size_t
-stack_size( stack *s )
+stack_size (stack *s)
 {
 	return s->size;
 }

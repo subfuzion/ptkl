@@ -27,19 +27,19 @@
 #include <string.h>
 
 void
-vector_init( vector *v )
+vector_init (vector *v)
 {
 	v->capacity = 4;
 	v->size = 0;
-	v->items = malloc(sizeof(void *) * v->capacity);
+	v->items = malloc (sizeof (void *) * v->capacity);
 }
 
 bool
-vector_add( vector *v, void *item )
+vector_add (vector *v, void *item)
 {
 	if (v->size == v->capacity) {
 		v->capacity *= 2;
-		void **buf = realloc(v->items, sizeof(void *) * v->capacity);
+		void **buf = realloc (v->items, sizeof (void *) * v->capacity);
 		if (buf == nullptr) {
 			return false;
 		}
@@ -50,7 +50,7 @@ vector_add( vector *v, void *item )
 }
 
 void
-vector_set( const vector *v, const size_t index, void *item )
+vector_set (const vector *v, const size_t index, void *item)
 {
 	if (index < v->size) {
 		v->items[index] = item;
@@ -58,7 +58,7 @@ vector_set( const vector *v, const size_t index, void *item )
 }
 
 void *
-vector_get( const vector *v, const size_t index )
+vector_get (const vector *v, const size_t index)
 {
 	if (index < v->size) {
 		return v->items[index];
@@ -67,10 +67,10 @@ vector_get( const vector *v, const size_t index )
 }
 
 bool
-vector_delete( vector *v, const size_t index )
+vector_delete (vector *v, const size_t index)
 {
 	if (index < v->size) {
-		memmove(&v->items[index], &v->items[index + 1], sizeof(void *) * (v->size - index - 1));
+		memmove (&v->items[index], &v->items[index + 1], sizeof (void *) * (v->size - index - 1));
 		v->size--;
 		return true;
 	}
@@ -78,15 +78,15 @@ vector_delete( vector *v, const size_t index )
 }
 
 void
-vector_free( vector *v )
+vector_free (vector *v)
 {
 	v->size = 0;
 	v->capacity = 0;
-	free(v->items);
+	free (v->items);
 }
 
 size_t
-vector_size( const vector *v )
+vector_size (const vector *v)
 {
 	return v->size;
 }

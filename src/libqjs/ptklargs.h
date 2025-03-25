@@ -44,10 +44,10 @@ struct runtime_opts {
 
 struct compiler_opts {};
 
-void help(int exit_code);
+void help (int exit_code);
 
 void version();
 
-int parse_runtime_args(int argc, char **argv, struct runtime_opts *opts);
+int parse_runtime_args (int argc, char **argv, struct runtime_opts *opts);
 
-#endif  /* ARGS_H */
+#endif /* ARGS_H */

@@ -41,14 +41,14 @@ typedef struct {
 	size_t size;
 } map;
 
-void map_init( map *m );
-bool map_put( map *m, const char *key, void *value );
-void *map_get( const map *m, const char *key );
-bool map_delete( map *m, const char *key );
-void map_free( map *m );
-size_t map_size( const map *m );
-void map_keys( const map *m, char **keys );
-void map_values( const map *m, void **values );
-void map_items( const map *m, char **keys, void **values );
+void map_init (map *m);
+bool map_put (map *m, const char *key, void *value);
+void *map_get (const map *m, const char *key);
+bool map_delete (map *m, const char *key);
+void map_free (map *m);
+size_t map_size (const map *m);
+void map_keys (const map *m, char **keys);
+void map_values (const map *m, void **values);
+void map_items (const map *m, char **keys, void **values);
 
 #endif /* MAP_H */

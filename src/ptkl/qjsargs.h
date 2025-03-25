@@ -1,5 +1,5 @@
 /*
-* ptkl command line args
+ * ptkl command line args
  *
  * Copyright (c) 2025 Tony Pujals
  *
@@ -58,6 +58,6 @@ struct opts {
 	struct compiler_opts compiler;
 };
 
-bool parse_args( int argc, char **argv, struct opts *opts );
+bool parse_args (int argc, char **argv, struct opts *opts);
 
-#endif  /* ARGS_H */
+#endif /* ARGS_H */

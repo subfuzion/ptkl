@@ -39,11 +39,11 @@ typedef struct {
 	size_t size;
 } stack;
 
-void stack_init( stack *s );
-bool stack_push( stack *s, void *data );
-void *stack_pop( stack *s );
-void *stack_peek( const stack *s );
-void stack_free( stack *s );
-size_t stack_size( stack *s );
+void stack_init (stack *s);
+bool stack_push (stack *s, void *data);
+void *stack_pop (stack *s);
+void *stack_peek (const stack *s);
+void stack_free (stack *s);
+size_t stack_size (stack *s);
 
 #endif /* STACK_H */

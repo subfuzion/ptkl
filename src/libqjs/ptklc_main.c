@@ -22,8 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-extern int compile(int argc, char **argv);
+extern int compile (int argc, char **argv);
 
-int main(const int argc, char **argv) {
-	return compile(argc, argv);
+int
+main (const int argc, char **argv)
+{
+	return compile (argc, argv);
 }

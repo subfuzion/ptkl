@@ -29,31 +29,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ptkl.h"
 #include "args.h"
+#include "ptkl.h"
 
 void
-help( const int exit_code )
+help (const int exit_code)
 {
-	printf(
-		"Partikle Runtime (version " CONFIG_VERSION ")\n"
+	printf ("Partikle Runtime (version " CONFIG_VERSION ")\n"
 		"usage: " PTKL " [options] [file [args]]\n"
 		"-e  --eval EXPR            evaluate EXPR\n"
 		"-v  --version              print version\n"
-		"-h  --help                 show this help\n"
-		);
-	exit(exit_code);
+		"-h  --help                 show this help\n");
+	exit (exit_code);
 }
 
 void
-version()
+version ()
 {
-	printf("%s %s\n", PTKL, CONFIG_VERSION);
-	exit(EXIT_SUCCESS);
+	printf ("%s %s\n", PTKL, CONFIG_VERSION);
+	exit (EXIT_SUCCESS);
 }
 
 int
-main( const int argc, char **argv )
+main (const int argc, char **argv)
 {
 	// struct opts opts = {};
 	// if (!parse_args(argc, argv, &opts)) {

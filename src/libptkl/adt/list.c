@@ -28,16 +28,16 @@
 #include <stdlib.h>
 
 void
-list_init( list *list )
+list_init (list *list)
 {
 	list->head = nullptr;
 	list->size = 0;
 }
 
 bool
-list_add( list *list, void *data )
+list_add (list *list, void *data)
 {
-	listnode *new_node = malloc(sizeof(listnode));
+	listnode *new_node = malloc (sizeof (listnode));
 	if (new_node == nullptr) {
 		return false;
 	}
@@ -51,12 +51,13 @@ list_add( list *list, void *data )
 		node = node->next;
 	}
 	node->next = new_node;
-success: list->size++;
+success:
+	list->size++;
 	return true;
 }
 
 void *
-list_get( const list *list, const size_t index )
+list_get (const list *list, const size_t index)
 {
 	if (index >= list->size) {
 		return nullptr; // Index out of bounds
@@ -69,7 +70,7 @@ list_get( const list *list, const size_t index )
 }
 
 bool
-list_delete( list *list, const size_t index )
+list_delete (list *list, const size_t index)
 {
 	if (index >= list->size) {
 		return false;
@@ -85,18 +86,18 @@ list_delete( list *list, const size_t index )
 	} else {
 		previous->next = current->next;
 	}
-	free(current);
+	free (current);
 	list->size--;
 	return true;
 }
 
 void
-list_free( list *list )
+list_free (list *list)
 {
 	listnode *current = list->head;
 	while (current != nullptr) {
 		listnode *next = current->next;
-		free(current);
+		free (current);
 		current = next;
 	}
 	list->head = nullptr;
@@ -104,7 +105,7 @@ list_free( list *list )
 }
 
 size_t
-list_size( const list *list )
+list_size (const list *list)
 {
 	return list->size;
 }
