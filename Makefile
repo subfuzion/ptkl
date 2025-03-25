@@ -125,7 +125,6 @@ CLION_CMAKE_DIRS = cmake-build-debug*/ cmake-build-release*/
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)
 
-
 # Initialize cmake build debug and release directories
 cmake-init: $(BUILDDIR)
 	@$(CMAKE_INIT) -DCMAKE_BUILD_TYPE=Debug -S . -B $(BUILDDIR)/debug
@@ -172,8 +171,7 @@ cmake-clean-all:
 cleanall: clean cmake-clean-all
 
 cmake-watch:
-	@watchexec -r -e c,h,txt \
-	-w Makefile -c=clear make cmake-test-debug-run
+	@watchexec -c=clear make cmake-test-debug-run
 
 ###############################################################################
 -include $(wildcard $(OBJDIR)/*.d)

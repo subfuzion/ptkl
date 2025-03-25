@@ -33,8 +33,22 @@
 
 
 void
-init_cli (struct cli *cli)
-{}
+init_cli (struct ptkl_cli *cli, char *version, char *description)
+{
+
+}
+
+
+bool
+cli_parse(struct ptkl_cli *cli, int argc, char **argv)
+{
+	int optind = 1;
+	// while (optind < argc && *argv[optind] == '-') {
+	while (optind < argc && *argv[optind]) {
+		printf ("%s\n", argv[optind++]);
+	}
+	return 0;
+}
 
 bool
 parse_option (struct ptkl_option *opt)

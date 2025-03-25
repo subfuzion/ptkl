@@ -70,17 +70,18 @@ struct ptkl_option {
 	char error[256];
 };
 
-struct cli {
+struct ptkl_cli {
 	char *version;
 	char *description;
+
 	map *options;
 };
 
-void init_cli (struct cli *cli);
-bool add_option (struct cli *cli, struct ptkl_option_spec spec);
+void init_cli (struct ptkl_cli *cli, char *version, char *description);
+bool add_option (struct ptkl_cli *cli, struct ptkl_option_spec spec);
+bool cli_parse (struct ptkl_cli *cli, int argc, char **argv);
 
 bool parse_option (struct ptkl_option *opt);
 
-// bool parse_args( int argc, char **argv, struct opts *opts );
 
 #endif /* ARGS_H */
