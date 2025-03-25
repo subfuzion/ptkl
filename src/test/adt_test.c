@@ -187,8 +187,8 @@ test_map()
 void
 adt_test()
 {
-	run_test(test_list);
-	run_test(test_stack);
-	run_test(test_vector);
-	run_test(test_map);
+	test(test_list);
+	test(test_stack);
+	test(test_vector);
+	test(test_map);
 }

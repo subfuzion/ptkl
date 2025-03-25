@@ -1,5 +1,5 @@
 /*
- * ptkl command line args
+* ptkl command line args
  *
  * Copyright (c) 2025 Tony Pujals
  *
@@ -27,60 +27,37 @@
 
 #include <stddef.h>
 
-#include "map.h"
-#include "vector.h"
-
-/* Specifies how to parse a command line token */
-enum ptkl_token_type {
-	TT_STR,
-	TT_BOOL,
-	TT_INT,
+struct cmd_opts {
+	bool help;
+	bool version;
 };
 
-/* Holds the command line token's value after parsing */
-union ptkl_parse_value {
-	char *string;
-	bool boolean;
-	int integer;
+struct runtime_opts {
+	char *expr;
+	int interactive;
+	int dump_memory;
+	int trace_memory;
+	int empty_run;
+	int module;
+	int load_std;
+	int dump_unhandled_promise_rejection;
+	size_t memory_limit;
+	char *include_list[32];
+	int include_count;
+	size_t stack_size;
+	int bignum_ext;
 };
 
-/* A command line option spec */
-struct ptkl_option_spec {
-	/* name is used as the long option */
-	const char *name;
-	const char short_opt;
-	const char *help;
-	bool multi;
-	enum ptkl_token_type type;
+struct compiler_opts {};
 
-	/* internal */
-	/* struct ptkl_command *command; */
-};
-
-/* A parsed command line option */
-struct ptkl_option {
-	struct ptkl_option_spec spec;
-	char *text;
-
-	union {
-		union ptkl_parse_value value;
-		vector values;
-	};
-
+struct opts {
+	int optind;
 	char error[256];
+	struct cmd_opts cmd;
+	struct runtime_opts runtime;
+	struct compiler_opts compiler;
 };
 
-struct cli {
-	char *version;
-	char *description;
-	map *options;
-};
-
-void init_cli(struct cli *cli);
-bool add_option(struct cli *cli, struct ptkl_option_spec spec);
-
-bool parse_option( struct ptkl_option *opt );
-
-// bool parse_args( int argc, char **argv, struct opts *opts );
+bool parse_args( int argc, char **argv, struct opts *opts );
 
 #endif  /* ARGS_H */

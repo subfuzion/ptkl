@@ -41,7 +41,7 @@ help( const int exit_code )
 		"-e  --eval EXPR            evaluate EXPR\n"
 		"-v  --version              print version\n"
 		"-h  --help                 show this help\n"
-	);
+		);
 	exit(exit_code);
 }
 
@@ -53,16 +53,16 @@ version()
 }
 
 int
-main( const int argc, char **argv)
+main( const int argc, char **argv )
 {
-	struct opts opts = {};
-	if (!parse_args(argc, argv, &opts)) {
-		fprintf(stderr, "%s\n", opts.error);
-		help(EXIT_FAILURE);
-	}
-
-	if (opts.cmd.version) version();
-	if (opts.cmd.help) help(EXIT_SUCCESS);
+	// struct opts opts = {};
+	// if (!parse_args(argc, argv, &opts)) {
+	// 	fprintf(stderr, "%s\n", opts.error);
+	// 	help(EXIT_FAILURE);
+	// }
+	//
+	// if (opts.cmd.version) version();
+	// if (opts.cmd.help) help(EXIT_SUCCESS);
 
 	return EXIT_SUCCESS;
 }

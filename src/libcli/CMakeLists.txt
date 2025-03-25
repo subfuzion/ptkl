@@ -15,6 +15,7 @@ include_directories(include)
 
 set(
 	CLI_SRC
+	include/args.h
 	args.c
 )
 
@@ -34,7 +35,6 @@ target_include_directories(
 	libcli
 	PUBLIC
 	include
-	../libptkl/include
 )
 target_link_libraries(
 	libcli
