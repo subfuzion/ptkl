@@ -33,7 +33,7 @@
 
 
 void
-init_cli (struct ptkl_cli *cli, char *version, char *description)
+init_cli (struct ptkl_cli *cli, const char *version, const char *description)
 {
 
 }

@@ -78,15 +78,16 @@ struct ptkl_option {
 	char error[256];
 };
 
-struct ptkl_cli {
+typedef struct ptkl_cli {
 	char *version;
 	char *description;
 
 	map *options;
-};
+} *PartikleCLI;
 
-void init_cli (struct ptkl_cli *cli, char *version, char *description);
-bool add_option (struct ptkl_cli *cli, struct ptkl_option_spec spec);
+static void cli_init (struct ptkl_cli *cli, const char *version, const char *description);
+bool cli_add_option (struct ptkl_cli *cli, struct ptkl_option_spec spec);
+
 bool cli_parse (struct ptkl_cli *cli, int argc, char **argv);
 bool parse_option (struct ptkl_option *opt);
 
@@ -95,14 +96,32 @@ bool parse_option (struct ptkl_option *opt);
 /* src/libcli/args.c                                                        */
 /****************************************************************************/
 
-void
-init_cli (struct ptkl_cli *cli, char *version, char *description)
+static void
+cli_init (struct ptkl_cli *cli, const char *version, const char *description)
 {
+	cli->version = strdup (version);
+	cli->description = strdup (description);
 }
 
+void
+cli_free (struct ptkl_cli *cli)
+{
+	if (cli->version) {
+		free (cli->version);
+		cli->version = nullptr;
+	}
+	if (cli->description) {
+		free (cli->description);
+		cli->description = nullptr;
+	}
+	if (cli->options) {
+		map_free (cli->options);
+		cli->options = nullptr;
+	}
+}
 
 bool
-cli_parse(struct ptkl_cli *cli, int argc, char **argv)
+cli_parse (struct ptkl_cli *cli, int argc, char **argv)
 {
 	int optind = 1;
 	// while (optind < argc && *argv[optind] == '-') {
@@ -110,7 +129,6 @@ cli_parse(struct ptkl_cli *cli, int argc, char **argv)
 		printf ("%s\n", argv[optind++]);
 	}
 	return 0;
-
 }
 
 bool
@@ -123,14 +141,12 @@ parse_option (struct ptkl_option *opt)
 		// TODO: evaluate strdup pros/cons (don't need fixed buffer / need to free later)
 		strcpy (opt->value.string, str);
 		return true;
-	case TT_BOOL:
-		if (strcmp (opt->text, opt->spec.name) == 0) {
+	case TT_BOOL: if (strcmp (opt->text, opt->spec.name) == 0) {
 			opt->value.boolean = true;
 			return true;
 		}
 		break;
-	case TT_INT:
-		char *end;
+	case TT_INT: char *end;
 		const long num = strtol (str, &end, 10);
 
 		if (*end != '\0') {
@@ -222,5 +238,7 @@ cli_test ()
 	test (test_boolean_option);
 	test (test_integer_option);
 	test (test_integer_option_fail);
-}
 
+	struct ptkl_cli cli;
+	cli_init (&cli, "foo", "bar");
+}

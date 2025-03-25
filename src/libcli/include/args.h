@@ -77,7 +77,7 @@ struct ptkl_cli {
 	map *options;
 };
 
-void init_cli (struct ptkl_cli *cli, char *version, char *description);
+void init_cli (struct ptkl_cli *cli, const char *version, const char *description);
 bool add_option (struct ptkl_cli *cli, struct ptkl_option_spec spec);
 bool cli_parse (struct ptkl_cli *cli, int argc, char **argv);
 
