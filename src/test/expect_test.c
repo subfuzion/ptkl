@@ -28,65 +28,34 @@
 #include "test.h"
 
 void
-test_boolean_option ()
+test_expect ()
 {
-	const struct ptkl_option_spec spec = {
-		.name = "foo",
-		.type = TT_BOOL,
-	};
-
-
-	struct ptkl_option opt = {
-		.spec = spec,
-		.text = "foo",
-	};
-
-	const auto expected = true;
-	const bool res = parse_option (&opt);
-	/* if (opt.error) printf("ERROR: %s (%s)\n", opt.text, opt.error); */
-	expect (res);
-	expect_eq (expected, opt.value.boolean);
+	expect (strlen ("") == 0);
 }
 
 void
-test_integer_option ()
+test_null ()
 {
-	const struct ptkl_option_spec spec = {.type = TT_INT};
-
-	const auto tok = "777";
-	const auto expected = 777;
-
-	struct ptkl_option opt = {
-		.spec = spec,
-		.text = tok,
-	};
-
-	const bool res = parse_option (&opt);
-	/* if (opt.error) printf("ERROR: %s (%s)\n", opt.text, opt.error); */
-	expect (res);
-	expect_eq_int (expected, opt.value.integer);
+	expect_null (nullptr);
 }
 
 void
-test_integer_option_fail ()
+test_not_null ()
 {
-	const struct ptkl_option_spec spec = {.type = TT_INT};
-
-	const auto tok = "777x";
-
-	struct ptkl_option opt = {
-		.spec = spec,
-		.text = tok,
-	};
-
-	parse_option (&opt);
-	expect_error ("Invalid input", opt.error);
+	expect_not_null ("foo");
 }
 
 void
-cli_test ()
+test_empty_str ()
 {
-	test (test_boolean_option);
-	test (test_integer_option);
-	test (test_integer_option_fail);
+	expect_empty_str ((char *)nullptr);
+}
+
+void
+expect_test ()
+{
+	test (test_expect);
+	test (test_null);
+	test (test_not_null);
+	test (test_empty_str);
 }

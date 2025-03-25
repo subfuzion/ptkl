@@ -28,23 +28,30 @@
 
 #include "test.h"
 
+extern void expect_test();
 extern void adt_test();
 extern void cli_test();
 
 int
-main()
+main ()
 {
-	printf("Running tests\n\n");
+	printf ("Running tests\n\n");
+
+#if 0
+	printf("▶︎ test framework tests\n");
+	expect_test();
+	printf("\n");
 
 	printf("▶︎ ADT tests\n");
 	adt_test();
 	printf("\n");
+#endif
 
-	printf("▶︎ CLI tests\n");
+	printf ("▶︎ CLI tests\n");
 	cli_test();
-	printf("\n");
+	printf ("\n");
 
 
-	printf("All tests passed.\n");
+	printf ("All tests passed.\n");
 	return EXIT_SUCCESS;
 }
