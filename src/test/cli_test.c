@@ -40,6 +40,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct error {
+	char *message;
+} error;
+
+/* NOTICE: not thread safe */
+error g_result_error = {};
+error *p_result_error = &g_result_error;
+
+
 void
 print_stack_trace ()
 {
@@ -48,9 +57,7 @@ print_stack_trace ()
 	char **traces = backtrace_symbols (buffer, count);
 	if (traces != NULL) {
 		fprintf (stderr, "Stack trace:\n");
-		for (int i = 3; i < count; i++) {
-			fprintf (stderr, "%s\n", traces[i]);
-		}
+		for (int i = 3; i < count; i++) { fprintf (stderr, "%s\n", traces[i]); }
 		free (traces);
 	} else {
 		perror ("backtrace_symbols");
@@ -83,9 +90,13 @@ panic (const char *msg)
 	print_stack_trace();
 }
 
-/* 8 bytes (size of the biggest member: double */
+/**
+ * 8 bytes (size of the biggest member: double
+ * This means that error must point to a unique ("interned") error object
+ * initialized once and never freed.
+ */
 typedef union ptkl_result {
-	char *error;
+	error *error;
 	bool bool_val;
 	char char_val;
 	char *string_val;
@@ -98,119 +109,67 @@ typedef union ptkl_result {
 result
 make_error_result (const char *err)
 {
-	return (result){.error = strdup (err)};
+	p_result_error->message = err ? strdup (err) : "unknown error";
+	return (result){.error = p_result_error};
 }
 
 result
-make_bool_result (bool val)
-{
-	return (result){.bool_val = val};
-}
+make_bool_result (bool val) { return (result){.bool_val = val}; }
 
 result
-make_char_result (char ch)
-{
-	return (result){.char_val = ch};
-}
+make_char_result (char ch) { return (result){.char_val = ch}; }
 
 result
-make_string_result (const char *string)
-{
-	return (result){.string_val = strdup (string)};
-}
+make_string_result (const char *string) { return (result){.string_val = strdup (string)}; }
 
 result
-make_int_result (int n)
-{
-	return (result){.int_val = n};
-}
+make_int_result (int n) { return (result){.int_val = n}; }
 
 result
-make_long_result (long n)
-{
-	return (result){.long_val = n};
-}
+make_long_result (long n) { return (result){.long_val = n}; }
 
 result
-make_double_result (double val)
-{
-	return (result){.double_val = val};
-}
+make_double_result (double val) { return (result){.double_val = val}; }
 
 result
-make_pointer_result (void *pointer)
-{
-	return (result){.pointer = pointer};
-}
+make_pointer_result (void *pointer) { return (result){.pointer = pointer}; }
 
 
-
-char *
-result_error (const result res)
-{
-	return res.error;
-}
+error *
+result_error (const result res) { return res.error; }
 
 bool
-result_bool (const result res)
-{
-	return res.bool_val;
-}
+result_bool (const result res) { return res.bool_val; }
 
 char
-result_char (const result res)
-{
-	return res.char_val;
-}
+result_char (const result res) { return res.char_val; }
 
 char *
-result_string (const result res)
-{
-	return res.string_val;
-}
+result_string (const result res) { return res.string_val; }
 
 int
-result_int (const result res)
-{
-	return res.int_val;
-}
+result_int (const result res) { return res.int_val; }
 
 long
-result_long (const result res)
-{
-	return res.long_val;
-}
+result_long (const result res) { return res.long_val; }
 
 double
-result_double (const result res)
-{
-	return res.double_val;
-}
+result_double (const result res) { return res.double_val; }
 
 void *
-result_pointer (const result res)
-{
-	return res.pointer;
-}
+result_pointer (const result res) { return res.pointer; }
+
 
 bool
-succeeded (const result res)
-{
-	return !res.error;
-}
+succeeded (const result res) { return res.error != p_result_error; }
 
 bool
-failed (const result res)
-{
-	return res.error != nullptr;
-}
+failed (const result res) { return res.error == p_result_error; }
 
 void
 check (const result res)
 {
-	if (failed (res)) {
-		panic (res.error ? res.error : "unknown error");
-	}
+	if (failed (res)) { panic (res.error->message != nullptr ? res.error->message : "unknown error"); }
 }
 
 /* memory */
@@ -282,26 +241,26 @@ bool parse_option (struct ptkl_option *opt);
 
 #define STRDUP(str) (str) ? strdup (str) : nullptr
 
-#define FREE(var)												      \
-	do {                                                                                                           \
-		if (var) {                                                                                             \
-			free (var);                                                                                    \
-			var = nullptr;                                                                                 \
-		}                                                                                                      \
+#define FREE(var) \
+	do { \
+		if (var) { \
+			free (var); \
+			var = nullptr; \
+		} \
 	} while (0)
 
-#define FREE_FN(var, free_fn)												      \
-	do {                                                                                                           \
-		if (var) {                                                                                             \
-			free_fn (var);                                                                                    \
-			var = nullptr;                                                                                 \
-		}                                                                                                      \
+#define FREE_FN(var, free_fn) \
+	do { \
+		if (var) { \
+			free_fn (var); \
+			var = nullptr; \
+		} \
 	} while (0)
 
-#define PANIC(msg)												      \
-	do {                                                                                                           \
-		fprintf (stderr, "%s: %s\n", __func__, msg);                                                                         \
-		exit (EXIT_FAILURE);                                                                                   \
+#define PANIC(msg) \
+	do { \
+		fprintf (stderr, "%s: %s\n", __func__, msg); \
+		exit (EXIT_FAILURE); \
 	} while (0)
 
 /****************************************************************************/
@@ -342,10 +301,7 @@ cli_new (const char *name, const char *version, const char *description)
 }
 
 void
-cli_destroy (PartikleCLI cli)
-{
-	cli_free (cli);
-}
+cli_destroy (PartikleCLI cli) { cli_free (cli); }
 
 
 bool
@@ -353,9 +309,7 @@ cli_parse (struct ptkl_cli *cli, int argc, char **argv)
 {
 	int optind = 1;
 	// while (optind < argc && *argv[optind] == '-') {
-	while (optind < argc && *argv[optind]) {
-		printf ("%s\n", argv[optind++]);
-	}
+	while (optind < argc && *argv[optind]) { printf ("%s\n", argv[optind++]); }
 	return 0;
 }
 
@@ -470,6 +424,8 @@ cli_test ()
 	// panic ("test");
 
 	result res;
+	printf ("sizeof result: %lu\n", sizeof (res));
+	printf ("sizeof double: %lu\n", sizeof (double));
 
 	res = make_string_result ("foo");
 	check (res);
@@ -477,12 +433,13 @@ cli_test ()
 
 	res = make_int_result (10);
 	check (res);
+	printf ("print value...%d\n", result_int (res));
+	if (succeeded (res)) printf ("1. result: %d\n", res.int_val);
+	if (succeeded (res)) printf ("2. result: %d\n", result_int (res));
+	printf ("3. result: %d\n", result_int (res));
 
-	if (succeeded (res)) printf ("%d\n", res.int_val);
-
-	res = make_error_result ("whoops");
+	res = make_error_result (nullptr);
 	check (res);
-
 
 
 	// test (test_boolean_option);
