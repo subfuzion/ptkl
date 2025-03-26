@@ -313,7 +313,12 @@ void cli_test ()
 
 
 	dstring s = dstring_new ("foo");
-	printf ("s->count: %d, s->str: %s\n", s->count, s->str);
+	printf ("s->count: %d, s->str: \"%s\"\n", s->count, s->str);
+	printf("s length: %lu\n", dstring_len(s));
+
+	dstring_clear (s);
+	printf ("s->count: %d, s->str: \"%s\"\n", s->count, s->str);
+	printf("s length: %lu\n", dstring_len(s));
 
 	dstring_release (s);
 }

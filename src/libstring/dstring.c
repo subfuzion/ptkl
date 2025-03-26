@@ -67,9 +67,20 @@ void dstring_release (dstring s)
 	s->count--;
 	if (s->count < 1) {
 		dstring_free (s);
+		s->str = nullptr;
 	}
 }
 
+
+void dstring_clear (dstring s)
+{
+	sdsclear (s->str);
+}
+
+size_t dstring_len (dstring s)
+{
+	return sdslen (s->str);
+}
 
 dstring dstring_dup (dstring s)
 {

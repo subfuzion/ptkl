@@ -24,37 +24,27 @@
  * THE SOFTWARE.
  */
 
-#include <assert.h>
-#include <errors.h>
-
+#include "dstring.h"
 #include "test.h"
 
-extern void adt_test ();
-extern void cli_test ();
-extern void expect_test ();
-extern void string_test ();
-
-int main ()
+void test_dstring ()
 {
-	register_signal_panic_handlers ();
-	printf ("Running tests\n\n");
+	dstring s = dstring_new ("foo");
 
-#if 0
-	printf("▶︎ test framework tests\n");
-	expect_test();
-	printf("\n");
+	expect_not_null (s);
+	expect_eq_int(1, s->count);
+	expect(3 == dstring_len (s));
 
-	printf("▶︎ ADT tests\n");
-	adt_test();
-	printf("\n");
-#endif
+	dstring_clear (s);
+	expect(0 == dstring_len (s));
 
-	printf ("▶︎ CLI tests\n");
-	string_test ();
-	cli_test ();
-	printf ("\n");
+	dstring_release (s);
+	expect_eq_int (0, s->count);
+	expect_null (s->str);
+}
 
 
-	printf ("All tests passed.\n");
-	return EXIT_SUCCESS;
+void string_test ()
+{
+	test (test_dstring);
 }

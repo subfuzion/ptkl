@@ -36,14 +36,14 @@
 		printf ("▷ %s ... ", #t);                                                                              \
 		t ();                                                                                                  \
 		printf ("\r\x1b[K");                                                                                   \
-		printf ("✅%s\n", #t);                                                                                 \
+		printf ("✅ %s\n", #t);                                                                                 \
 	} while (0)
 
 #define expect_true(expr)                                                                                              \
 	do {                                                                                                           \
 		if (!(expr)) {                                                                                         \
 			printf ("\r\x1b[K");                                                                           \
-			printf ("❌%s:%s:%d: expected to be true: %s\n", __func__, __FILE__, __LINE__, #expr);         \
+			printf ("❌ %s:%s:%d: expected to be true: %s\n", __func__, __FILE__, __LINE__, #expr);         \
 			exit (EXIT_FAILURE);                                                                           \
 		}                                                                                                      \
 	} while (0)
@@ -54,7 +54,7 @@
 	do {                                                                                                           \
 		if ((expr)) {                                                                                          \
 			printf ("\r\x1b[K");                                                                           \
-			printf ("❌%s:%s:%d: expected to be false: %s\n", __func__, __FILE__, __LINE__, #expr);        \
+			printf ("❌ %s:%s:%d: expected to be false: %s\n", __func__, __FILE__, __LINE__, #expr);        \
 			exit (EXIT_FAILURE);                                                                           \
 		}                                                                                                      \
 	} while (0)
@@ -63,7 +63,7 @@
 	do {                                                                                                           \
 		if ((void *)(expr) != nullptr) {                                                                       \
 			printf ("\r\x1b[K");                                                                           \
-			printf ("❌%s:%s:%d: expected to be null: %s\n", __func__, __FILE__, __LINE__, #expr);         \
+			printf ("❌ %s:%s:%d: expected to be null: %s\n", __func__, __FILE__, __LINE__, #expr);         \
 			exit (EXIT_FAILURE);                                                                           \
 		}                                                                                                      \
 	} while (0)
@@ -72,7 +72,7 @@
 	do {                                                                                                           \
 		if ((expr) == nullptr) {                                                                               \
 			printf ("\r\x1b[K");                                                                           \
-			printf ("❌%s:%s:%d: expected not to be null: %s\n", __func__, __FILE__, __LINE__, #expr);     \
+			printf ("❌ %s:%s:%d: expected not to be null: %s\n", __func__, __FILE__, __LINE__, #expr);     \
 			exit (EXIT_FAILURE);                                                                           \
 		}                                                                                                      \
 	} while (0)
@@ -81,7 +81,7 @@
 	do {                                                                                                           \
 		if ((expected) != (actual)) {                                                                          \
 			printf ("\r\x1b[K");                                                                           \
-			printf ("❌%s:%s:%d: expected %d, got %d\n", __func__, __FILE__, __LINE__, (expected),         \
+			printf ("❌ %s:%s:%d: expected %d, got %d\n", __func__, __FILE__, __LINE__, (expected),         \
 				(actual));                                                                             \
 			exit (EXIT_FAILURE);                                                                           \
 		}                                                                                                      \
@@ -91,7 +91,17 @@
 	do {                                                                                                           \
 		if ((int)(expected) != (int)(actual)) {                                                                \
 			printf ("\r\x1b[K");                                                                           \
-			printf ("❌%s:%s:%d: expected %d, got %d\n", __func__, __FILE__, __LINE__, (int)(expected),    \
+			printf ("❌ %s:%s:%d: expected %d, got %d\n", __func__, __FILE__, __LINE__, (int)(expected),    \
+				(int)(actual));                                                                        \
+			exit (EXIT_FAILURE);                                                                           \
+		}                                                                                                      \
+	} while (0)
+
+#define expect_eq_long(expected, actual)                                                                                \
+	do {                                                                                                           \
+		if ((int)(expected) != (int)(actual)) {                                                                \
+			printf ("\r\x1b[K");                                                                           \
+			printf ("❌ %s:%s:%d: expected %ul, got %ul\n", __func__, __FILE__, __LINE__, (long)(expected),    \
 				(int)(actual));                                                                        \
 			exit (EXIT_FAILURE);                                                                           \
 		}                                                                                                      \
@@ -101,7 +111,7 @@
 	do {                                                                                                           \
 		if (strcmp ((expected), (actual)) != 0) {                                                              \
 			printf ("\r\x1b[K");                                                                           \
-			printf ("❌%s:%s:%d: expected %s, got %s\n", __func__, __FILE__, __LINE__, (expected),         \
+			printf ("❌ %s:%s:%d: expected %s, got %s\n", __func__, __FILE__, __LINE__, (expected),         \
 				(actual));                                                                             \
 			exit (EXIT_FAILURE);                                                                           \
 		}                                                                                                      \
@@ -112,7 +122,7 @@
 	do {                                                                                                           \
 		if ((str) && strlen ((char *)(str)) != 0) {                                                            \
 			printf ("\r\x1b[K");                                                                           \
-			printf ("❌%s:%s:%d: expected empty string, got \"%s\"\n", __func__, __FILE__, __LINE__,       \
+			printf ("❌ %s:%s:%d: expected empty string, got \"%s\"\n", __func__, __FILE__, __LINE__,       \
 				(str));                                                                                \
 			exit (EXIT_FAILURE);                                                                           \
 		}                                                                                                      \
@@ -123,7 +133,7 @@
 		if (!(actual) || strlen ((actual)) == 0 || strlen ((actual)) < strlen ((expected)) ||                  \
 		    strncmp ((expected), (actual), strlen ((expected))) != 0) {                                        \
 			printf ("\r\x1b[K");                                                                           \
-			printf ("❌%s:%s:%d: missing error:\n"                                                        \
+			printf ("❌ %s:%s:%d: missing error:\n"                                                        \
 				"  expected: \"%s\", got: \"%s\"\n",                                                   \
 				__func__, __FILE__, __LINE__, expected, actual);                                       \
 			exit (EXIT_FAILURE);                                                                           \
@@ -134,7 +144,7 @@
 	do {                                                                                                           \
 		if ((err) != nullptr || strnlen ((str), 1) > 0) {                                                      \
 			printf ("\r\x1b[K");                                                                           \
-			printf ("❌%s:%s:%d: unexpected error:\n"                                                     \
+			printf ("❌ %s:%s:%d: unexpected error:\n"                                                     \
 				"  \"%s\"\n",                                                                          \
 				__func__, __FILE__, __LINE__, err);                                                    \
 			exit (EXIT_FAILURE);                                                                           \

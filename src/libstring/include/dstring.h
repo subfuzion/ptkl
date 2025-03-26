@@ -35,7 +35,7 @@ typedef struct dstring {
 } *dstring;
 
 /**
- * Creates a new dstring (with reference count = 1)
+ * Create a new dstring (with reference count = 1)
  */
 dstring dstring_new (const char *str);
 
@@ -60,7 +60,17 @@ void dstring_release (dstring s);
 void dstring_free (dstring s);
 
 /**
- * Creates a new copy (with reference count = 1)
+ * Clear the string.
+ */
+void dstring_clear (dstring s);
+
+/**
+ * Get the length of the string (s->str).
+ */
+size_t dstring_len (dstring s);
+
+/**
+ * Create a new copy (with reference count = 1)
  */
 dstring dstring_dup (dstring s);
 
@@ -77,7 +87,7 @@ dstring dstring_strcat (dstring s, const char *t);
 dstring dstring_cat (dstring s, dstring t);
 
 /**
- * Returns a formatted struct dstring for debugging.
+ * Return a formatted struct dstring for debugging.
  */
 void dstring_tostring (dstring s, char *buf, size_t len);
 
