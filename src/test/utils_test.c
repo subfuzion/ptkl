@@ -28,31 +28,32 @@
 #include "results.h"
 #include "test.h"
 
-void test_errors()
+void test_errors ()
 {
 	// char *s = NULL;
 	// printf ("%s\n", strdup (s));
 	// panic ("test");
 }
 
-void test_results() {
+void test_results ()
+{
 	result res;
 
 	res = make_string_result ("foo");
-	expect_eq_str ("foo", result_string(res));
+	expect_eq_str ("foo", result_string (res));
 
 	res = make_int_result (10);
-	expect_eq_int (10, result_int(res));
+	expect_eq_int (10, result_int (res));
 
 	res = make_error_result ("oops");
-	expect_not_null(result_error (res));
-	expect(failed(res));
-	expect_false (succeeded(res));
-	expect_eq_str ("oops", result_error(res)->message);
+	expect_not_null (result_error (res));
+	expect (failed (res));
+	expect_false (succeeded (res));
+	expect_eq_str ("oops", result_error (res)->message);
 }
 
 
-void utils_test()
+void utils_test ()
 {
 	test (test_errors);
 	test (test_results);

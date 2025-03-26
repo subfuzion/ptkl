@@ -32,11 +32,11 @@ void test_dstring ()
 	dstring s = dstring_new ("foo");
 
 	expect_not_null (s);
-	expect_eq_int(1, s->count);
-	expect(3 == dstring_len (s));
+	expect_eq_int (1, s->count);
+	expect (3 == dstring_len (s));
 
 	dstring_clear (s);
-	expect(0 == dstring_len (s));
+	expect (0 == dstring_len (s));
 
 	dstring_release (s);
 	expect_eq_int (0, s->count);
