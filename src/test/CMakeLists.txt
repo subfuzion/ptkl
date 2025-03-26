@@ -28,6 +28,7 @@ target_link_libraries(
 	PUBLIC
 	libcli
 	libptkl
+	libstring
 )
 target_compile_options(
 	ptkltest

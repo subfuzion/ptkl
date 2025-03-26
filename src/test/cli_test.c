@@ -31,6 +31,8 @@
 #include "results.h"
 #include "test.h"
 
+#include "sds.h"
+
 /****************************************************************************/
 /* src/libcli/args.h                                                        */
 /****************************************************************************/
@@ -278,9 +280,9 @@ void test_integer_option_fail ()
 
 void cli_test ()
 {
-	char *s = NULL;
-	printf ("%s\n", strdup (s));
-	panic ("test");
+	// char *s = NULL;
+	// printf ("%s\n", strdup (s));
+	// panic ("test");
 
 	result res;
 	printf ("sizeof result: %lu\n", sizeof (res));
@@ -297,8 +299,8 @@ void cli_test ()
 	if (succeeded (res)) printf ("2. result: %d\n", result_int (res));
 	printf ("3. result: %d\n", result_int (res));
 
-	res = make_error_result (nullptr);
-	check (res);
+	// res = make_error_result (nullptr);
+	// check (res);
 
 
 	// test (test_boolean_option);
