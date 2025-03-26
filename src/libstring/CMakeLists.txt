@@ -23,6 +23,7 @@ add_library(
 	libstring
 	STATIC
 	${SDS_SRC}
+	dstring.c
 )
 set_target_properties(
 	libstring

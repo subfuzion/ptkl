@@ -31,7 +31,7 @@
 #include "results.h"
 #include "test.h"
 
-#include "sds.h"
+#include "dstring.h"
 
 /****************************************************************************/
 /* src/libcli/args.h                                                        */
@@ -310,4 +310,10 @@ void cli_test ()
 	// PartikleCLI cli = cli_new ("ptkl", "0.1.0", "Partikle CLI");
 	//
 	// cli_destroy (cli);
+
+
+	dstring s = dstring_new ("foo");
+	printf ("s->count: %d, s->str: %s\n", s->count, s->str);
+
+	dstring_release (s);
 }
