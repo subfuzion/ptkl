@@ -280,27 +280,6 @@ void test_integer_option_fail ()
 
 void cli_test ()
 {
-	// char *s = NULL;
-	// printf ("%s\n", strdup (s));
-	// panic ("test");
-
-	result res;
-	printf ("sizeof result: %lu\n", sizeof (res));
-	printf ("sizeof double: %lu\n", sizeof (double));
-
-	res = make_string_result ("foo");
-	check (res);
-	printf ("%s\n", result_string (res));
-
-	res = make_int_result (10);
-	check (res);
-	printf ("print value...%d\n", result_int (res));
-	if (succeeded (res)) printf ("1. result: %d\n", res.int_val);
-	if (succeeded (res)) printf ("2. result: %d\n", result_int (res));
-	printf ("3. result: %d\n", result_int (res));
-
-	// res = make_error_result (nullptr);
-	// check (res);
 
 
 	// test (test_boolean_option);
@@ -310,15 +289,4 @@ void cli_test ()
 	// PartikleCLI cli = cli_new ("ptkl", "0.1.0", "Partikle CLI");
 	//
 	// cli_destroy (cli);
-
-
-	dstring s = dstring_new ("foo");
-	printf ("s->count: %d, s->str: \"%s\"\n", s->count, s->str);
-	printf("s length: %lu\n", dstring_len(s));
-
-	dstring_clear (s);
-	printf ("s->count: %d, s->str: \"%s\"\n", s->count, s->str);
-	printf("s length: %lu\n", dstring_len(s));
-
-	dstring_release (s);
 }

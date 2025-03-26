@@ -46,7 +46,7 @@ dstring dstring_new (const char *str)
 
 void dstring_free (dstring s)
 {
-	printf ("%s: free \"%s\"\n", __func__, s->str);
+	/* printf ("%s: free \"%s\"\n", __func__, s->str); */
 	s->count = 0;
 	sdsfree (s->str);
 }
@@ -55,7 +55,7 @@ void dstring_free (dstring s)
 void dstring_addref (dstring s)
 {
 	if (s->str) {
-		printf ("%s: from %d to %d\n", __func__, s->count, s->count + 1);
+		/* printf ("%s: from %d to %d\n", __func__, s->count, s->count + 1); */
 		s->count++;
 	}
 }
@@ -63,7 +63,7 @@ void dstring_addref (dstring s)
 
 void dstring_release (dstring s)
 {
-	printf ("%s: from %d to %d\n", __func__, s->count, s->count - 1);
+	/* printf ("%s: from %d to %d\n", __func__, s->count, s->count - 1); */
 	s->count--;
 	if (s->count < 1) {
 		dstring_free (s);

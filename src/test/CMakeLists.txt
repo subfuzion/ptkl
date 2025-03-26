@@ -12,6 +12,7 @@ set(PTKLTEST_SOURCES
 	cli_test.c
 	expect_test.c
 	string_test.c
+	utils_test.c
 )
 
 add_executable(

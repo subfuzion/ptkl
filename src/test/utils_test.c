@@ -24,53 +24,36 @@
  * THE SOFTWARE.
  */
 
-#include <assert.h>
-#include <errors.h>
-
+#include "errors.h"
+#include "results.h"
 #include "test.h"
 
-extern void adt_test ();
-extern void cli_test ();
-extern void expect_test ();
-extern void string_test ();
-extern void utils_test ();
-
-int main ()
+void test_errors()
 {
-	register_signal_panic_handlers ();
-	printf ("Running tests\n\n");
+	// char *s = NULL;
+	// printf ("%s\n", strdup (s));
+	// panic ("test");
+}
 
-#if 0
-	printf("▶︎ test framework tests\n");
-	expect_test();
-	printf("\n");
+void test_results() {
+	result res;
 
-	printf("▶︎ ADT tests\n");
-	adt_test();
-	printf("\n");
-#endif
+	res = make_string_result ("foo");
+	expect_eq_str ("foo", result_string(res));
 
-	printf ("▶︎ expect tests\n");
-	expect_test ();
-	printf ("\n");
+	res = make_int_result (10);
+	expect_eq_int (10, result_int(res));
 
-	printf ("▶︎ adt tests\n");
-	adt_test ();
-	printf ("\n");
-
-	printf ("▶︎ utils tests\n");
-	utils_test ();
-	printf ("\n");
-
-	printf ("▶︎ string tests\n");
-	string_test ();
-	printf ("\n");
-
-	printf ("▶︎ CLI tests\n");
-	cli_test ();
-	printf ("\n");
+	res = make_error_result ("oops");
+	expect_not_null(result_error (res));
+	expect(failed(res));
+	expect_false (succeeded(res));
+	expect_eq_str ("oops", result_error(res)->message);
+}
 
 
-	printf ("All tests passed.\n");
-	return EXIT_SUCCESS;
+void utils_test()
+{
+	test (test_errors);
+	test (test_results);
 }
