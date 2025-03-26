@@ -30,6 +30,194 @@
 #include "test.h"
 
 /****************************************************************************/
+/* cutils.c                                                        */
+/****************************************************************************/
+
+/* error handling */
+
+#include <execinfo.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+void
+print_stack_trace ()
+{
+	void *buffer[1024];
+	int count = backtrace (buffer, sizeof(buffer) / sizeof(buffer[0]));
+	char **traces = backtrace_symbols (buffer, count);
+	if (traces != NULL) {
+		fprintf (stderr, "Stack trace:\n");
+		for (int i = 3; i < count; i++) {
+			fprintf (stderr, "%s\n", traces[i]);
+		}
+		free (traces);
+	} else {
+		perror ("backtrace_symbols");
+		exit (EXIT_FAILURE);
+	}
+	exit (EXIT_FAILURE);
+}
+
+void
+panic_signal_handler (int sig)
+{
+	fprintf (stderr, "Caught signal: %d\n", sig);
+	print_stack_trace();
+}
+
+void
+set_signal_panic_handlers ()
+{
+	/* don't intercept SIGABRT, SIGINT, SIGTERM */
+	signal (SIGFPE, panic_signal_handler); /* arithmetic (divide by zero, etc) */
+	signal (SIGILL, panic_signal_handler); /* illegal instruction */
+	signal (SIGSEGV, panic_signal_handler); /* segmentation violation */
+	signal (SIGBUS, panic_signal_handler); /* bus error accessing invalid address */
+}
+
+void
+panic (const char *msg)
+{
+	fprintf (stderr, "panic: %s\n", msg);
+	print_stack_trace();
+}
+
+/* 8 bytes (size of the biggest member: double */
+typedef union ptkl_result {
+	char *error;
+	bool bool_val;
+	char char_val;
+	char *string_val;
+	int int_val;
+	long long_val;
+	double double_val;
+	void *pointer;
+} result;
+
+result
+make_error_result (const char *err)
+{
+	return (result){.error = strdup (err)};
+}
+
+result
+make_bool_result (bool val)
+{
+	return (result){.bool_val = val};
+}
+
+result
+make_char_result (char ch)
+{
+	return (result){.char_val = ch};
+}
+
+result
+make_string_result (const char *string)
+{
+	return (result){.string_val = strdup (string)};
+}
+
+result
+make_int_result (int n)
+{
+	return (result){.int_val = n};
+}
+
+result
+make_long_result (long n)
+{
+	return (result){.long_val = n};
+}
+
+result
+make_double_result (double val)
+{
+	return (result){.double_val = val};
+}
+
+result
+make_pointer_result (void *pointer)
+{
+	return (result){.pointer = pointer};
+}
+
+
+
+char *
+result_error (const result res)
+{
+	return res.error;
+}
+
+bool
+result_bool (const result res)
+{
+	return res.bool_val;
+}
+
+char
+result_char (const result res)
+{
+	return res.char_val;
+}
+
+char *
+result_string (const result res)
+{
+	return res.string_val;
+}
+
+int
+result_int (const result res)
+{
+	return res.int_val;
+}
+
+long
+result_long (const result res)
+{
+	return res.long_val;
+}
+
+double
+result_double (const result res)
+{
+	return res.double_val;
+}
+
+void *
+result_pointer (const result res)
+{
+	return res.pointer;
+}
+
+bool
+succeeded (const result res)
+{
+	return !res.error;
+}
+
+bool
+failed (const result res)
+{
+	return res.error != nullptr;
+}
+
+void
+check (const result res)
+{
+	if (failed (res)) {
+		panic (res.error ? res.error : "unknown error");
+	}
+}
+
+/* memory */
+
+/* strings */
+
+/****************************************************************************/
 /* src/libcli/args.h                                                        */
 /****************************************************************************/
 
@@ -79,46 +267,86 @@ struct ptkl_option {
 };
 
 typedef struct ptkl_cli {
+	char *name;
 	char *version;
 	char *description;
 
 	map *options;
 } *PartikleCLI;
 
-static void cli_init (struct ptkl_cli *cli, const char *version, const char *description);
+
 bool cli_add_option (struct ptkl_cli *cli, struct ptkl_option_spec spec);
 
 bool cli_parse (struct ptkl_cli *cli, int argc, char **argv);
 bool parse_option (struct ptkl_option *opt);
 
+#define STRDUP(str) (str) ? strdup (str) : nullptr
+
+#define FREE(var)												      \
+	do {                                                                                                           \
+		if (var) {                                                                                             \
+			free (var);                                                                                    \
+			var = nullptr;                                                                                 \
+		}                                                                                                      \
+	} while (0)
+
+#define FREE_FN(var, free_fn)												      \
+	do {                                                                                                           \
+		if (var) {                                                                                             \
+			free_fn (var);                                                                                    \
+			var = nullptr;                                                                                 \
+		}                                                                                                      \
+	} while (0)
+
+#define PANIC(msg)												      \
+	do {                                                                                                           \
+		fprintf (stderr, "%s: %s\n", __func__, msg);                                                                         \
+		exit (EXIT_FAILURE);                                                                                   \
+	} while (0)
 
 /****************************************************************************/
 /* src/libcli/args.c                                                        */
 /****************************************************************************/
 
 static void
-cli_init (struct ptkl_cli *cli, const char *version, const char *description)
+cli_init (struct ptkl_cli *cli, const char *name, const char *version, const char *description)
 {
-	cli->version = strdup (version);
-	cli->description = strdup (description);
+	cli->name = STRDUP (name);
+	cli->version = STRDUP (version);
+	cli->description = STRDUP (description);
+
+	map *options = malloc (sizeof (map));
+	if (!options)
+		PANIC ("Out of memory");
+	map_init (options);
+	cli->options = options;
 }
 
 void
 cli_free (struct ptkl_cli *cli)
 {
-	if (cli->version) {
-		free (cli->version);
-		cli->version = nullptr;
-	}
-	if (cli->description) {
-		free (cli->description);
-		cli->description = nullptr;
-	}
-	if (cli->options) {
-		map_free (cli->options);
-		cli->options = nullptr;
-	}
+	FREE (cli->name);
+	FREE (cli->version);
+	FREE (cli->description);
+	FREE_FN (cli->options, map_free);
 }
+
+PartikleCLI
+cli_new (const char *name, const char *version, const char *description)
+{
+	PartikleCLI cli = malloc (sizeof (struct ptkl_cli));
+	if (!cli)
+		PANIC ("Out of memory");
+	cli_init (cli, name, version, description);
+	return cli;
+}
+
+void
+cli_destroy (PartikleCLI cli)
+{
+	cli_free (cli);
+}
+
 
 bool
 cli_parse (struct ptkl_cli *cli, int argc, char **argv)
@@ -232,13 +460,36 @@ test_integer_option_fail ()
 	expect_error ("Invalid input", opt.error);
 }
 
+
 void
 cli_test ()
 {
-	test (test_boolean_option);
-	test (test_integer_option);
-	test (test_integer_option_fail);
+	set_signal_panic_handlers();
+	// char *s = NULL;
+	// printf ("%s\n", strdup (s));
+	// panic ("test");
 
-	struct ptkl_cli cli;
-	cli_init (&cli, "foo", "bar");
+	result res;
+
+	res = make_string_result ("foo");
+	check (res);
+	printf ("%s\n", result_string (res));
+
+	res = make_int_result (10);
+	check (res);
+
+	if (succeeded (res)) printf ("%d\n", res.int_val);
+
+	res = make_error_result ("whoops");
+	check (res);
+
+
+
+	// test (test_boolean_option);
+	// test (test_integer_option);
+	// test (test_integer_option_fail);
+	//
+	// PartikleCLI cli = cli_new ("ptkl", "0.1.0", "Partikle CLI");
+	//
+	// cli_destroy (cli);
 }
