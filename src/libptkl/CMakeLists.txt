@@ -17,11 +17,19 @@ set(
 	adt/vector.c
 )
 
+set(
+	UTILS_SRC
+	utils/errors.c
+	utils/results.c
+)
+
 add_library(
 	libptkl
 	STATIC
 	${ADT_SRC}
+	${UTILS_SRC}
 )
+
 set_target_properties(
 	libptkl
 	PROPERTIES

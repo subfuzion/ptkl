@@ -24,7 +24,13 @@
  * THE SOFTWARE.
  */
 
-#ifndef BUFFER_H
-#define BUFFER_H
+#ifndef ERRORS_H
+#define ERRORS_H
 
-#endif
+/* Register handlers at the top of main() */
+void register_signal_panic_handlers ();
+
+/* Print to stderr and exit with EXIT_FAILURE */
+void panic (const char *msg);
+
+#endif //ERRORS_H

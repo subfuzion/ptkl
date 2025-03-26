@@ -25,6 +25,7 @@
  */
 
 #include <assert.h>
+#include <errors.h>
 
 #include "test.h"
 
@@ -35,6 +36,7 @@ extern void cli_test();
 int
 main ()
 {
+	register_signal_panic_handlers();
 	printf ("Running tests\n\n");
 
 #if 0

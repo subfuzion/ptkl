@@ -27,223 +27,13 @@
 #include <limits.h>
 
 /* #include "args.h" */
+#include "errors.h"
+#include "results.h"
 #include "test.h"
 
 /****************************************************************************/
 /* cutils.c                                                        */
 /****************************************************************************/
-
-/* error handling */
-
-#include <execinfo.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/time.h>
-
-typedef struct error {
-	char *message;
-} error;
-
-static thread_local error g_result_error = {};
-
-void log_error(const char *message) {
-#if LOG_UTC_TIME
-	time_t now = time(nullptr);
-	struct tm *time = gmtime(&now);
-	char time_str[9];
-	strftime(time_str, sizeof(time_str), "%T", time);
-	fprintf(stderr, "[%s] %s\n", time_str, message);
-#else
-	fprintf(stderr, "%s\n", message);
-#endif
-}
-
-
-void print_stack_trace (const char *msg)
-{
-	if (msg) log_error(msg);
-	void *buffer[1024];
-	int count = backtrace (buffer, sizeof(buffer) / sizeof(buffer[0]));
-	char **traces = backtrace_symbols (buffer, count);
-	if (traces != NULL) {
-		log_error("Stack trace:");
-		for (int i = 3; i < count; i++) {
-			log_error (traces[i]);
-		}
-		free (traces);
-	} else {
-		perror ("unable to print stack trace");
-		exit (EXIT_FAILURE);
-	}
-	exit (EXIT_FAILURE);
-}
-
-
-void panic_signal_handler (int sig)
-{
-	char msg[80];
-	snprintf (msg, 80, "Caught signal: %d", sig);
-	// fprintf (stderr, "%s\n", msg);
-	print_stack_trace(msg);
-}
-
-
-void set_signal_panic_handlers ()
-{
-	/* don't intercept SIGABRT, SIGINT, SIGTERM */
-	signal (SIGFPE, panic_signal_handler); /* arithmetic (divide by zero, etc) */
-	signal (SIGILL, panic_signal_handler); /* illegal instruction */
-	signal (SIGSEGV, panic_signal_handler); /* segmentation violation */
-	signal (SIGBUS, panic_signal_handler); /* bus error accessing invalid address */
-}
-
-
-void panic (const char *msg)
-{
-	char err[1024];
-	snprintf (err, 1024, "panic: %s", msg ? msg : "unknown error");
-	// fprintf (stderr, "%s\n", msg);
-	print_stack_trace(err);
-}
-
-
-/**
- * 8 bytes (size of the biggest member: double
- * This means that error must point to a unique ("interned") error object
- * initialized once and never freed.
- */
-typedef union ptkl_result {
-	error *error;
-	bool bool_val;
-	char char_val;
-	char *string_val;
-	int int_val;
-	long long_val;
-	double double_val;
-	void *pointer;
-} result;
-
-/* result constructors */
-
-result make_error_result (const char *err)
-{
-	g_result_error.message = err ? strdup (err) : "unknown error";
-	return (result){.error = &g_result_error};
-}
-
-
-result make_bool_result (bool val)
-{
-	return (result){.bool_val = val};
-}
-
-
-result make_char_result (char ch)
-{
-	return (result){.char_val = ch};
-}
-
-
-result make_string_result (const char *string)
-{
-	return (result){.string_val = strdup (string)};
-}
-
-
-result make_int_result (int n)
-{
-	return (result){.int_val = n};
-}
-
-
-result make_long_result (long n)
-{
-	return (result){.long_val = n};
-}
-
-
-result make_double_result (double val)
-{
-	return (result){.double_val = val};
-}
-
-
-result make_pointer_result (void *pointer)
-{
-	return (result){.pointer = pointer};
-}
-
-
-/* result accessors */
-
-error *result_error (const result res)
-{
-	return res.error;
-}
-
-
-bool result_bool (const result res)
-{
-	return res.bool_val;
-}
-
-
-char result_char (const result res)
-{
-	return res.char_val;
-}
-
-
-char *result_string (const result res)
-{
-	return res.string_val;
-}
-
-
-int result_int (const result res)
-{
-	return res.int_val;
-}
-
-
-long result_long (const result res)
-{
-	return res.long_val;
-}
-
-
-double result_double (const result res)
-{
-	return res.double_val;
-}
-
-
-void *result_pointer (const result res)
-{
-	return res.pointer;
-}
-
-
-/* result helpers */
-
-bool succeeded (const result res)
-{
-	return res.error != &g_result_error;
-}
-
-
-bool failed (const result res)
-{
-	return res.error == &g_result_error;
-}
-
-
-void check (const result res)
-{
-	if (failed (res)) panic (res.error->message);
-}
-
 
 /* memory */
 
@@ -342,7 +132,8 @@ bool parse_option (struct ptkl_option *opt);
 /****************************************************************************/
 
 
-static void cli_init (struct ptkl_cli *cli, const char *name, const char *version, const char *description)
+static void
+cli_init (struct ptkl_cli *cli, const char *name, const char *version, const char *description)
 {
 	cli->name = STRDUP (name);
 	cli->version = STRDUP (version);
@@ -356,7 +147,8 @@ static void cli_init (struct ptkl_cli *cli, const char *name, const char *versio
 }
 
 
-void cli_free (struct ptkl_cli *cli)
+void
+cli_free (struct ptkl_cli *cli)
 {
 	FREE (cli->name);
 	FREE (cli->version);
@@ -365,7 +157,8 @@ void cli_free (struct ptkl_cli *cli)
 }
 
 
-PartikleCLI cli_new (const char *name, const char *version, const char *description)
+PartikleCLI
+cli_new (const char *name, const char *version, const char *description)
 {
 	PartikleCLI cli = malloc (sizeof (struct ptkl_cli));
 	if (!cli)
@@ -375,13 +168,15 @@ PartikleCLI cli_new (const char *name, const char *version, const char *descript
 }
 
 
-void cli_destroy (PartikleCLI cli)
+void
+cli_destroy (PartikleCLI cli)
 {
 	cli_free (cli);
 }
 
 
-bool cli_parse (struct ptkl_cli *cli, int argc, char **argv)
+bool
+cli_parse (struct ptkl_cli *cli, int argc, char **argv)
 {
 	int optind = 1;
 	// while (optind < argc && *argv[optind] == '-') {
@@ -392,7 +187,8 @@ bool cli_parse (struct ptkl_cli *cli, int argc, char **argv)
 }
 
 
-bool parse_option (struct ptkl_option *opt)
+bool
+parse_option (struct ptkl_option *opt)
 {
 	const char *str = opt->text;
 
@@ -437,7 +233,8 @@ bool parse_option (struct ptkl_option *opt)
 /****************************************************************************/
 
 
-void test_boolean_option ()
+void
+test_boolean_option ()
 {
 	const struct ptkl_option_spec spec = {
 		.name = "foo",
@@ -458,7 +255,8 @@ void test_boolean_option ()
 }
 
 
-void test_integer_option ()
+void
+test_integer_option ()
 {
 	const struct ptkl_option_spec spec = {.type = TT_INT};
 
@@ -477,7 +275,8 @@ void test_integer_option ()
 }
 
 
-void test_integer_option_fail ()
+void
+test_integer_option_fail ()
 {
 	const struct ptkl_option_spec spec = {.type = TT_INT};
 
@@ -493,12 +292,12 @@ void test_integer_option_fail ()
 }
 
 
-void cli_test ()
+void
+cli_test ()
 {
-	set_signal_panic_handlers();
-	// char *s = NULL;
-	// printf ("%s\n", strdup (s));
-	// panic ("test");
+	char *s = NULL;
+	printf ("%s\n", strdup (s));
+	panic ("test");
 
 	result res;
 	printf ("sizeof result: %lu\n", sizeof (res));

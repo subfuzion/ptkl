@@ -1,5 +1,5 @@
 /*
- * ptkl - Partikle Runtime
+* ptkl - Partikle Runtime
  *
  * MIT License
  *
@@ -24,71 +24,50 @@
  * THE SOFTWARE.
  */
 
-#include "stack.h"
-#include <stdlib.h>
+#ifndef RESULTS_H
+#define RESULTS_H
 
-void
-stack_init (stack *s)
-{
-	s->head = nullptr;
-	s->size = 0;
-}
+typedef struct error {
+	char *message;
+} error;
 
-bool
-stack_push (stack *s, void *data)
-{
-	stacknode *new_node = malloc (sizeof (stacknode));
-	if (new_node == nullptr) {
-		return false;
-	}
-	new_node->data = data;
-	new_node->next = s->head;
-	s->head = new_node;
-	s->size++;
-	return true;
-}
+typedef union ptkl_result {
+	error *error;
+	bool bool_val;
+	char char_val;
+	char *string_val;
+	int int_val;
+	long long_val;
+	double double_val;
+	void *pointer;
+} result;
 
-void *
-stack_pop (stack *s)
-{
-	void *data = nullptr;
-	stacknode *node = s->head;
-	if (node != nullptr) {
-		s->head = node->next;
-		data = node->data;
-		free (node);
-		s->size--;
-	}
-	return data;
-}
+/* result constructors */
 
-void *
-stack_peek (const stack *s)
-{
-	void *data = nullptr;
-	stacknode *node = s->head;
-	if (node != nullptr) {
-		data = node->data;
-	}
-	return data;
-}
+result make_error_result (const char *err);
+result make_bool_result (bool val);
+result make_char_result (char ch);
+result make_string_result (const char *string);
+result make_int_result (int n);
+result make_long_result (long n);
+result make_double_result (double val);
+result make_pointer_result (void *pointer);
 
+/* result accessors */
 
-void
-stack_free (stack *s)
-{
-	stacknode *current = s->head;
-	while (current != nullptr) {
-		stacknode *next = current->next;
-		free (current);
-		current = next;
-	}
-	s->head = nullptr;
-	s->size = 0;
-}
+error *result_error (const result res);
+bool result_bool (const result res);
+char result_char (const result res);
+char *result_string (const result res);
+int result_int (const result res);
+long result_long (const result res);
+double result_double (const result res);
+void *result_pointer (const result res);
 
-size_t
-stack_size (stack *s)
-{
-	return s->size;
-}
+/* result helpers */
+
+bool succeeded (const result res);
+bool failed (const result res);
+void check (const result res);
+
+#endif //RESULTS_H
