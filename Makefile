@@ -97,7 +97,10 @@ clean:
 	@rm -rf $(BINDIR) $(OBJDIR)
 
 format:
-	@clang-format -i $$(find src -type f -name *.[c,h] -not -path "src/libqjs/quickjs/*")
+	@clang-format -i $$(find src -type f -name *.[c,h] \
+		-not -path "src/libqjs/quickjs/*" \
+		-not -path "src/libstring/sds/*" \
+		)
 
 tidy:
 	@clang-tidy $$(find src -type f -name *.[c,h] -not -path "src/libqjs/quickjs/*")
