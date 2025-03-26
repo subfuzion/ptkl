@@ -32,14 +32,6 @@
 #include "test.h"
 
 /****************************************************************************/
-/* cutils.c                                                        */
-/****************************************************************************/
-
-/* memory */
-
-/* strings */
-
-/****************************************************************************/
 /* src/libcli/args.h                                                        */
 /****************************************************************************/
 
@@ -104,6 +96,7 @@ bool parse_option (struct ptkl_option *opt);
 
 #define STRDUP(str) (str) ? strdup (str) : nullptr
 
+
 #define FREE(var)                                                                                                      \
 	do {                                                                                                           \
 		if (var) {                                                                                             \
@@ -157,7 +150,7 @@ void cli_free (struct ptkl_cli *cli)
 PartikleCLI cli_new (const char *name, const char *version, const char *description)
 {
 	PartikleCLI cli = malloc (sizeof (struct ptkl_cli));
-	if (!cli) PANIC ("Out of memory");
+	if (!cli) panic ("Out of memory");
 	cli_init (cli, name, version, description);
 	return cli;
 }
