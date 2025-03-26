@@ -34,8 +34,7 @@
 #endif
 
 // Don't use getopt so command line can be passed to scripts
-bool
-parse_args (const int argc, char **argv, struct opts *opts)
+bool parse_args (const int argc, char **argv, struct opts *opts)
 {
 	opts->runtime.expr = nullptr;
 	opts->runtime.interactive = 0;

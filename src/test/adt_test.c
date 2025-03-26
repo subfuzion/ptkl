@@ -29,8 +29,7 @@
 #include "adt.h"
 #include "test.h"
 
-void
-test_list ()
+void test_list ()
 {
 	list l;
 	list_init (&l);
@@ -57,8 +56,7 @@ test_list ()
 	expect_eq_int (0, list_size (&l));
 }
 
-void
-test_stack ()
+void test_stack ()
 {
 	stack l;
 	stack_init (&l);
@@ -85,8 +83,7 @@ test_stack ()
 	expect_eq_int (0, stack_size (&l));
 }
 
-void
-test_vector ()
+void test_vector ()
 {
 	vector v;
 	vector_init (&v);
@@ -115,8 +112,7 @@ test_vector ()
 	expect_eq_int (0, vector_size (&v));
 }
 
-void
-test_map ()
+void test_map ()
 {
 	map m;
 	map_init (&m);
@@ -184,8 +180,7 @@ test_map ()
 }
 
 
-void
-adt_test ()
+void adt_test ()
 {
 	test (test_list);
 	test (test_stack);

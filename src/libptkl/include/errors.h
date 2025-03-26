@@ -33,4 +33,4 @@ void register_signal_panic_handlers ();
 /* Print to stderr and exit with EXIT_FAILURE */
 void panic (const char *msg);
 
-#endif //ERRORS_H
+#endif // ERRORS_H

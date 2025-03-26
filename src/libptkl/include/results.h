@@ -1,5 +1,5 @@
 /*
-* ptkl - Partikle Runtime
+ * ptkl - Partikle Runtime
  *
  * MIT License
  *
@@ -70,4 +70,4 @@ bool succeeded (const result res);
 bool failed (const result res);
 void check (const result res);
 
-#endif //RESULTS_H
+#endif // RESULTS_H

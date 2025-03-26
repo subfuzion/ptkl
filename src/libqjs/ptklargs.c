@@ -29,8 +29,7 @@
 #include "cutils.h"
 #include "ptklargs.h"
 
-void
-help (const int exit_code)
+void help (const int exit_code)
 {
 	printf ("Partikle Runtime (version " CONFIG_VERSION ")\n"
 		"usage: " PTKL " [options] [file [args]]\n"
@@ -56,16 +55,14 @@ help (const int exit_code)
 	exit (exit_code);
 }
 
-void
-version ()
+void version ()
 {
 	printf ("%s %s\n", PTKL, CONFIG_VERSION);
 	exit (0);
 }
 
 // Don't use getopt so we can pass command line to scripts
-int
-parse_runtime_args (const int argc, char **argv, struct runtime_opts *opts)
+int parse_runtime_args (const int argc, char **argv, struct runtime_opts *opts)
 {
 	opts->expr = nullptr;
 	opts->interactive = 0;
@@ -174,7 +171,7 @@ parse_runtime_args (const int argc, char **argv, struct runtime_opts *opts)
 				continue;
 			}
 			if (opt == 'v' || !strcmp (longopt, "version")) {
-				version();
+				version ();
 			}
 			if (opt) {
 				fprintf (stderr, "%s: unknown option '-%c'\n", PTKL, opt);

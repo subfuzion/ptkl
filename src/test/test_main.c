@@ -29,14 +29,13 @@
 
 #include "test.h"
 
-extern void expect_test();
-extern void adt_test();
-extern void cli_test();
+extern void expect_test ();
+extern void adt_test ();
+extern void cli_test ();
 
-int
-main ()
+int main ()
 {
-	register_signal_panic_handlers();
+	register_signal_panic_handlers ();
 	printf ("Running tests\n\n");
 
 #if 0
@@ -50,7 +49,7 @@ main ()
 #endif
 
 	printf ("▶︎ CLI tests\n");
-	cli_test();
+	cli_test ();
 	printf ("\n");
 
 

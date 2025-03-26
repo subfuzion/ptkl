@@ -32,8 +32,7 @@
 #include "args.h"
 #include "ptkl.h"
 
-void
-help (const int exit_code)
+void help (const int exit_code)
 {
 	printf ("Partikle Runtime (version " CONFIG_VERSION ")\n"
 		"usage: " PTKL " [options] [file [args]]\n"
@@ -43,15 +42,13 @@ help (const int exit_code)
 	exit (exit_code);
 }
 
-void
-version ()
+void version ()
 {
 	printf ("%s %s\n", PTKL, CONFIG_VERSION);
 	exit (EXIT_SUCCESS);
 }
 
-int
-main (const int argc, char **argv)
+int main (const int argc, char **argv)
 {
 	// struct opts opts = {};
 	// if (!parse_args(argc, argv, &opts)) {

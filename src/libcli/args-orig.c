@@ -76,8 +76,7 @@ bool parse_args (int argc, char **argv, struct opts *opts);
 #define count_elements(x) (sizeof (x) / sizeof ((x)[0]))
 #endif
 
-bool
-parse_args (const int argc, char **argv, struct opts *opts)
+bool parse_args (const int argc, char **argv, struct opts *opts)
 {
 	opts->runtime.expr = nullptr;
 	opts->runtime.interactive = 0;

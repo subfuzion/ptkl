@@ -32,15 +32,11 @@
 #include "args.h"
 
 
-void
-init_cli (struct ptkl_cli *cli, const char *version, const char *description)
-{
-
-}
+void init_cli (struct ptkl_cli *cli, const char *version, const char *description)
+{}
 
 
-bool
-cli_parse(struct ptkl_cli *cli, int argc, char **argv)
+bool cli_parse (struct ptkl_cli *cli, int argc, char **argv)
 {
 	int optind = 1;
 	// while (optind < argc && *argv[optind] == '-') {
@@ -50,8 +46,7 @@ cli_parse(struct ptkl_cli *cli, int argc, char **argv)
 	return 0;
 }
 
-bool
-parse_option (struct ptkl_option *opt)
+bool parse_option (struct ptkl_option *opt)
 {
 	const char *str = opt->text;
 

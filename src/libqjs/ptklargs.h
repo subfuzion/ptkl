@@ -46,7 +46,7 @@ struct compiler_opts {};
 
 void help (int exit_code);
 
-void version();
+void version ();
 
 int parse_runtime_args (int argc, char **argv, struct runtime_opts *opts);
 

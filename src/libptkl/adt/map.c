@@ -41,8 +41,7 @@ static bool map_resize (map *m, size_t new_capacity);
 #define MAX_LOAD_FACTOR 0.75
 
 /* hash function based on djb2 algorithm */
-unsigned long
-hash (const char *str)
+unsigned long hash (const char *str)
 {
 	unsigned long hash = 5381;
 	unsigned c;
@@ -52,8 +51,8 @@ hash (const char *str)
 	return hash;
 }
 
-void
-map_init (map *m)
+
+void map_init (map *m)
 {
 	m->capacity = INITIAL_CAPACITY;
 	m->size = 0;
@@ -64,8 +63,8 @@ map_init (map *m)
 	}
 }
 
-bool
-map_put (map *m, const char *key, void *value)
+
+bool map_put (map *m, const char *key, void *value)
 {
 	/* check load factor to determine whether resizing is necessary */
 	if ((double)m->size / (double)m->capacity >= MAX_LOAD_FACTOR && !map_resize (m, m->capacity * 2)) {
@@ -110,8 +109,8 @@ fail:
 	return false;
 }
 
-void *
-map_get (const map *m, const char *key)
+
+void *map_get (const map *m, const char *key)
 {
 	const unsigned long index = hash (key) % m->capacity;
 	const mapnode *current = m->buckets[index];
@@ -124,8 +123,8 @@ map_get (const map *m, const char *key)
 	return nullptr;
 }
 
-bool
-map_delete (map *m, const char *key)
+
+bool map_delete (map *m, const char *key)
 {
 	const unsigned long index = hash (key) % m->capacity;
 	mapnode *current = m->buckets[index];
@@ -148,8 +147,8 @@ map_delete (map *m, const char *key)
 	return false;
 }
 
-void
-map_free (map *m)
+
+void map_free (map *m)
 {
 	for (size_t i = 0; i < m->capacity; i++) {
 		mapnode *current = m->buckets[i];
@@ -165,16 +164,16 @@ map_free (map *m)
 	free (m->buckets);
 }
 
+
 /* get number of elements in hashmap */
-size_t
-map_size (const map *m)
+size_t map_size (const map *m)
 {
 	return m->size;
 }
 
+
 /* resize hashmap when load factor is exceeded */
-static bool
-map_resize (map *m, const size_t new_capacity)
+static bool map_resize (map *m, const size_t new_capacity)
 {
 	mapnode **new_buckets = calloc (new_capacity, sizeof (mapnode *));
 	if (new_buckets == nullptr) {
@@ -199,8 +198,8 @@ map_resize (map *m, const size_t new_capacity)
 	return true;
 }
 
-void
-map_keys (const map *m, char **keys)
+
+void map_keys (const map *m, char **keys)
 {
 	size_t index = 0;
 	for (size_t i = 0; i < m->capacity; i++) {
@@ -212,8 +211,8 @@ map_keys (const map *m, char **keys)
 	}
 }
 
-void
-map_values (const map *m, void **values)
+
+void map_values (const map *m, void **values)
 {
 	size_t index = 0;
 	for (size_t i = 0; i < m->capacity; i++) {
@@ -225,8 +224,8 @@ map_values (const map *m, void **values)
 	}
 }
 
-void
-map_items (const map *m, char **keys, void **values)
+
+void map_items (const map *m, char **keys, void **values)
 {
 	size_t index = 0;
 	for (size_t i = 0; i < m->capacity; i++) {

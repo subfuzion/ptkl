@@ -104,26 +104,26 @@ bool parse_option (struct ptkl_option *opt);
 
 #define STRDUP(str) (str) ? strdup (str) : nullptr
 
-#define FREE(var) \
-	do { \
-		if (var) { \
-			free (var); \
-			var = nullptr; \
-		} \
+#define FREE(var)                                                                                                      \
+	do {                                                                                                           \
+		if (var) {                                                                                             \
+			free (var);                                                                                    \
+			var = nullptr;                                                                                 \
+		}                                                                                                      \
 	} while (0)
 
-#define FREE_FN(var, free_fn) \
-	do { \
-		if (var) { \
-			free_fn (var); \
-			var = nullptr; \
-		} \
+#define FREE_FN(var, free_fn)                                                                                          \
+	do {                                                                                                           \
+		if (var) {                                                                                             \
+			free_fn (var);                                                                                 \
+			var = nullptr;                                                                                 \
+		}                                                                                                      \
 	} while (0)
 
-#define PANIC(msg) \
-	do { \
-		fprintf (stderr, "%s: %s\n", __func__, msg); \
-		exit (EXIT_FAILURE); \
+#define PANIC(msg)                                                                                                     \
+	do {                                                                                                           \
+		fprintf (stderr, "%s: %s\n", __func__, msg);                                                           \
+		exit (EXIT_FAILURE);                                                                                   \
 	} while (0)
 
 
@@ -132,23 +132,20 @@ bool parse_option (struct ptkl_option *opt);
 /****************************************************************************/
 
 
-static void
-cli_init (struct ptkl_cli *cli, const char *name, const char *version, const char *description)
+static void cli_init (struct ptkl_cli *cli, const char *name, const char *version, const char *description)
 {
 	cli->name = STRDUP (name);
 	cli->version = STRDUP (version);
 	cli->description = STRDUP (description);
 
 	map *options = malloc (sizeof (map));
-	if (!options)
-		PANIC ("Out of memory");
+	if (!options) PANIC ("Out of memory");
 	map_init (options);
 	cli->options = options;
 }
 
 
-void
-cli_free (struct ptkl_cli *cli)
+void cli_free (struct ptkl_cli *cli)
 {
 	FREE (cli->name);
 	FREE (cli->version);
@@ -157,26 +154,22 @@ cli_free (struct ptkl_cli *cli)
 }
 
 
-PartikleCLI
-cli_new (const char *name, const char *version, const char *description)
+PartikleCLI cli_new (const char *name, const char *version, const char *description)
 {
 	PartikleCLI cli = malloc (sizeof (struct ptkl_cli));
-	if (!cli)
-		PANIC ("Out of memory");
+	if (!cli) PANIC ("Out of memory");
 	cli_init (cli, name, version, description);
 	return cli;
 }
 
 
-void
-cli_destroy (PartikleCLI cli)
+void cli_destroy (PartikleCLI cli)
 {
 	cli_free (cli);
 }
 
 
-bool
-cli_parse (struct ptkl_cli *cli, int argc, char **argv)
+bool cli_parse (struct ptkl_cli *cli, int argc, char **argv)
 {
 	int optind = 1;
 	// while (optind < argc && *argv[optind] == '-') {
@@ -187,8 +180,7 @@ cli_parse (struct ptkl_cli *cli, int argc, char **argv)
 }
 
 
-bool
-parse_option (struct ptkl_option *opt)
+bool parse_option (struct ptkl_option *opt)
 {
 	const char *str = opt->text;
 
@@ -197,12 +189,14 @@ parse_option (struct ptkl_option *opt)
 		// TODO: evaluate strdup pros/cons (don't need fixed buffer / need to free later)
 		strcpy (opt->value.string, str);
 		return true;
-	case TT_BOOL: if (strcmp (opt->text, opt->spec.name) == 0) {
+	case TT_BOOL:
+		if (strcmp (opt->text, opt->spec.name) == 0) {
 			opt->value.boolean = true;
 			return true;
 		}
 		break;
-	case TT_INT: char *end;
+	case TT_INT:
+		char *end;
 		const long num = strtol (str, &end, 10);
 
 		if (*end != '\0') {
@@ -233,8 +227,7 @@ parse_option (struct ptkl_option *opt)
 /****************************************************************************/
 
 
-void
-test_boolean_option ()
+void test_boolean_option ()
 {
 	const struct ptkl_option_spec spec = {
 		.name = "foo",
@@ -255,8 +248,7 @@ test_boolean_option ()
 }
 
 
-void
-test_integer_option ()
+void test_integer_option ()
 {
 	const struct ptkl_option_spec spec = {.type = TT_INT};
 
@@ -275,8 +267,7 @@ test_integer_option ()
 }
 
 
-void
-test_integer_option_fail ()
+void test_integer_option_fail ()
 {
 	const struct ptkl_option_spec spec = {.type = TT_INT};
 
@@ -292,8 +283,7 @@ test_integer_option_fail ()
 }
 
 
-void
-cli_test ()
+void cli_test ()
 {
 	char *s = NULL;
 	printf ("%s\n", strdup (s));

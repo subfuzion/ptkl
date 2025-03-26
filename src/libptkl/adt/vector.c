@@ -26,16 +26,14 @@
 #include "vector.h"
 #include <string.h>
 
-void
-vector_init (vector *v)
+void vector_init (vector *v)
 {
 	v->capacity = 4;
 	v->size = 0;
 	v->items = malloc (sizeof (void *) * v->capacity);
 }
 
-bool
-vector_add (vector *v, void *item)
+bool vector_add (vector *v, void *item)
 {
 	if (v->size == v->capacity) {
 		v->capacity *= 2;
@@ -49,16 +47,14 @@ vector_add (vector *v, void *item)
 	return true;
 }
 
-void
-vector_set (const vector *v, const size_t index, void *item)
+void vector_set (const vector *v, const size_t index, void *item)
 {
 	if (index < v->size) {
 		v->items[index] = item;
 	}
 }
 
-void *
-vector_get (const vector *v, const size_t index)
+void *vector_get (const vector *v, const size_t index)
 {
 	if (index < v->size) {
 		return v->items[index];
@@ -66,8 +62,7 @@ vector_get (const vector *v, const size_t index)
 	return nullptr;
 }
 
-bool
-vector_delete (vector *v, const size_t index)
+bool vector_delete (vector *v, const size_t index)
 {
 	if (index < v->size) {
 		memmove (&v->items[index], &v->items[index + 1], sizeof (void *) * (v->size - index - 1));
@@ -77,16 +72,14 @@ vector_delete (vector *v, const size_t index)
 	return false;
 }
 
-void
-vector_free (vector *v)
+void vector_free (vector *v)
 {
 	v->size = 0;
 	v->capacity = 0;
 	free (v->items);
 }
 
-size_t
-vector_size (const vector *v)
+size_t vector_size (const vector *v)
 {
 	return v->size;
 }

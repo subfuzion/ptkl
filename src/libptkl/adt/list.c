@@ -27,15 +27,13 @@
 #include "list.h"
 #include <stdlib.h>
 
-void
-list_init (list *list)
+void list_init (list *list)
 {
 	list->head = nullptr;
 	list->size = 0;
 }
 
-bool
-list_add (list *list, void *data)
+bool list_add (list *list, void *data)
 {
 	listnode *new_node = malloc (sizeof (listnode));
 	if (new_node == nullptr) {
@@ -56,8 +54,7 @@ success:
 	return true;
 }
 
-void *
-list_get (const list *list, const size_t index)
+void *list_get (const list *list, const size_t index)
 {
 	if (index >= list->size) {
 		return nullptr; // Index out of bounds
@@ -69,8 +66,7 @@ list_get (const list *list, const size_t index)
 	return current->data;
 }
 
-bool
-list_delete (list *list, const size_t index)
+bool list_delete (list *list, const size_t index)
 {
 	if (index >= list->size) {
 		return false;
@@ -91,8 +87,7 @@ list_delete (list *list, const size_t index)
 	return true;
 }
 
-void
-list_free (list *list)
+void list_free (list *list)
 {
 	listnode *current = list->head;
 	while (current != nullptr) {
@@ -104,8 +99,7 @@ list_free (list *list)
 	list->size = 0;
 }
 
-size_t
-list_size (const list *list)
+size_t list_size (const list *list)
 {
 	return list->size;
 }

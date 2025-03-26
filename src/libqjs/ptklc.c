@@ -75,8 +75,7 @@ static const FeatureEntry feature_list[] = {
 	{"bigint", "BigInt"},
 };
 
-void
-namelist_add (namelist_t *lp, const char *name, const char *short_name, int flags)
+void namelist_add (namelist_t *lp, const char *name, const char *short_name, int flags)
 {
 	namelist_entry_t *e;
 	if (lp->count == lp->size) {
@@ -95,8 +94,7 @@ namelist_add (namelist_t *lp, const char *name, const char *short_name, int flag
 	e->flags = flags;
 }
 
-void
-namelist_free (namelist_t *lp)
+void namelist_free (namelist_t *lp)
 {
 	while (lp->count > 0) {
 		namelist_entry_t *e = &lp->array[--lp->count];
@@ -108,8 +106,7 @@ namelist_free (namelist_t *lp)
 	lp->size = 0;
 }
 
-namelist_entry_t *
-namelist_find (const namelist_t *lp, const char *name)
+namelist_entry_t *namelist_find (const namelist_t *lp, const char *name)
 {
 	int i;
 	for (i = 0; i < lp->count; i++) {
@@ -119,8 +116,7 @@ namelist_find (const namelist_t *lp, const char *name)
 	return nullptr;
 }
 
-static void
-get_c_name (char *buf, const size_t buf_size, const char *file)
+static void get_c_name (char *buf, const size_t buf_size, const char *file)
 {
 	const char *p, *r;
 	size_t len, i;
@@ -149,8 +145,7 @@ get_c_name (char *buf, const size_t buf_size, const char *file)
 	*q = '\0';
 }
 
-static void
-dump_hex (FILE *f, const uint8_t *buf, size_t len)
+static void dump_hex (FILE *f, const uint8_t *buf, size_t len)
 {
 	size_t i, col;
 	col = 0;
@@ -164,8 +159,7 @@ dump_hex (FILE *f, const uint8_t *buf, size_t len)
 	if (col != 0) fprintf (f, "\n");
 }
 
-static void
-output_object_code (JSContext *ctx, FILE *fo, JSValueConst obj, const char *c_name, BOOL load_only)
+static void output_object_code (JSContext *ctx, FILE *fo, JSValueConst obj, const char *c_name, BOOL load_only)
 {
 	uint8_t *out_buf;
 	size_t out_buf_len;
@@ -188,15 +182,13 @@ output_object_code (JSContext *ctx, FILE *fo, JSValueConst obj, const char *c_na
 	js_free (ctx, out_buf);
 }
 
-static int
-js_module_dummy_init (JSContext *ctx, JSModuleDef *m)
+static int js_module_dummy_init (JSContext *ctx, JSModuleDef *m)
 {
 	/* should never be called when compiling JS code */
-	abort();
+	abort ();
 }
 
-static void
-find_unique_cname (char *cname, const size_t cname_size)
+static void find_unique_cname (char *cname, const size_t cname_size)
 {
 	char cname1[1024];
 	int suffix_num;
@@ -216,8 +208,7 @@ find_unique_cname (char *cname, const size_t cname_size)
 	pstrcpy (cname, cname_size, cname1);
 }
 
-JSModuleDef *
-jsc_module_loader (JSContext *ctx, const char *module_name, void *opaque)
+JSModuleDef *jsc_module_loader (JSContext *ctx, const char *module_name, void *opaque)
 {
 	JSModuleDef *m;
 	namelist_entry_t *e;
@@ -266,8 +257,7 @@ jsc_module_loader (JSContext *ctx, const char *module_name, void *opaque)
 	return m;
 }
 
-static void
-compile_file (JSContext *ctx, FILE *fo, const char *filename, const char *c_name1, int module)
+static void compile_file (JSContext *ctx, FILE *fo, const char *filename, const char *c_name1, int module)
 {
 	uint8_t *buf;
 	char c_name[1024];
@@ -320,8 +310,7 @@ static const char main_c_template2[] = "  js_std_loop(ctx);\n"
 
 #define PROG_NAME "ptklc"
 
-void
-helpc ()
+void helpc ()
 {
 	printf ("Partikle Compiler (version " CONFIG_VERSION ")\n"
 		"usage: " PROG_NAME " [options] [files]\n"
@@ -355,12 +344,11 @@ helpc ()
 	exit (1);
 }
 
-int
-exec_cmd (char **argv)
+int exec_cmd (char **argv)
 {
 	int pid, status, ret;
 
-	pid = fork();
+	pid = fork ();
 	if (pid == 0) {
 		execvp (argv[0], argv);
 		exit (1);
@@ -373,8 +361,8 @@ exec_cmd (char **argv)
 	return WEXITSTATUS (status);
 }
 
-static int
-output_executable (const char *out_filename, const char *cfilename, BOOL use_lto, BOOL verbose, const char *exename)
+static int output_executable (const char *out_filename, const char *cfilename, BOOL use_lto, BOOL verbose,
+			      const char *exename)
 {
 	const char *argv[64];
 	const char **arg, *bn_suffix, *lto_suffix;
@@ -448,8 +436,7 @@ typedef enum {
 	OUTPUT_EXECUTABLE,
 } OutputTypeEnum;
 
-int
-compile (const int argc, char **argv)
+int compile (const int argc, char **argv)
 {
 	int c, i, verbose;
 	const char *out_filename, *cname;
@@ -485,7 +472,7 @@ compile (const int argc, char **argv)
 		c = getopt (argc, argv, "ho:cN:f:mxevM:p:S:D:");
 		if (c == -1) break;
 		switch (c) {
-		case 'h': helpc();
+		case 'h': helpc ();
 		case 'o': out_filename = optarg; break;
 		case 'c': output_type = OUTPUT_C; break;
 		case 'e': output_type = OUTPUT_C_MAIN; break;
@@ -540,7 +527,7 @@ compile (const int argc, char **argv)
 		}
 	}
 
-	if (optind >= argc) helpc();
+	if (optind >= argc) helpc ();
 
 	if (!out_filename) {
 		if (output_type == OUTPUT_EXECUTABLE) {
@@ -551,7 +538,7 @@ compile (const int argc, char **argv)
 	}
 
 	if (output_type == OUTPUT_EXECUTABLE) {
-		snprintf (cfilename, sizeof (cfilename), "/tmp/out%d.c", getpid());
+		snprintf (cfilename, sizeof (cfilename), "/tmp/out%d.c", getpid ());
 	} else {
 		pstrcpy (cfilename, sizeof (cfilename), out_filename);
 	}
@@ -563,7 +550,7 @@ compile (const int argc, char **argv)
 	}
 	outfile = fo;
 
-	rt = JS_NewRuntime();
+	rt = JS_NewRuntime ();
 	ctx = JS_NewContext (rt);
 #ifdef CONFIG_BIGNUM
 	if (bignum_ext) {

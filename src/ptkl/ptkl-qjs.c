@@ -102,8 +102,7 @@ extern int compile (int argc, char **argv);
 // just disables non-standard bigdecimal, bigfloat, and related extensions
 static int bignum_ext = 0;
 
-static int
-eval_buf (JSContext *ctx, const void *buf, const size_t buf_len, const char *filename, const int eval_flags)
+static int eval_buf (JSContext *ctx, const void *buf, const size_t buf_len, const char *filename, const int eval_flags)
 {
 	JSValue val;
 	int ret;
@@ -129,8 +128,7 @@ eval_buf (JSContext *ctx, const void *buf, const size_t buf_len, const char *fil
 	return ret;
 }
 
-static int
-eval_file (JSContext *ctx, const char *filename, int module)
+static int eval_file (JSContext *ctx, const char *filename, int module)
 {
 	int eval_flags;
 	size_t buf_len;
@@ -154,8 +152,7 @@ eval_file (JSContext *ctx, const char *filename, int module)
 }
 
 // Also used to initialize the worker context
-static JSContext *
-JS_NewCustomContext (JSRuntime *rt)
+static JSContext *JS_NewCustomContext (JSRuntime *rt)
 {
 	JSContext *ctx = JS_NewContext (rt);
 	if (!ctx) return nullptr;
@@ -182,15 +179,13 @@ struct trace_malloc_data {
 	uint8_t *base;
 };
 
-static unsigned long long
-js_trace_malloc_ptr_offset (const uint8_t *ptr, const struct trace_malloc_data *dp)
+static unsigned long long js_trace_malloc_ptr_offset (const uint8_t *ptr, const struct trace_malloc_data *dp)
 {
 	return ptr - dp->base;
 }
 
 // Default memory allocation functions with memory limitation
-static size_t
-js_trace_malloc_usable_size (const void *ptr)
+static size_t js_trace_malloc_usable_size (const void *ptr)
 {
 #if defined(__APPLE__)
 	return malloc_size (ptr);
@@ -204,8 +199,8 @@ js_trace_malloc_usable_size (const void *ptr)
 #endif
 }
 
-static void __attribute__ ((format (printf, 2, 3)))
-js_trace_malloc_printf (const JSMallocState *s, const char *fmt, ...)
+static void __attribute__ ((format (printf, 2, 3))) js_trace_malloc_printf (const JSMallocState *s, const char *fmt,
+									    ...)
 {
 	va_list ap;
 	int c;
@@ -237,14 +232,12 @@ js_trace_malloc_printf (const JSMallocState *s, const char *fmt, ...)
 	va_end (ap);
 }
 
-static void
-js_trace_malloc_init (struct trace_malloc_data *s)
+static void js_trace_malloc_init (struct trace_malloc_data *s)
 {
 	free (s->base = malloc (8));
 }
 
-static void *
-js_trace_malloc (JSMallocState *s, const size_t size)
+static void *js_trace_malloc (JSMallocState *s, const size_t size)
 {
 	// Do not allocate zero bytes: behavior is platform dependent
 	assert (size != 0);
@@ -259,8 +252,7 @@ js_trace_malloc (JSMallocState *s, const size_t size)
 	return ptr;
 }
 
-static void
-js_trace_free (JSMallocState *s, void *ptr)
+static void js_trace_free (JSMallocState *s, void *ptr)
 {
 	if (!ptr) return;
 
@@ -270,8 +262,7 @@ js_trace_free (JSMallocState *s, void *ptr)
 	free (ptr);
 }
 
-static void *
-js_trace_realloc (JSMallocState *s, void *ptr, const size_t size)
+static void *js_trace_realloc (JSMallocState *s, void *ptr, const size_t size)
 {
 	if (!ptr) {
 		if (size == 0) return nullptr;
@@ -307,8 +298,7 @@ static const JSMallocFunctions trace_mf = {
 	js_trace_malloc_usable_size,
 };
 
-int
-main (int argc, char **argv)
+int main (int argc, char **argv)
 {
 	// if (argc > 1 && !strcmp(argv[1], "compile")) {
 	// 	for (int i = 1; i < argc; i++) {
@@ -328,7 +318,7 @@ main (int argc, char **argv)
 		js_trace_malloc_init (&trace_data);
 		rt = JS_NewRuntime2 (&trace_mf, &trace_data);
 	} else {
-		rt = JS_NewRuntime();
+		rt = JS_NewRuntime ();
 	}
 	if (!rt) {
 		fprintf (stderr, "ptkl: cannot allocate JS runtime\n");
@@ -408,15 +398,15 @@ main (int argc, char **argv)
 		clock_t t[5];
 		double best[5];
 		for (int i = 0; i < 100; i++) {
-			t[0] = clock();
-			rt = JS_NewRuntime();
-			t[1] = clock();
+			t[0] = clock ();
+			rt = JS_NewRuntime ();
+			t[1] = clock ();
 			ctx = JS_NewContext (rt);
-			t[2] = clock();
+			t[2] = clock ();
 			JS_FreeContext (ctx);
-			t[3] = clock();
+			t[3] = clock ();
 			JS_FreeRuntime (rt);
-			t[4] = clock();
+			t[4] = clock ();
 			for (int j = 4; j > 0; j--) {
 				const unsigned ms = 1000 * (t[j] - t[j - 1]) / CLOCKS_PER_SEC;
 				if (i == 0 || best[j] > ms) best[j] = ms;

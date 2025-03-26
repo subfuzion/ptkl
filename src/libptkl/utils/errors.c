@@ -34,27 +34,25 @@
 #include "errors.h"
 
 
-static void
-log_error (const char *message)
+static void log_error (const char *message)
 {
 #if LOG_UTC_TIME
-	time_t now = time(nullptr);
-	struct tm *time = gmtime(&now);
+	time_t now = time (nullptr);
+	struct tm *time = gmtime (&now);
 	char time_str[9];
-	strftime(time_str, sizeof(time_str), "%T", time);
-	fprintf(stderr, "[%s] %s\n", time_str, message);
+	strftime (time_str, sizeof (time_str), "%T", time);
+	fprintf (stderr, "[%s] %s\n", time_str, message);
 #else
 	fprintf (stderr, "%s\n", message);
 #endif
 }
 
 
-static void
-print_stack_trace (const char *msg)
+static void print_stack_trace (const char *msg)
 {
 	if (msg != nullptr && strlen (msg) > 0) log_error (msg);
 	void *buffer[1024];
-	int count = backtrace (buffer, sizeof(buffer) / sizeof(buffer[0]));
+	int count = backtrace (buffer, sizeof (buffer) / sizeof (buffer[0]));
 	char **traces = backtrace_symbols (buffer, count);
 	if (traces != NULL) {
 		log_error ("Stack trace:");
@@ -70,8 +68,7 @@ print_stack_trace (const char *msg)
 }
 
 
-static void
-panic_signal_handler (int sig)
+static void panic_signal_handler (int sig)
 {
 	char msg[80];
 	snprintf (msg, 80, "Caught signal: %d", sig);
@@ -79,8 +76,7 @@ panic_signal_handler (int sig)
 }
 
 
-void
-register_signal_panic_handlers ()
+void register_signal_panic_handlers ()
 {
 	/* don't intercept SIGABRT, SIGINT, SIGTERM */
 	signal (SIGFPE, panic_signal_handler); /* arithmetic (divide by zero, etc) */
@@ -90,12 +86,9 @@ register_signal_panic_handlers ()
 }
 
 
-void
-panic (const char *msg)
+void panic (const char *msg)
 {
 	char err[1024];
 	snprintf (err, 1024, "panic: %s", msg ? msg : "unknown error");
 	print_stack_trace (err);
 }
-
-

@@ -150,5 +150,3 @@ void check (const result res)
 {
 	if (failed (res)) panic (res.error->message);
 }
-
-

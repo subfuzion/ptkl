@@ -27,32 +27,27 @@
 #include "args.h"
 #include "test.h"
 
-void
-test_expect ()
+void test_expect ()
 {
 	expect (strlen ("") == 0);
 }
 
-void
-test_null ()
+void test_null ()
 {
 	expect_null (nullptr);
 }
 
-void
-test_not_null ()
+void test_not_null ()
 {
 	expect_not_null ("foo");
 }
 
-void
-test_empty_str ()
+void test_empty_str ()
 {
 	expect_empty_str ((char *)nullptr);
 }
 
-void
-expect_test ()
+void expect_test ()
 {
 	test (test_expect);
 	test (test_null);
