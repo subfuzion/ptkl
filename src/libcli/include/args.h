@@ -30,11 +30,11 @@
 #include "vector.h"
 
 /* Specifies how to parse a command line token */
-enum ptkl_token_type {
+typedef enum token_type {
 	TT_STR,
 	TT_BOOL,
 	TT_INT,
-};
+} token_type;
 
 /* Holds the command line token's value after parsing */
 union ptkl_parse_value {
@@ -43,32 +43,7 @@ union ptkl_parse_value {
 	int integer;
 };
 
-/* A command line option spec */
-struct ptkl_option_spec {
-	/* name is used as the long option */
-	const char *name;
-	const char short_opt;
-	const char *help;
-	bool multi;
-	enum ptkl_token_type type;
-
-	/* internal */
-	/* struct ptkl_command *command; */
-};
-
 /* A parsed command line option */
-struct ptkl_option {
-	struct ptkl_option_spec spec;
-	char *text;
-
-	union {
-		union ptkl_parse_value value;
-		vector values;
-	};
-
-	char error[256];
-};
-
 typedef struct cli {
 	dstring name;
 	dstring version;
@@ -84,13 +59,45 @@ typedef struct command {
 	dstring description;
 } *command;
 
+// typedef struct option {
+// 	/* name is used as the long option */
+// 	dstring name;
+// 	dstring description;
+//
+// 	const char short_opt;
+// 	bool multi;
+// 	token_type type;
+//
+// 	// struct result {
+// 	//
+// 	// };
+// } *option;
+
+// typedef struct option {
+// 	option_spec spec;
+//
+// 	char *text;
+//
+// 	union {
+// 		union ptkl_parse_value value;
+// 		vector values;
+// 	};
+//
+// 	char error[256];
+// } *option;
+
 cli cli_new (const char *name, const char *version, const char *description);
 void cli_destroy (cli cli);
 
 command cli_add_command (cli cli, const char *name, const char *description);
-bool cli_add_option (cli cli, struct ptkl_option_spec spec);
+
+// option cli_add_option (cli cli, option opt);
+void option_set_short_option(char ch);
+void option_set_multi(bool allow);
+
+
 bool cli_parse (cli cli, int argc, char **argv);
 
-bool parse_option (struct ptkl_option *opt);
+// bool parse_option (struct option *opt);
 
 #endif /* ARGS_H */
