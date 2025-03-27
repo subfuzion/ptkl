@@ -25,79 +25,51 @@
 #ifndef ARGS_H
 #define ARGS_H
 
-#include "dstring.h"
 #include "map.h"
 #include "vector.h"
 
-/* Specifies how to parse a command line token */
-typedef enum token_type {
-	TT_STR,
-	TT_BOOL,
-	TT_INT,
-} token_type;
+/**
+ * CLI commands
+ */
 
-/* Holds the command line token's value after parsing */
-union ptkl_parse_value {
-	char *string;
-	bool boolean;
-	int integer;
-};
-
-/* A parsed command line option */
-typedef struct cli {
-	dstring name;
-	dstring version;
-	dstring description;
-
-	map *commands;
-	map *options;
-	vector *args;
-} *cli;
+typedef void (*command_fn) ();
 
 typedef struct command {
-	dstring name;
-	dstring description;
+	char *name;
+	command_fn fn;
+	vector *args;
 } *command;
 
-// typedef struct option {
-// 	/* name is used as the long option */
-// 	dstring name;
-// 	dstring description;
-//
-// 	const char short_opt;
-// 	bool multi;
-// 	token_type type;
-//
-// 	// struct result {
-// 	//
-// 	// };
-// } *option;
+command command_new (const char *name, command_fn fn);
+void command_free (command cmd);
 
-// typedef struct option {
-// 	option_spec spec;
-//
-// 	char *text;
-//
-// 	union {
-// 		union ptkl_parse_value value;
-// 		vector values;
-// 	};
-//
-// 	char error[256];
-// } *option;
+/**
+ * CLI
+ */
 
-cli cli_new (const char *name, const char *version, const char *description);
-void cli_destroy (cli cli);
-
-command cli_add_command (cli cli, const char *name, const char *description);
-
-// option cli_add_option (cli cli, option opt);
-void option_set_short_option(char ch);
-void option_set_multi(bool allow);
+typedef struct cli {
+	map *commands;
+} *cli;
 
 
-bool cli_parse (cli cli, int argc, char **argv);
+cli cli_new ();
+void cli_free (cli cli);
+void cli_add_command (cli cli, const char *name, command_fn fn);
 
-// bool parse_option (struct option *opt);
+/**
+ * CLI command line parsing
+ */
+
+struct parse_result {
+	bool ok;
+
+	union {
+		char error[100];
+		struct command *cmd;
+	};
+};
+
+
+void parse_args (int argc, char **argv, cli cli, struct parse_result *result);
 
 #endif /* ARGS_H */

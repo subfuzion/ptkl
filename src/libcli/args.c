@@ -24,6 +24,7 @@
  * THE SOFTWARE.
  */
 
+#include <getopt.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
@@ -31,147 +32,121 @@
 #include "args.h"
 #include "errors.h"
 
-#define FREE(var)                                                                                                      \
-	do {                                                                                                           \
-		if (var) {                                                                                             \
-			free (var);                                                                                    \
-			var = nullptr;                                                                                 \
-		}                                                                                                      \
-	} while (0)
-
-#define FREE_FN(var, free_fn)                                                                                          \
-	do {                                                                                                           \
-		if (var) {                                                                                             \
-			free_fn (var);                                                                                 \
-			var = nullptr;                                                                                 \
-		}                                                                                                      \
-	} while (0)
-
-static void cli_init (cli cli, const char *name, const char *version, const char *description)
-{
-	cli->name = dstring_new (name);
-	cli->version = dstring_new (version);
-	cli->description = dstring_new (description);
-
-	/* no point in optimizing lazy init */
-	map *commands = malloc (sizeof (map));
-	if (!commands) panic ("Out of memory");
-	map_init (commands);
-	cli->commands = commands;
-
-	/* no point in optimizing lazy init */
-	map *options = malloc (sizeof (map));
-	if (!options) panic ("Out of memory");
-	map_init (options);
-	cli->options = options;
-
-	/* no point in optimizing for lazy init */
-	vector *args = malloc (sizeof (vector));
-	if (!args) panic ("Out of memory");
-	vector_init (args);
-	cli->args = args;
-}
-
-
-static void cli_free (cli cli)
-{
-	dstring_free (cli->name);
-	cli->name = nullptr;
-
-	dstring_free (cli->version);
-	cli->version = nullptr;
-
-	dstring_free (cli->description);
-	cli->description = nullptr;
-
-	map_free (cli->commands);
-	cli->commands = nullptr;
-
-	map_free (cli->options);
-	cli->options = nullptr;
-
-	vector_free (cli->args);
-	cli->args = nullptr;
-}
-
-
-cli cli_new (const char *name, const char *version, const char *description)
-{
-	cli cli = malloc (sizeof (struct cli));
-	if (!cli) panic ("Out of memory");
-	cli_init (cli, name, version, description);
-	return cli;
-}
-
-
-void cli_destroy (cli cli)
-{
-	cli_free (cli);
-}
-
-
-command cli_add_command (cli cli, const char *name, const char *description)
+command command_new (const char *name, command_fn fn)
 {
 	command cmd = malloc (sizeof (struct command));
-	if (!cmd) panic ("out of memory");
-	memset (cmd, 0, sizeof (struct command));
-	cmd->name = dstring_new (name);
-	cmd->description = dstring_new (description);
-	map_put (cli->commands, name, cmd);
+	if (cmd == nullptr) panic ("out of memory");
+	memset (cmd, 0, sizeof(struct command));
+	cmd->name = strdup (name);
+	cmd->fn = fn;
 	return cmd;
 }
 
 
-bool cli_parse (cli cli, int argc, char **argv)
+void command_free (command cmd)
 {
-	int optind = 1;
-	// while (optind < argc && *argv[optind] == '-') {
-	while (optind < argc && *argv[optind]) {
-		// printf ("%s\n", argv[optind]);
-		vector_add (cli->args, argv[optind]);
-		optind++;
-	}
-	return true;
+	if (cmd == nullptr) return;
+	if (cmd->name != nullptr) free (cmd->name);
+	if (cmd->args != nullptr) vector_free (cmd->args);
+	free (cmd);
 }
 
 
-// bool parse_option (struct ptkl_option *opt)
-// {
-// 	const char *str = opt->text;
-//
-// 	switch (opt->spec.type) {
-// 	case TT_STR:
-// 		// TODO: evaluate strdup pros/cons (don't need fixed buffer / need to free later)
-// 		strcpy (opt->value.string, str);
-// 		return true;
-// 	case TT_BOOL:
-// 		if (strcmp (opt->text, opt->spec.name) == 0) {
-// 			opt->value.boolean = true;
-// 			return true;
-// 		}
-// 		break;
-// 	case TT_INT:
-// 		char *end;
-// 		const long num = strtol (str, &end, 10);
-//
-// 		if (*end != '\0') {
-// 			strcpy (opt->error, "%s");
-// 			sprintf (opt->error, "Invalid input or trailing characters: %s", end);
-// 		} else if (num > INT_MAX || num < INT_MIN) {
-// 			strcpy (opt->error, "%s");
-// 			sprintf (opt->error, "Invalid input (number out of range): %s", str);
-// 		} else {
-// 			opt->value.integer = (int)num;
-// 			return true;
-// 		}
-// 		break;
-//
-// 	default:
-// 		// TODO: evaluate if it would be better to treat generically as a string
-// 		strcpy (opt->error, "%s");
-// 		sprintf (opt->error, "unknown option type: %d, can't parse: %s", opt->spec.type, str);
-// 		break;
-// 	}
-//
-// 	return false;
-// }
+cli cli_new ()
+{
+	cli cli = malloc (sizeof (struct cli));
+	if (cli == nullptr) panic ("out of memory");
+	memset (cli, 0, sizeof(struct cli));
+	cli->commands = malloc (sizeof (map));
+	if (cli->commands == nullptr) panic ("out of memory");
+	map_init (cli->commands);
+	return cli;
+}
+
+
+void cli_free (cli cli)
+{
+	if (!cli) return;
+	void **values = malloc (sizeof (char *) * map_size (cli->commands));
+	map_values (cli->commands, values);
+	for (int i = 0; i < map_size (cli->commands); i++) {
+		struct command *cmd = values[i];
+		free (cmd);
+	}
+	map_free (cli->commands);
+	free (cli);
+}
+
+
+void cli_add_command (cli cli, const char *name, command_fn fn)
+{
+	command cmd = command_new (name, fn);
+	map_put (cli->commands, name, cmd);
+}
+
+
+void parse_args (int argc, char **argv, cli cli, struct parse_result *result)
+{
+	opterr = 0;
+	int c;
+	struct command *cmd;
+
+	while (1) {
+		cmd = nullptr;
+		int option_index = 0;
+		static struct option long_options[] = {
+			{"version", no_argument, nullptr, 'v'},
+			{"help",    no_argument, nullptr, 'h'},
+			{nullptr,   0,           nullptr,  0}
+		};
+
+		c = getopt_long (argc, argv, ":hv",
+				 long_options, &option_index);
+		if (c == -1) break;
+
+		switch (c) {
+		/* handle long options that aren't handled by a short option */
+		case 0: printf ("TODO: handle long option %s", long_options[option_index].name);
+			if (optarg) printf (" with arg %s", optarg);
+			printf ("\n");
+			break;
+
+		case 'v': cmd = map_get (cli->commands, "version");
+			result->cmd = cmd;
+			break;
+
+		case 'h': cmd = map_get (cli->commands, "help");
+			result->cmd = cmd;
+			break;
+
+		/* unknown option */
+		case '?': result->ok = false;
+			sprintf (result->error, "unknown option: %s", argv[optind-1]);
+			return;
+
+		/* missing option arg */
+		case ':': result->ok = false;
+			sprintf (result->error, "missing option argument for: %s", argv[optind-1]);
+			return;
+
+		/* unhandled option */
+		default: result->ok = false;
+			sprintf (result->error, "missing option handler for: %s", argv[optind-1]);
+			return;
+		}
+	}
+
+	if (optind < argc) {
+		printf ("non-option ARGV-elements: ");
+		if (cmd) {
+			while (optind < argc) {
+				vector_add (cmd->args, argv[optind++]);
+			}
+		}
+		while (optind < argc) printf ("%s ", argv[optind++]);
+		printf ("\n");
+	}
+
+	result->ok = true;
+}
+
