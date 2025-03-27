@@ -38,3 +38,8 @@ target_include_directories(
 	include
 	sds
 )
+target_link_libraries(
+	libstring
+	PUBLIC
+	libutils
+)

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.0)
 
 project(
-	libptkl
+	libutils
 	VERSION 0.0.1
 	LANGUAGES C
 )
@@ -9,36 +9,26 @@ project(
 include_directories(include)
 
 set(
-	ADT_SRC
-	adt/buffer.c
-	adt/list.c
-	adt/map.c
-	adt/stack.c
-	adt/vector.c
+	UTILS_SRC
+	errors.c
+	results.c
 )
 
 add_library(
-	libptkl
+	libutils
 	STATIC
-	${ADT_SRC}
+	${UTILS_SRC}
 )
 
 set_target_properties(
-	libptkl
+	libutils
 	PROPERTIES
-	ARCHIVE_OUTPUT_NAME ptkl
+	ARCHIVE_OUTPUT_NAME utils
 	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 	C_STANDARD 23
 )
 target_include_directories(
-	libptkl
+	libutils
 	PUBLIC
 	include
-)
-target_link_libraries(
-	libptkl
-	PUBLIC
-	libqjs
-	libstring
-	libutils
 )

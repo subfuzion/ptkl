@@ -25,8 +25,8 @@
  */
 
 #include <assert.h>
-#include <errors.h>
 
+#include "errors.h"
 #include "test.h"
 
 extern void adt_test ();

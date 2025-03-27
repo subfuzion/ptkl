@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.0)
 
 project(
-	test
+	ptkltest
 	LANGUAGES C
 )
 
@@ -31,6 +31,7 @@ target_link_libraries(
 	libcli
 	libptkl
 	libstring
+	libutils
 )
 target_compile_options(
 	ptkltest
