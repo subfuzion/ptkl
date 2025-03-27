@@ -26,8 +26,8 @@
 
 #include <string.h>
 
-#include "results.h"
 #include "errors.h"
+#include "results.h"
 
 static thread_local error g_result_error = {};
 

@@ -91,7 +91,6 @@ void test_scratch ()
 	expect_eq_str ("ptkl", cli->name->str);
 	expect_eq_str ("0.1.0", cli->version->str);
 	expect_eq_str ("Partikle CLI", cli->description->str);
-
 }
 
 void cli_test ()
