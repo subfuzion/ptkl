@@ -53,11 +53,17 @@ static void cli_init (cli cli, const char *name, const char *version, const char
 	cli->version = dstring_new (version);
 	cli->description = dstring_new (description);
 
-	/* no point in lazy init, will have at least --help, --version */
+	/* no point in optimizing lazy init */
 	map *options = malloc (sizeof (map));
 	if (!options) panic ("Out of memory");
 	map_init (options);
 	cli->options = options;
+
+	/* no point in optimizing for lazy init */
+	vector *args = malloc (sizeof (vector));
+	if (!args) panic ("Out of memory");
+	vector_init (args);
+	cli->args = args;
 }
 
 
@@ -97,9 +103,11 @@ bool cli_parse (cli cli, int argc, char **argv)
 	int optind = 1;
 	// while (optind < argc && *argv[optind] == '-') {
 	while (optind < argc && *argv[optind]) {
-		printf ("%s\n", argv[optind++]);
+		// printf ("%s\n", argv[optind]);
+		vector_add (cli->args, argv[optind]);
+		optind++;
 	}
-	return 0;
+	return true;
 }
 
 

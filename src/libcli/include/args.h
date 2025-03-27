@@ -75,6 +75,7 @@ typedef struct cli {
 	dstring description;
 
 	map *options;
+	vector *args;
 } *cli;
 
 cli cli_new (const char *name, const char *version, const char *description);

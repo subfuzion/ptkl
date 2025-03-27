@@ -85,7 +85,7 @@ void test_integer_option_fail ()
 	expect_error ("Invalid input", opt.error);
 }
 
-
+/* test instance */
 cli CLI;
 
 
@@ -119,9 +119,10 @@ void test_cli_parse ()
 	};
 
 	int argc = sizeof (args) / sizeof (args[0]);
-	printf ("sizeof args: %d\n", argc);
 	char **argv = &args[0];
-	cli_parse (CLI, argc, argv);
+	bool res = cli_parse (CLI, argc, argv);
+	expect_true(res);
+	expect_eq_int(argc-1, (int)vector_size(CLI->args));
 }
 
 
