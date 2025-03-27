@@ -68,7 +68,10 @@ SRC_DIRS = $(PTKL_SRCDIR) $(PTKLTEST_SRCDIR) $(ADT_SRCDIR)
 vpath %.h include
 vpath %.c $(SRC_DIRS)
 
-CC = gcc
+# Ensure default CC if env var isn't set.
+# HOWEVER, the best practice is to invoke make with CC explicitly. Ex:
+# make -D CC=/opt/local/bin/clang
+CC ?= clang
 
 CFLAGS = -std=c23
 CFLAGS += -g
