@@ -40,8 +40,7 @@ target_link_libraries(
 	libcli
 	PUBLIC
 	libptkl
-	libstring
-	libutils
+	libstd
 )
 target_compile_options(
 	libcli

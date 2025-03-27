@@ -6,7 +6,7 @@ project(
 )
 
 set(PTKLTEST_SOURCES
-	test.h
+	../libstd/include/test.h
 	test_main.c
 	adt_test.c
 	cli_test.c
@@ -30,8 +30,7 @@ target_link_libraries(
 	PUBLIC
 	libcli
 	libptkl
-	libstring
-	libutils
+	libstd
 )
 target_compile_options(
 	ptkltest

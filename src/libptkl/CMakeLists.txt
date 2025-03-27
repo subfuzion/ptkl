@@ -9,18 +9,14 @@ project(
 include_directories(include)
 
 set(
-	ADT_SRC
-	adt/buffer.c
-	adt/list.c
-	adt/map.c
-	adt/stack.c
-	adt/vector.c
+	SRC
+	libmain.c
 )
 
 add_library(
 	libptkl
 	STATIC
-	${ADT_SRC}
+	${SRC}
 )
 
 set_target_properties(
@@ -39,6 +35,5 @@ target_link_libraries(
 	libptkl
 	PUBLIC
 	libqjs
-	libstring
-	libutils
+	libstd
 )

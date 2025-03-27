@@ -32,7 +32,7 @@ target_link_libraries(
 	libcli
 	libptkl
 	libqjs
-	libutils
+	libstd
 )
 target_compile_options(
 	ptkl

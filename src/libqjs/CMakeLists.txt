@@ -41,6 +41,11 @@ target_include_directories(
 	include
 	quickjs
 )
+target_link_libraries(
+	libqjs
+	PUBLIC
+	libstd
+)
 
 add_executable(
 	qjs

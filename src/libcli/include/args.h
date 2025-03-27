@@ -28,7 +28,6 @@
 #include <stddef.h>
 
 #include "dstring.h"
-
 #include "map.h"
 #include "vector.h"
 
