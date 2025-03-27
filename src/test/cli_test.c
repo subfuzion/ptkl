@@ -29,6 +29,7 @@
 #include "args.h"
 #include "test.h"
 
+
 void test_boolean_option ()
 {
 	const struct ptkl_option_spec spec = {
@@ -85,20 +86,32 @@ void test_integer_option_fail ()
 }
 
 
-void test_cli ()
+cli CLI;
+
+
+void test_cli_new ()
 {
-	cli cli = cli_new ("ptkl", "0.1.0", "Partikle CLI");
-	expect_eq_str ("ptkl", cli->name->str);
-	expect_eq_str ("0.1.0", cli->version->str);
-	expect_eq_str ("Partikle CLI", cli->description->str);
-	expect_not_null (cli->options);
+	CLI = cli_new ("ptkl", "0.1.0", "Partikle CLI");
+	expect_eq_str ("ptkl", CLI->name->str);
+	expect_eq_str ("0.1.0", CLI->version->str);
+	expect_eq_str ("Partikle CLI", CLI->description->str);
+	expect_not_null (CLI->options);
+}
 
-	cli_destroy (cli);
-	expect_null (cli->name);
-	expect_null (cli->version);
-	expect_null (cli->description);
-	expect_null (cli->options);
 
+void test_cli_destroy ()
+{
+	cli_destroy (CLI);
+	expect_null (CLI->name);
+	expect_null (CLI->version);
+	expect_null (CLI->description);
+	expect_null (CLI->options);
+}
+
+
+void test_cli_parse ()
+{
+	/* command line */
 	char *args[] = {
 		"ptkl",
 		"foo",
@@ -106,16 +119,18 @@ void test_cli ()
 	};
 
 	int argc = sizeof (args) / sizeof (args[0]);
-	printf("sizeof args: %d\n", argc);
+	printf ("sizeof args: %d\n", argc);
 	char **argv = &args[0];
-	cli_parse (cli, argc, argv);
-
+	cli_parse (CLI, argc, argv);
 }
+
 
 void cli_test ()
 {
-	test (test_cli);
 	// test (test_boolean_option);
 	// test (test_integer_option);
 	// test (test_integer_option_fail);
+	test (test_cli_new);
+	test (test_cli_parse);
+	test (test_cli_destroy);
 }
