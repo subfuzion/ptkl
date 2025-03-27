@@ -86,31 +86,56 @@ void test_integer_option_fail ()
 }
 
 /* test instance */
-cli CLI;
+cli CLI = nullptr;
 
 
-void test_cli_new ()
+static void setup ()
 {
 	CLI = cli_new ("ptkl", "0.1.0", "Partikle CLI");
+}
+
+static void teardown ()
+{
+	if (CLI) {
+		cli_destroy (CLI);
+		CLI = nullptr;
+	}
+}
+
+static void test_cli_new ()
+{
+	setup ();
 	expect_eq_str ("ptkl", CLI->name->str);
 	expect_eq_str ("0.1.0", CLI->version->str);
 	expect_eq_str ("Partikle CLI", CLI->description->str);
+	expect_not_null (CLI->commands);
 	expect_not_null (CLI->options);
+	expect_not_null (CLI->args);
+	teardown ();
 }
 
 
-void test_cli_destroy ()
+static void test_cli_destroy ()
 {
+	setup ();
 	cli_destroy (CLI);
 	expect_null (CLI->name);
 	expect_null (CLI->version);
 	expect_null (CLI->description);
+	expect_null (CLI->commands);
 	expect_null (CLI->options);
+	expect_null (CLI->args);
+
+	/* always set to null after destroy */
+	/* in this case, so teardown doesn't try to free twice */
+	CLI = nullptr;
+	teardown ();
 }
 
-
-void test_cli_parse ()
+static void test_cli_parse ()
 {
+	setup ();
+
 	/* command line */
 	char *args[] = {
 		"ptkl",
@@ -120,9 +145,16 @@ void test_cli_parse ()
 
 	int argc = sizeof (args) / sizeof (args[0]);
 	char **argv = &args[0];
+
 	bool res = cli_parse (CLI, argc, argv);
-	expect_true(res);
-	expect_eq_int(argc-1, (int)vector_size(CLI->args));
+	expect_true (res);
+
+	/* parse doesn't add argv[0] (the cmd name) to args */
+	expect_eq_int (argc - 1, (int)vector_size (CLI->args));
+	expect_eq_str ("foo", (char *)vector_get (CLI->args, 0));
+	expect_eq_str ("bar", (char *)vector_get (CLI->args, 1));
+
+	teardown ();
 }
 
 
@@ -132,6 +164,6 @@ void cli_test ()
 	// test (test_integer_option);
 	// test (test_integer_option_fail);
 	test (test_cli_new);
-	test (test_cli_parse);
 	test (test_cli_destroy);
+	test (test_cli_parse);
 }

@@ -54,6 +54,12 @@ static void cli_init (cli cli, const char *name, const char *version, const char
 	cli->description = dstring_new (description);
 
 	/* no point in optimizing lazy init */
+	map *commands = malloc (sizeof (map));
+	if (!commands) panic ("Out of memory");
+	map_init (commands);
+	cli->commands = commands;
+
+	/* no point in optimizing lazy init */
 	map *options = malloc (sizeof (map));
 	if (!options) panic ("Out of memory");
 	map_init (options);
@@ -78,8 +84,14 @@ static void cli_free (cli cli)
 	dstring_free (cli->description);
 	cli->description = nullptr;
 
+	map_free (cli->commands);
+	cli->commands = nullptr;
+
 	map_free (cli->options);
 	cli->options = nullptr;
+
+	vector_free (cli->args);
+	cli->args = nullptr;
 }
 
 
@@ -95,6 +107,14 @@ cli cli_new (const char *name, const char *version, const char *description)
 void cli_destroy (cli cli)
 {
 	cli_free (cli);
+}
+
+
+void cli_add_command (cli cli, const char *name, const char *description)
+{
+	command cmd = malloc (sizeof (struct command));
+	if (cmd) panic ("out of memory");
+	memset (cmd, 0, sizeof (struct command));
 }
 
 
