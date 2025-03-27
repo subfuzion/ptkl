@@ -98,6 +98,18 @@ void test_cli ()
 	expect_null (cli->version);
 	expect_null (cli->description);
 	expect_null (cli->options);
+
+	char *args[] = {
+		"ptkl",
+		"foo",
+		"bar",
+	};
+
+	int argc = sizeof (args) / sizeof (args[0]);
+	printf("sizeof args: %d\n", argc);
+	char **argv = &args[0];
+	cli_parse (cli, argc, argv);
+
 }
 
 void cli_test ()
