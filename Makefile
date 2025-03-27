@@ -122,7 +122,7 @@ $(BINDIR)/$(PTKLTEST): $(PTKLTEST_OBJS) | $(BINDIR)
 .PHONY: cmake-fresh cmake-clean cmake-clean-all cleanall
 .PHONY: cmake-watch
 
-CMAKE_INIT = cmake -DCMAKE_C_COMPILER=clang
+CMAKE_INIT = cmake -DCMAKE_C_COMPILER=$(CC)
 CLION_CMAKE_DIRS = cmake-build-debug*/ cmake-build-release*/
 
 $(BUILDDIR):
