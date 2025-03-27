@@ -99,7 +99,7 @@ clean:
 format:
 	@clang-format -i $$(find src -type f -name *.[c,h] \
 		-not -path "src/libqjs/quickjs/*" \
-		-not -path "src/libstring/sds/*" \
+		-not -path "src/libstd/sds/*" \
 		)
 
 tidy:

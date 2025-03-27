@@ -30,4 +30,3 @@
 #define FOO 1
 
 #endif
-
