@@ -78,6 +78,8 @@ typedef struct cli {
 } *cli;
 
 cli cli_new (const char *name, const char *version, const char *description);
+void cli_destroy (cli cli);
+
 bool cli_add_option (cli cli, struct ptkl_option_spec spec);
 bool cli_parse (cli cli, int argc, char **argv);
 

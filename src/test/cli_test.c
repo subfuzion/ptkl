@@ -85,23 +85,25 @@ void test_integer_option_fail ()
 }
 
 
-void test_scratch ()
+void test_cli ()
 {
 	cli cli = cli_new ("ptkl", "0.1.0", "Partikle CLI");
 	expect_eq_str ("ptkl", cli->name->str);
 	expect_eq_str ("0.1.0", cli->version->str);
 	expect_eq_str ("Partikle CLI", cli->description->str);
+	expect_not_null (cli->options);
+
+	cli_destroy (cli);
+	expect_null (cli->name);
+	expect_null (cli->version);
+	expect_null (cli->description);
+	expect_null (cli->options);
 }
 
 void cli_test ()
 {
-	test (test_scratch);
-
+	test (test_cli);
 	// test (test_boolean_option);
 	// test (test_integer_option);
 	// test (test_integer_option_fail);
-	//
-	// PartikleCLI cli = cli_new ("ptkl", "0.1.0", "Partikle CLI");
-	//
-	// cli_destroy (cli);
 }

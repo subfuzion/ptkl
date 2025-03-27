@@ -53,6 +53,7 @@ static void cli_init (cli cli, const char *name, const char *version, const char
 	cli->version = dstring_new (version);
 	cli->description = dstring_new (description);
 
+	/* no point in lazy init, will have at least --help, --version */
 	map *options = malloc (sizeof (map));
 	if (!options) panic ("Out of memory");
 	map_init (options);
@@ -62,10 +63,17 @@ static void cli_init (cli cli, const char *name, const char *version, const char
 
 static void cli_free (cli cli)
 {
-	FREE (cli->name);
-	FREE (cli->version);
-	FREE (cli->description);
-	FREE_FN (cli->options, map_free);
+	dstring_free (cli->name);
+	cli->name = nullptr;
+
+	dstring_free (cli->version);
+	cli->version = nullptr;
+
+	dstring_free (cli->description);
+	cli->description = nullptr;
+
+	map_free (cli->options);
+	cli->options = nullptr;
 }
 
 
