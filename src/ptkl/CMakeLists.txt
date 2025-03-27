@@ -37,6 +37,14 @@ target_link_libraries(
 target_compile_options(
 	ptkl
 	PUBLIC
-	$<$<CONFIG:Debug>:-Wall -Werror -g>
+	#$<$<CONFIG:Debug>:-Wall -Werror -O1 -g>
 	$<$<CONFIG:Release>:-Wall -Werror -O3>
 )
+#set(
+#	CMAKE_C_FLAGS
+#	"${CMAKE_C_FLAGS} -Wall -Werror -O1 -g -Werror -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer"
+#)
+#target_link_options(
+#	ptkl
+#	BEFORE PUBLIC -fsanitize=undefined PUBLIC -fsanitize=address PUBLIC -fsanitize=leak
+#)
