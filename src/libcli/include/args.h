@@ -87,7 +87,7 @@ typedef struct command {
 cli cli_new (const char *name, const char *version, const char *description);
 void cli_destroy (cli cli);
 
-void cli_add_command (cli cli, const char *name, const char *description);
+command cli_add_command (cli cli, const char *name, const char *description);
 bool cli_add_option (cli cli, struct ptkl_option_spec spec);
 bool cli_parse (cli cli, int argc, char **argv);
 

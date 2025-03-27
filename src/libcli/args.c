@@ -110,11 +110,15 @@ void cli_destroy (cli cli)
 }
 
 
-void cli_add_command (cli cli, const char *name, const char *description)
+command cli_add_command (cli cli, const char *name, const char *description)
 {
 	command cmd = malloc (sizeof (struct command));
-	if (cmd) panic ("out of memory");
+	if (!cmd) panic ("out of memory");
 	memset (cmd, 0, sizeof (struct command));
+	cmd->name = dstring_new (name);
+	cmd->description = dstring_new (description);
+	map_put(cli->commands, name, cmd);
+	return cmd;
 }
 
 

@@ -132,6 +132,20 @@ static void test_cli_destroy ()
 	teardown ();
 }
 
+static void test_cli_add_command()
+{
+	setup ();
+
+	command cmd = cli_add_command (CLI, "foo", "bar");
+	expect_not_null(cmd);
+
+	command found = map_get(CLI->commands, "foo");
+	expect_eq_str("foo", found->name->str);
+
+
+	teardown ();
+}
+
 static void test_cli_parse ()
 {
 	setup ();
@@ -165,5 +179,6 @@ void cli_test ()
 	// test (test_integer_option_fail);
 	test (test_cli_new);
 	test (test_cli_destroy);
+	test (test_cli_add_command);
 	test (test_cli_parse);
 }
