@@ -28,52 +28,61 @@
 
 #include <getopt.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
-#include "args.h"
-#include "dstring.h"
+#include "cli.h"
 #include "errors.h"
 #include "ptkl.h"
+#include "strings.h"
 
 
-
-void help ()
+void help (cli cli)
 {
-	printf ("Partikle Runtime (version " CONFIG_VERSION ")\n"
-		"usage: " PTKL " [options] [file [args]]\n"
+	printf ("Partikle Runtime (version %s\n"
+		"usage: %s [options] [file [args]]\n"
 		"-v  --version              print version\n"
-		"-h  --help                 show this help\n");
+		"-h  --help                 show this help\n",
+		cli->version, cli->name);
 }
 
 
-void version ()
+void version (cli cli)
 {
-	printf ("%s %s\n", PTKL, CONFIG_VERSION);
+	printf ("%s %s\n", cli->name, cli->version);
 }
 
 
 int main (const int argc, char **argv)
 {
-	int exit_code;
-	register_signal_panic_handlers();
+	int exit_code = EXIT_SUCCESS;
+	register_signal_panic_handlers ();
 
-	auto cli = cli_new();
+	/* init cli */
+	auto cmd_name = strdup (argv[0]);
+	auto cmd_version = CONFIG_VERSION; /* from makefile */
+	auto cmd_description =
+		"Partikle is a lightweight runtime for modern JavaScript";
+	auto cli = cli_new (cmd_name, cmd_version, cmd_description);
+
+	/* add commands */
 	cli_add_command (cli, "version", version);
 	cli_add_command (cli, "help", help);
 
-	struct parse_result result = {};
-	parse_args (argc, argv, cli, &result);
-
+	/* parse command line */
+	struct cli_parse_result result = {};
+	cli_parse_args (argc, argv, cli, &result);
 	if (!result.ok) {
 		fprintf (stderr, "error: %s\n", result.error);
 		exit_code = EXIT_FAILURE;
 		goto done;
 	}
 
+	/* run command */
 	struct command *cmd = result.cmd;
-	if (cmd->fn) cmd->fn();
-	exit_code = EXIT_SUCCESS;
+	if (cmd != nullptr && cmd->fn != nullptr) cmd->fn (cli);
 
-done: cli_free (cli);
+done:
+	cli_free (cli);
 	return exit_code;
 }

@@ -26,16 +26,18 @@
 #define ARGS_H
 
 #include "map.h"
+#include "strings.h"
 #include "vector.h"
 
-/**
- * CLI commands
- */
 
-typedef void (*command_fn) ();
+/* CLI commands */
+
+typedef struct cli *cli;
+
+typedef void (*command_fn) (cli);
 
 typedef struct command {
-	char *name;
+	string name;
 	command_fn fn;
 	vector *args;
 } *command;
@@ -43,33 +45,29 @@ typedef struct command {
 command command_new (const char *name, command_fn fn);
 void command_free (command cmd);
 
-/**
- * CLI
- */
+
+/* CLI */
 
 typedef struct cli {
+	string name;
+	string version;
+	string description;
 	map *commands;
 } *cli;
 
-
-cli cli_new ();
-void cli_free (cli cli);
-void cli_add_command (cli cli, const char *name, command_fn fn);
-
-/**
- * CLI command line parsing
- */
-
-struct parse_result {
+struct cli_parse_result {
 	bool ok;
-
 	union {
-		char error[100];
+		string error;
 		struct command *cmd;
 	};
 };
 
+cli cli_new (const char *name, const char *version, const char *description);
+void cli_free (cli cli);
+void cli_add_command (cli cli, const char *name, command_fn fn);
+void cli_parse_args (int argc, char **argv, cli cli,
+		     struct cli_parse_result *result);
 
-void parse_args (int argc, char **argv, cli cli, struct parse_result *result);
 
 #endif /* ARGS_H */

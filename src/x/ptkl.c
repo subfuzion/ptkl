@@ -56,14 +56,16 @@ static int bignum_ext = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static int eval_buf (JSContext *ctx, const void *buf, const size_t buf_len, const char *filename, const int eval_flags)
+static int eval_buf (JSContext *ctx, const void *buf, const size_t buf_len,
+		     const char *filename, const int eval_flags)
 {
 	JSValue val;
 	int ret;
 
 	if ((eval_flags & JS_EVAL_TYPE_MASK) == JS_EVAL_TYPE_MODULE) {
 		// For modules, compile then run to be able to set import.meta
-		val = JS_Eval (ctx, buf, buf_len, filename, eval_flags | JS_EVAL_FLAG_COMPILE_ONLY);
+		val = JS_Eval (ctx, buf, buf_len, filename,
+			       eval_flags | JS_EVAL_FLAG_COMPILE_ONLY);
 		if (!JS_IsException (val)) {
 			js_module_set_import_meta (ctx, val, TRUE, TRUE);
 			val = JS_EvalFunction (ctx, val);
@@ -95,7 +97,8 @@ static int eval_file (JSContext *ctx, const char *filename, int module)
 	}
 
 	if (module < 0) {
-		module = has_suffix (filename, ".mjs") || JS_DetectModule ((const char *)buf, buf_len);
+		module = has_suffix (filename, ".mjs") ||
+			JS_DetectModule ((const char *)buf, buf_len);
 	}
 	if (module)
 		eval_flags = JS_EVAL_TYPE_MODULE;
@@ -140,7 +143,9 @@ struct trace_malloc_data {
 };
 
 
-static unsigned long long js_trace_malloc_ptr_offset (const uint8_t *ptr, const struct trace_malloc_data *dp)
+static unsigned long long
+js_trace_malloc_ptr_offset (const uint8_t *ptr,
+			    const struct trace_malloc_data *dp)
 {
 	return ptr - dp->base;
 }
@@ -162,8 +167,8 @@ static size_t js_trace_malloc_usable_size (const void *ptr)
 }
 
 
-static void __attribute__ ((format (printf, 2, 3))) js_trace_malloc_printf (const JSMallocState *s, const char *fmt,
-									    ...)
+static void __attribute__ ((format (printf, 2, 3)))
+js_trace_malloc_printf (const JSMallocState *s, const char *fmt, ...)
 {
 	va_list ap;
 	int c;
@@ -177,8 +182,11 @@ static void __attribute__ ((format (printf, 2, 3))) js_trace_malloc_printf (cons
 				if (ptr == nullptr) {
 					printf ("nullptr");
 				} else {
-					printf ("H%+06lld.%zd", js_trace_malloc_ptr_offset (ptr, s->opaque),
-						js_trace_malloc_usable_size (ptr));
+					printf ("H%+06lld.%zd",
+						js_trace_malloc_ptr_offset (
+							ptr, s->opaque),
+						js_trace_malloc_usable_size (
+							ptr));
 				}
 				fmt++;
 				continue;
@@ -212,7 +220,8 @@ static void *js_trace_malloc (JSMallocState *s, const size_t size)
 	js_trace_malloc_printf (s, "A %zd -> %p\n", size, ptr);
 	if (ptr) {
 		s->malloc_count++;
-		s->malloc_size += js_trace_malloc_usable_size (ptr) + MALLOC_OVERHEAD;
+		s->malloc_size +=
+			js_trace_malloc_usable_size (ptr) + MALLOC_OVERHEAD;
 	}
 	return ptr;
 }
@@ -329,7 +338,8 @@ int main_old (int argc, char **argv)
 	// Handle options
 
 	if (opts.dump_unhandled_promise_rejection) {
-		JS_SetHostPromiseRejectionTracker (rt, js_std_promise_rejection_tracker, nullptr);
+		JS_SetHostPromiseRejectionTracker (
+			rt, js_std_promise_rejection_tracker, nullptr);
 	}
 
 	if (!opts.empty_run) {
@@ -341,15 +351,19 @@ int main_old (int argc, char **argv)
 					  "import * as os from 'os';\n"
 					  "globalThis.std = std;\n"
 					  "globalThis.os = os;\n";
-			eval_buf (ctx, str, strlen (str), "<input>", JS_EVAL_TYPE_MODULE);
+			eval_buf (ctx, str, strlen (str), "<input>",
+				  JS_EVAL_TYPE_MODULE);
 		}
 
 		for (int i = 0; i < opts.include_count; i++) {
-			if (eval_file (ctx, opts.include_list[i], opts.module)) goto fail;
+			if (eval_file (ctx, opts.include_list[i], opts.module))
+				goto fail;
 		}
 
 		if (opts.expr) {
-			if (eval_buf (ctx, opts.expr, strlen (opts.expr), "<cmdline>", 0)) goto fail;
+			if (eval_buf (ctx, opts.expr, strlen (opts.expr),
+				      "<cmdline>", 0))
+				goto fail;
 		} else if (optind >= argc) {
 			/* interactive mode */
 			opts.interactive = 1;
@@ -387,12 +401,15 @@ int main_old (int argc, char **argv)
 			JS_FreeRuntime (rt);
 			t[4] = clock ();
 			for (int j = 4; j > 0; j--) {
-				const unsigned ms = 1000 * (t[j] - t[j - 1]) / CLOCKS_PER_SEC;
+				const unsigned ms = 1000 * (t[j] - t[j - 1]) /
+					CLOCKS_PER_SEC;
 				if (i == 0 || best[j] > ms) best[j] = ms;
 			}
 		}
-		printf ("\nInstantiation times (ms): %.3f = %.3f+%.3f+%.3f+%.3f\n",
-			best[1] + best[2] + best[3] + best[4], best[1], best[2], best[3], best[4]);
+		printf ("\nInstantiation times (ms): %.3f = "
+			"%.3f+%.3f+%.3f+%.3f\n",
+			best[1] + best[2] + best[3] + best[4], best[1], best[2],
+			best[3], best[4]);
 	}
 
 	return 0;
@@ -486,12 +503,17 @@ int main (int argc, char **argv)
 	struct ptkl_command root_cmd = {
 		.name = "root",
 		.handler = root_command_handler,
-		.help = "Partikle is a lightweight runtime for modern JavaScript.\n"
-			"Run a subcommand, file, expression, or start the console.\n\n"
+		.help = "Partikle is a lightweight runtime for modern "
+			"JavaScript.\n"
+			"Run a subcommand, file, expression, or start the "
+			"console.\n\n"
 			"  " PTKL " [options] <command> [args...]\n"
-			"  " PTKL " [options] <file> [args...]       => " PTKL " run\n"
-			"  " PTKL " [options] <expr> [args...]       => " PTKL " eval\n"
-			"  " PTKL " [options]                        => " PTKL " console\n",
+			"  " PTKL " [options] <file> [args...]       => " PTKL
+			" run\n"
+			"  " PTKL " [options] <expr> [args...]       => " PTKL
+			" eval\n"
+			"  " PTKL " [options]                        => " PTKL
+			" console\n",
 	};
 	struct ptkl_option version_option = {
 		.type = OPT_STRING,
@@ -607,8 +629,8 @@ static void dbg_print_set (const char *msg, const struct option_node *node)
 	int i = 0;
 	printf ("  %s: set:", msg);
 	while (node) {
-		printf (" #%d(%s -%c --%s)", ++i, node->option->command->name, node->option->short_opt,
-			node->option->long_opt);
+		printf (" #%d(%s -%c --%s)", ++i, node->option->command->name,
+			node->option->short_opt, node->option->long_opt);
 		node = node->next;
 	}
 	printf ("\n");
@@ -617,7 +639,8 @@ static void dbg_print_set (const char *msg, const struct option_node *node)
 
 // Insert option into options set; print an error and return false if option is
 // already in the set.
-static bool set_insert_option (struct option_node **set, struct option_node *new)
+static bool set_insert_option (struct option_node **set,
+			       struct option_node *new)
 {
 	if (!*set) {
 		*set = new;
@@ -626,14 +649,20 @@ static bool set_insert_option (struct option_node **set, struct option_node *new
 	struct option_node *e = *set;
 	while (e) {
 		if (new->option->short_opt == e->option->short_opt) {
-			printf ("error: short option -%c for %s command is already defined for %s command\n",
-				new->option->short_opt, new->option->command->name, e->option->command->name);
+			printf ("error: short option -%c for %s command is "
+				"already defined for %s command\n",
+				new->option->short_opt,
+				new->option->command->name,
+				e->option->command->name);
 			return false;
 		}
 		if (new->option->long_opt && e->option->long_opt &&
 		    !strcmp (new->option->long_opt, e->option->long_opt)) {
-			printf ("error: long option -%s for %s command is already defined for %s command\n",
-				new->option->long_opt, new->option->command->name, e->option->command->name);
+			printf ("error: long option -%s for %s command is "
+				"already defined for %s command\n",
+				new->option->long_opt,
+				new->option->command->name,
+				e->option->command->name);
 			return false;
 		}
 		if (e->next)
@@ -649,20 +678,24 @@ static bool set_insert_option (struct option_node **set, struct option_node *new
 
 // Recursively scan all commands and populate options set. Returns false if an
 // option is not unique.
-static bool scan_command_options (const struct ptkl_command *cmd, struct option_node **set)
+static bool scan_command_options (const struct ptkl_command *cmd,
+				  struct option_node **set)
 {
 	while (cmd) {
 		struct ptkl_option *opt = cmd->options;
 		while (opt) {
-			// printf("current command: %s, current option: -%c --%s\n",
-			// 	   cmd->name, opt->short_opt, opt->long_opt);
-			struct option_node *node = calloc (1, sizeof (struct option_node));
+			// printf("current command: %s, current option: -%c
+			// --%s\n", 	   cmd->name, opt->short_opt,
+			// opt->long_opt);
+			struct option_node *node =
+				calloc (1, sizeof (struct option_node));
 			node->option = opt;
 			if (!set_insert_option (set, node)) return false;
 			opt = opt->next;
 		}
 		if (cmd->subcommand) {
-			if (!scan_command_options (cmd->subcommand, set)) return false;
+			if (!scan_command_options (cmd->subcommand, set))
+				return false;
 		}
 		cmd = cmd->next;
 	}
@@ -683,13 +716,13 @@ int ptkl_cli_run (struct ptkl_cli *cli, int argc, char **argv)
 	dbg_print_set ("final options", options);
 
 	// By default, the expected command is the root command. As options are
-	// parsed from left to right, the expected command can become a descendant
-	// command if it matches the option. All options must be matched along a
-	// direct path from the root to the final descendant command (which will
-	// become the expected command). Once a path is established, any remaining
-	// unmatched options (even if they potentially match a command on another
-	// path) will trigger an error since .
-	// struct ptkl_command *expected_cmd = cli->command;
+	// parsed from left to right, the expected command can become a
+	// descendant command if it matches the option. All options must be
+	// matched along a direct path from the root to the final descendant
+	// command (which will become the expected command). Once a path is
+	// established, any remaining unmatched options (even if they
+	// potentially match a command on another path) will trigger an error
+	// since . struct ptkl_command *expected_cmd = cli->command;
 	//
 	// //error_status = process_options(cli, argc, argv);
 	// for (auto i = 0; i < argc; i++) {

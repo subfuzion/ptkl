@@ -10,7 +10,7 @@ include_directories(include)
 
 set(
 	SRC
-	libmain.c
+	src/libmain.c
 )
 
 add_library(

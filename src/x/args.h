@@ -92,8 +92,8 @@ void cli_destroy (cli cli);
 command cli_add_command (cli cli, const char *name, const char *description);
 
 // option cli_add_option (cli cli, option opt);
-void option_set_short_option(char ch);
-void option_set_multi(bool allow);
+void option_set_short_option (char ch);
+void option_set_multi (bool allow);
 
 
 bool cli_parse (cli cli, int argc, char **argv);

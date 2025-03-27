@@ -42,17 +42,24 @@ void help (const int exit_code)
 		//
 		// hidden options:
 		//
-		//           "-m  --module               load as ES6 module (default=autodetect)\n"
-		//           "    --script               load as ES6 script (default=autodetect)\n"
-		//           "-I  --include file         include an additional file\n"
-		//           "    --std                  make 'std' and 'os' available to the loaded script\n"
-		//           "    --bignum               enable the bignum extensions (BigFloat, BigDecimal)\n"
-		//           "-T  --trace                trace memory allocation\n"
-		//           "-d  --dump                 dump the memory usage stats\n"
-		//           "    --memory-limit n       limit the memory usage to 'n' bytes\n"
-		//           "    --stack-size n         limit the stack size to 'n' bytes\n"
-		//           "    --unhandled-rejection  dump unhandled promise rejections\n"
-		//           "-q  --quit                 just instantiate the interpreter and quit\n"
+		//           "-m  --module               load as ES6 module
+		//           (default=autodetect)\n" "    --script load as ES6
+		//           script (default=autodetect)\n"
+		//           "-I  --include file         include an additional
+		//           file\n" "    --std                  make 'std' and
+		//           'os' available to the loaded script\n" " --bignum
+		//           enable the bignum extensions (BigFloat,
+		//           BigDecimal)\n"
+		//           "-T  --trace                trace memory
+		//           allocation\n"
+		//           "-d  --dump                 dump the memory usage
+		//           stats\n" "    --memory-limit n       limit the
+		//           memory usage to 'n' bytes\n" "    --stack-size n
+		//           limit the stack size to 'n' bytes\n" "
+		//           --unhandled-rejection  dump unhandled promise
+		//           rejections\n"
+		//           "-q  --quit                 just instantiate the
+		//           interpreter and quit\n"
 		//
 	);
 	exit (exit_code);
@@ -78,7 +85,8 @@ int parse_runtime_args (const int argc, char **argv, struct runtime_opts *opts)
 	opts->dump_memory = 0;
 	opts->trace_memory = 0;
 	opts->empty_run = 0;
-	// TODO: can't make module the default yet due to tests/test_closure.js::test_with()
+	// TODO: can't make module the default yet due to
+	// tests/test_closure.js::test_with()
 	opts->module = -1;
 	opts->load_std = 1; // 0
 	opts->dump_unhandled_promise_rejection = 0;
@@ -103,7 +111,8 @@ int parse_runtime_args (const int argc, char **argv, struct runtime_opts *opts)
 		for (; *arg || *longopt; longopt = "") {
 			const char opt = *arg;
 			if (opt) arg++;
-			if (opt == 'h' || opt == '?' || !strcmp (longopt, "help")) {
+			if (opt == 'h' || opt == '?' ||
+			    !strcmp (longopt, "help")) {
 				help (0);
 				continue;
 			}
@@ -116,7 +125,9 @@ int parse_runtime_args (const int argc, char **argv, struct runtime_opts *opts)
 					opts->expr = argv[optind++];
 					break;
 				}
-				fprintf (stderr, "%s: missing expression for -e\n", PTKL);
+				fprintf (stderr,
+					 "%s: missing expression for -e\n",
+					 PTKL);
 				exit (1);
 			}
 			if (opt == 'I' || !strcmp (longopt, "include")) {
@@ -124,11 +135,14 @@ int parse_runtime_args (const int argc, char **argv, struct runtime_opts *opts)
 					fprintf (stderr, "expecting filename");
 					exit (1);
 				}
-				if (opts->include_count >= countof (opts->include_list)) {
-					fprintf (stderr, "too many included files");
+				if (opts->include_count >=
+				    countof (opts->include_list)) {
+					fprintf (stderr,
+						 "too many included files");
 					exit (1);
 				}
-				opts->include_list[opts->include_count++] = argv[optind++];
+				opts->include_list[opts->include_count++] =
+					argv[optind++];
 				continue;
 			}
 			if (opt == 'm' || !strcmp (longopt, "module")) {
@@ -165,27 +179,33 @@ int parse_runtime_args (const int argc, char **argv, struct runtime_opts *opts)
 			}
 			if (!strcmp (longopt, "memory-limit")) {
 				if (optind >= argc) {
-					fprintf (stderr, "expecting memory limit");
+					fprintf (stderr,
+						 "expecting memory limit");
 					exit (1);
 				}
-				opts->memory_limit = (size_t)strtod (argv[optind++], nullptr);
+				opts->memory_limit = (size_t)strtod (
+					argv[optind++], nullptr);
 				continue;
 			}
 			if (!strcmp (longopt, "stack-size")) {
 				if (optind >= argc) {
-					fprintf (stderr, "expecting stack size");
+					fprintf (stderr,
+						 "expecting stack size");
 					exit (1);
 				}
-				opts->stack_size = (size_t)strtod (argv[optind++], nullptr);
+				opts->stack_size = (size_t)strtod (
+					argv[optind++], nullptr);
 				continue;
 			}
 			if (opt == 'v' || !strcmp (longopt, "version")) {
 				version ();
 			}
 			if (opt) {
-				fprintf (stderr, "%s: unknown option '-%c'\n", PTKL, opt);
+				fprintf (stderr, "%s: unknown option '-%c'\n",
+					 PTKL, opt);
 			} else {
-				fprintf (stderr, "%s: unknown option '--%s'\n", PTKL, longopt);
+				fprintf (stderr, "%s: unknown option '--%s'\n",
+					 PTKL, longopt);
 			}
 			help (1);
 		}
@@ -282,7 +302,8 @@ static unsigned min (const unsigned a, const unsigned b)
 //
 // If the length of the full usage string would exceed the buffer's capacity,
 // then " ..." is appended to the command name instead of args.
-static void get_command_usage (const struct ptkl_command *cmd, char *usage, const unsigned size)
+static void get_command_usage (const struct ptkl_command *cmd, char *usage,
+			       const unsigned size)
 {
 	unsigned len = 0;
 	const unsigned cap = size - 1;
@@ -317,11 +338,13 @@ static void get_command_usage (const struct ptkl_command *cmd, char *usage, cons
 
 ellide:
 	memset (usage, 0, sizeof (char) * size);
-	sprintf (usage, "%*s ...", min (cap - 4, strlen (cmd->name)), cmd->name);
+	sprintf (usage, "%*s ...", min (cap - 4, strlen (cmd->name)),
+		 cmd->name);
 }
 
 
-static void print_option_help (const struct ptkl_option *opt, const unsigned max_field_width)
+static void print_option_help (const struct ptkl_option *opt,
+			       const unsigned max_field_width)
 {
 	printf (COLUMN_SEP "-%c" COLUMN_SEP "--%-*s" COLUMN_SEP "%s"
 			   "\n",
@@ -329,7 +352,9 @@ static void print_option_help (const struct ptkl_option *opt, const unsigned max
 }
 
 
-static void print_subcommand_help (const struct ptkl_command *cmd, const char *usage, const unsigned max_field_width)
+static void print_subcommand_help (const struct ptkl_command *cmd,
+				   const char *usage,
+				   const unsigned max_field_width)
 {
 	printf (COLUMN_SEP "%-*s" COLUMN_SEP "%-s"
 			   "\n",
@@ -363,7 +388,8 @@ void print_command_help (const struct ptkl_command *cmd)
 		const struct ptkl_option *opt = cmd->options;
 		while (opt) {
 			const unsigned width = strlen (opt->long_opt);
-			if (width > longest_field_width) longest_field_width = width;
+			if (width > longest_field_width)
+				longest_field_width = width;
 			opt = opt->next;
 		}
 
@@ -372,7 +398,8 @@ void print_command_help (const struct ptkl_command *cmd)
 		while (subcmd) {
 			get_command_usage (subcmd, usage, size);
 			const unsigned width = strlen (usage);
-			if (width > longest_field_width) longest_field_width = width;
+			if (width > longest_field_width)
+				longest_field_width = width;
 			subcmd = subcmd->next;
 		}
 	}
@@ -392,7 +419,8 @@ void print_command_help (const struct ptkl_command *cmd)
 		const struct ptkl_command *subcmd = cmd->subcommand;
 		while (subcmd) {
 			get_command_usage (subcmd, usage, size);
-			print_subcommand_help (subcmd, usage, longest_field_width);
+			print_subcommand_help (subcmd, usage,
+					       longest_field_width);
 			subcmd = subcmd->next;
 		}
 	}
@@ -401,17 +429,20 @@ void print_command_help (const struct ptkl_command *cmd)
 
 // hidden options:
 //
-//           "-m  --module               load as ES6 module (default=autodetect)\n"
-//           "    --script               load as ES6 script (default=autodetect)\n"
+//           "-m  --module               load as ES6 module
+//           (default=autodetect)\n" "    --script               load as ES6
+//           script (default=autodetect)\n"
 //           "-I  --include file         include an additional file\n"
-//           "    --std                  make 'std' and 'os' available to the loaded script\n"
-//           "    --bignum               enable the bignum extensions (BigFloat, BigDecimal)\n"
+//           "    --std                  make 'std' and 'os' available to the
+//           loaded script\n" "    --bignum               enable the bignum
+//           extensions (BigFloat, BigDecimal)\n"
 //           "-T  --trace                trace memory allocation\n"
 //           "-d  --dump                 dump the memory usage stats\n"
 //           "    --memory-limit n       limit the memory usage to 'n' bytes\n"
 //           "    --stack-size n         limit the stack size to 'n' bytes\n"
 //           "    --unhandled-rejection  dump unhandled promise rejections\n"
-//           "-q  --quit                 just instantiate the interpreter and quit\n"
+//           "-q  --quit                 just instantiate the interpreter and
+//           quit\n"
 //
 void ptkl_cli_help (const struct ptkl_cli *cli)
 {
@@ -455,7 +486,8 @@ void ptkl_command_add_option (struct ptkl_command *cmd, struct ptkl_option *opt)
 }
 
 
-void ptkl_command_add_subcommand (struct ptkl_command *cmd, struct ptkl_command *subcommand)
+void ptkl_command_add_subcommand (struct ptkl_command *cmd,
+				  struct ptkl_command *subcommand)
 {
 	if (!cmd->subcommand) {
 		cmd->subcommand = subcommand;

@@ -15,8 +15,7 @@ include_directories(include)
 
 set(
 	CLI_SRC
-	include/args.h
-	args.c
+	src/cli.c
 )
 
 add_library(

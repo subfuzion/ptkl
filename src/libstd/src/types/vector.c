@@ -1,5 +1,5 @@
 /*
- * Unit tests for Partikle Runtime
+ * ptkl - Partikle Runtime
  *
  * MIT License
  *
@@ -23,38 +23,65 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include "vector.h"
+#include <string.h>
 
-#include "errors.h"
-#include "results.h"
-#include "test.h"
-
-void test_errors ()
+void vector_init (vector *v)
 {
-	// char *s = NULL;
-	// printf ("%s\n", strdup (s));
-	// panic ("test");
+	v->capacity = 4;
+	v->size = 0;
+	v->items = malloc (sizeof (void *) * v->capacity);
 }
 
-void test_results ()
+bool vector_add (vector *v, void *item)
 {
-	result res;
-
-	res = make_dstring_result ("foo");
-	expect_eq_str ("foo", result_dstring (res)->str);
-
-	res = make_int_result (10);
-	expect_eq_int (10, result_int (res));
-
-	res = make_error_result ("oops");
-	expect_not_null (result_error (res));
-	expect (failed (res));
-	expect_false (succeeded (res));
-	expect_eq_str ("oops", result_error (res)->message);
+	if (v->size == v->capacity) {
+		v->capacity *= 2;
+		void **buf = realloc (v->items, sizeof (void *) * v->capacity);
+		if (buf == nullptr) {
+			return false;
+		}
+		v->items = buf;
+	}
+	v->items[v->size++] = item;
+	return true;
 }
 
-
-void utils_test ()
+void vector_set (const vector *v, const size_t index, void *item)
 {
-	test (test_errors);
-	test (test_results);
+	if (index < v->size) {
+		v->items[index] = item;
+	}
+}
+
+void *vector_get (const vector *v, const size_t index)
+{
+	if (index < v->size) {
+		return v->items[index];
+	}
+	return nullptr;
+}
+
+bool vector_delete (vector *v, const size_t index)
+{
+	if (index < v->size) {
+		memmove (&v->items[index], &v->items[index + 1],
+			 sizeof (void *) * (v->size - index - 1));
+		v->size--;
+		return true;
+	}
+	return false;
+}
+
+void vector_free (vector *v)
+{
+	if (v == nullptr) return;
+	v->size = 0;
+	v->capacity = 0;
+	free (v->items);
+}
+
+size_t vector_size (const vector *v)
+{
+	return v->size;
 }

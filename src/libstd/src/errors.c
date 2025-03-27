@@ -78,11 +78,14 @@ static void panic_signal_handler (int sig)
 
 void register_signal_panic_handlers ()
 {
-	/* don't intercept SIGABRT, SIGINT, SIGTERM */
-	signal (SIGFPE, panic_signal_handler); /* arithmetic (divide by zero, etc) */
+	/* don't SIGINT, SIGTERM */
+	signal (SIGABRT, panic_signal_handler); /* for tesing */
+	signal (SIGFPE,
+		panic_signal_handler); /* arithmetic (divide by zero, etc) */
 	signal (SIGILL, panic_signal_handler); /* illegal instruction */
 	signal (SIGSEGV, panic_signal_handler); /* segmentation violation */
-	signal (SIGBUS, panic_signal_handler); /* bus error accessing invalid address */
+	signal (SIGBUS,
+		panic_signal_handler); /* bus error accessing invalid address */
 }
 
 

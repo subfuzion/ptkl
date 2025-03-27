@@ -29,6 +29,30 @@
 
 #include "sds.h"
 
+/**
+ * Dynamic string with reference counting.
+ * - Call `dstring_addref` when making a copy of the reference to a dstring.
+ * - Call `dstring_release` when finished with a reference to a dstring.
+ * Example:
+ *     dstring a = dstring_new("foo");  // .count = 1
+ *     dstring_addref (a);              // increment .count to 2 to make a copy
+ *     dstring b = a;                   // make another copy of the reference
+ *     dstring_release (b);             // decrement .count to when done with b
+ *     b = nullptr;                     // finished with b
+ *     dstring_release (a);             // decrement .count to 0 =>
+ *                                      //  - internal string is freed
+ *                                      //  - dstring is freed
+ *     a = nullptr;                     // finished with a
+ *
+ * Example:
+ *     dstring a = dstring_new("foo");  // .count = 1
+ *     dstring b = dstring_new("bar");  // .count = 1
+ *     store_put(store, a, b);          // store calls addref (.count = 2 for a,
+ * b) dstring_release(a);              // decrement .count to 1
+ *     dstring_release(b);              // decrement .count to 1
+ *     return;                          // store calls release later (which
+ * frees a, b)
+ */
 typedef struct dstring {
 	int count;
 	sds str;
@@ -40,24 +64,28 @@ typedef struct dstring {
 dstring dstring_new (const char *str);
 
 /**
- * Call this when assigning another reference to the dstring,
- * such as storing a copy of the pointer)
+ * Always call either free or release when leaving the dstring's scope:
+ * - call free if you created the dstring, no longer need it, and there are no
+ * other refs
+ * - call release if the dstring was handed to you (e.g., returned from a
+ * function)
  */
-void dstring_addref (dstring s);
+void dstring_free (dstring s);
 
 /**
  * Always call either release or free when leaving the dstring's scope:
- * - call release if the dstring was handed to you (e.g., returned from a function)
- * - call free if you created the dstring, no longer need it, and there are no other refs
+ * - call release if the dstring was handed to you (e.g., returned from a
+ * function)
+ * - call free if you created the dstring, no longer need it, and there are no
+ * other refs
  */
 void dstring_release (dstring s);
 
 /**
- * Always call either release or free when leaving the dstring's scope:
- * - call release if the dstring was handed to you (e.g., returned from a function)
- * - call free if you created the dstring, no longer need it, and there are no other refs
+ * Call this when assigning another reference to the dstring,
+ * such as storing a copy of the pointer)
  */
-void dstring_free (dstring s);
+void dstring_addref (dstring s);
 
 /**
  * Clear the string.

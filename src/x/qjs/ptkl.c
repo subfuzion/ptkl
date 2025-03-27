@@ -52,14 +52,16 @@ extern int compile (int argc, char **argv);
 // just disables non-standard bigdecimal, bigfloat, and related extensions
 static int bignum_ext = 0;
 
-static int eval_buf (JSContext *ctx, const void *buf, const size_t buf_len, const char *filename, const int eval_flags)
+static int eval_buf (JSContext *ctx, const void *buf, const size_t buf_len,
+		     const char *filename, const int eval_flags)
 {
 	JSValue val;
 	int ret;
 
 	if ((eval_flags & JS_EVAL_TYPE_MASK) == JS_EVAL_TYPE_MODULE) {
 		// For modules, compile then run to be able to set import.meta
-		val = JS_Eval (ctx, buf, buf_len, filename, eval_flags | JS_EVAL_FLAG_COMPILE_ONLY);
+		val = JS_Eval (ctx, buf, buf_len, filename,
+			       eval_flags | JS_EVAL_FLAG_COMPILE_ONLY);
 		if (!JS_IsException (val)) {
 			js_module_set_import_meta (ctx, val, TRUE, TRUE);
 			val = JS_EvalFunction (ctx, val);
@@ -90,7 +92,8 @@ static int eval_file (JSContext *ctx, const char *filename, int module)
 	}
 
 	if (module < 0) {
-		module = has_suffix (filename, ".mjs") || JS_DetectModule ((const char *)buf, buf_len);
+		module = has_suffix (filename, ".mjs") ||
+			JS_DetectModule ((const char *)buf, buf_len);
 	}
 	if (module)
 		eval_flags = JS_EVAL_TYPE_MODULE;
@@ -128,7 +131,9 @@ struct trace_malloc_data {
 	uint8_t *base;
 };
 
-static unsigned long long js_trace_malloc_ptr_offset (const uint8_t *ptr, const struct trace_malloc_data *dp)
+static unsigned long long
+js_trace_malloc_ptr_offset (const uint8_t *ptr,
+			    const struct trace_malloc_data *dp)
 {
 	return ptr - dp->base;
 }
@@ -148,8 +153,8 @@ static size_t js_trace_malloc_usable_size (const void *ptr)
 #endif
 }
 
-static void __attribute__ ((format (printf, 2, 3))) js_trace_malloc_printf (const JSMallocState *s, const char *fmt,
-									    ...)
+static void __attribute__ ((format (printf, 2, 3)))
+js_trace_malloc_printf (const JSMallocState *s, const char *fmt, ...)
 {
 	va_list ap;
 	int c;
@@ -163,8 +168,11 @@ static void __attribute__ ((format (printf, 2, 3))) js_trace_malloc_printf (cons
 				if (ptr == nullptr) {
 					printf ("nullptr");
 				} else {
-					printf ("H%+06lld.%zd", js_trace_malloc_ptr_offset (ptr, s->opaque),
-						js_trace_malloc_usable_size (ptr));
+					printf ("H%+06lld.%zd",
+						js_trace_malloc_ptr_offset (
+							ptr, s->opaque),
+						js_trace_malloc_usable_size (
+							ptr));
 				}
 				fmt++;
 				continue;
@@ -196,7 +204,8 @@ static void *js_trace_malloc (JSMallocState *s, const size_t size)
 	js_trace_malloc_printf (s, "A %zd -> %p\n", size, ptr);
 	if (ptr) {
 		s->malloc_count++;
-		s->malloc_size += js_trace_malloc_usable_size (ptr) + MALLOC_OVERHEAD;
+		s->malloc_size +=
+			js_trace_malloc_usable_size (ptr) + MALLOC_OVERHEAD;
 	}
 	return ptr;
 }
@@ -299,7 +308,8 @@ int main (int argc, char **argv)
 	// Handle options
 
 	if (opts.dump_unhandled_promise_rejection) {
-		JS_SetHostPromiseRejectionTracker (rt, js_std_promise_rejection_tracker, nullptr);
+		JS_SetHostPromiseRejectionTracker (
+			rt, js_std_promise_rejection_tracker, nullptr);
 	}
 
 	if (!opts.empty_run) {
@@ -311,15 +321,19 @@ int main (int argc, char **argv)
 					  "import * as os from 'os';\n"
 					  "globalThis.std = std;\n"
 					  "globalThis.os = os;\n";
-			eval_buf (ctx, str, strlen (str), "<input>", JS_EVAL_TYPE_MODULE);
+			eval_buf (ctx, str, strlen (str), "<input>",
+				  JS_EVAL_TYPE_MODULE);
 		}
 
 		for (int i = 0; i < opts.include_count; i++) {
-			if (eval_file (ctx, opts.include_list[i], opts.module)) goto fail;
+			if (eval_file (ctx, opts.include_list[i], opts.module))
+				goto fail;
 		}
 
 		if (opts.expr) {
-			if (eval_buf (ctx, opts.expr, strlen (opts.expr), "<cmdline>", 0)) goto fail;
+			if (eval_buf (ctx, opts.expr, strlen (opts.expr),
+				      "<cmdline>", 0))
+				goto fail;
 		} else if (optind >= argc) {
 			/* interactive mode */
 			opts.interactive = 1;
@@ -357,12 +371,15 @@ int main (int argc, char **argv)
 			JS_FreeRuntime (rt);
 			t[4] = clock ();
 			for (int j = 4; j > 0; j--) {
-				const unsigned ms = 1000 * (t[j] - t[j - 1]) / CLOCKS_PER_SEC;
+				const unsigned ms = 1000 * (t[j] - t[j - 1]) /
+					CLOCKS_PER_SEC;
 				if (i == 0 || best[j] > ms) best[j] = ms;
 			}
 		}
-		printf ("\nInstantiation times (ms): %.3f = %.3f+%.3f+%.3f+%.3f\n",
-			best[1] + best[2] + best[3] + best[4], best[1], best[2], best[3], best[4]);
+		printf ("\nInstantiation times (ms): %.3f = "
+			"%.3f+%.3f+%.3f+%.3f\n",
+			best[1] + best[2] + best[3] + best[4], best[1], best[2],
+			best[3], best[4]);
 	}
 
 	return 0;

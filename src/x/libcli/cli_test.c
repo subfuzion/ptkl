@@ -104,20 +104,20 @@ static void teardown ()
 
 static void test_cli_new ()
 {
-	setup();
+	setup ();
 	expect_eq_str ("ptkl", CLI->name->str);
 	expect_eq_str ("0.1.0", CLI->version->str);
 	expect_eq_str ("Partikle CLI", CLI->description->str);
 	expect_not_null (CLI->commands);
 	expect_not_null (CLI->options);
 	expect_not_null (CLI->args);
-	teardown();
+	teardown ();
 }
 
 
 static void test_cli_destroy ()
 {
-	setup();
+	setup ();
 	cli_destroy (CLI);
 	expect_null (CLI->name);
 	expect_null (CLI->version);
@@ -129,13 +129,13 @@ static void test_cli_destroy ()
 	/* always set to null after destroy */
 	/* in this case, so teardown doesn't try to free twice */
 	CLI = nullptr;
-	teardown();
+	teardown ();
 }
 
 
 static void test_cli_add_command ()
 {
-	setup();
+	setup ();
 
 	command cmd = cli_add_command (CLI, "foo", "bar");
 	expect_not_null (cmd);
@@ -143,7 +143,7 @@ static void test_cli_add_command ()
 	command found = map_get (CLI->commands, "foo");
 	expect_eq_str ("foo", found->name->str);
 
-	teardown();
+	teardown ();
 }
 
 
@@ -153,7 +153,7 @@ static void test_cli_add_option ()
 
 static void test_cli_parse ()
 {
-	setup();
+	setup ();
 
 	/* command line */
 	char *args[] = {
@@ -173,7 +173,7 @@ static void test_cli_parse ()
 	expect_eq_str ("foo", (char *)vector_get (CLI->args, 0));
 	expect_eq_str ("bar", (char *)vector_get (CLI->args, 1));
 
-	teardown();
+	teardown ();
 }
 
 
@@ -187,11 +187,7 @@ static void test_getopt ()
 {
 	/* command line */
 	char *args[] = {
-		"ptkl",
-		"foo",
-		"--bar",
-		"4",
-		"baz",
+		"ptkl", "foo", "--bar", "4", "baz",
 	};
 
 	int argc = sizeof (args) / sizeof (args[0]);
@@ -208,34 +204,32 @@ static void test_getopt ()
 			// {"verbose", no_argument,       0,  0 },
 			// {"create",  required_argument, 0, 'c'},
 			// {"file",    required_argument, 0,  0 },
-			{0, 0, 0, 0}
-		};
+			{0, 0, 0, 0}};
 
-		c = getopt_long (argc, argv, "ac:d:b::",
-				 long_options, &option_index);
+		c = getopt_long (argc, argv, "ac:d:b::", long_options,
+				 &option_index);
 		if (c == -1) break;
 
 		switch (c) {
-		case 0: printf ("option %s", long_options[option_index].name);
+		case 0:
+			printf ("option %s", long_options[option_index].name);
 			if (optarg) printf (" with arg %s", optarg);
 			printf ("\n");
 			break;
 
-		case 'a': printf ("option a\n");
-			break;
+		case 'a': printf ("option a\n"); break;
 
-		case 'b': printf ("option b, arg: %s\n", optarg);
-			break;
+		case 'b': printf ("option b, arg: %s\n", optarg); break;
 
-		case 'c': printf ("option c with value '%s'\n", optarg);
-			break;
+		case 'c': printf ("option c with value '%s'\n", optarg); break;
 
-		case 'd': printf ("option d with value '%s'\n", optarg);
-			break;
+		case 'd': printf ("option d with value '%s'\n", optarg); break;
 
 		case '?': break;
 
-		default: printf ("?? getopt returned character code 0%o ??\n", c);
+		default:
+			printf ("?? getopt returned character code 0%o ??\n",
+				c);
 		}
 	}
 

@@ -24,53 +24,17 @@
  * THE SOFTWARE.
  */
 
-#include <assert.h>
-
 #include "errors.h"
 #include "test.h"
 
-extern void adt_test ();
-extern void cli_test ();
-extern void expect_test ();
-extern void string_test ();
-extern void utils_test ();
-
-int main ()
+void test_errors ()
 {
-	register_signal_panic_handlers ();
-	printf ("Running tests\n\n");
+	// char *s = NULL;
+	// printf ("%s\n", strdup (s));
+	// panic ("test");
+}
 
-#if 0
-	printf("▶︎ test framework tests\n");
-	expect_test();
-	printf("\n");
-
-	printf("▶︎ ADT tests\n");
-	adt_test();
-	printf("\n");
-#endif
-
-	printf ("▶︎ expect tests\n");
-	expect_test ();
-	printf ("\n");
-
-	printf ("▶︎ adt tests\n");
-	adt_test ();
-	printf ("\n");
-
-	printf ("▶︎ utils tests\n");
-	utils_test ();
-	printf ("\n");
-
-	printf ("▶︎ string tests\n");
-	string_test ();
-	printf ("\n");
-
-	printf ("▶︎ CLI tests\n");
-	cli_test ();
-	printf ("\n");
-
-
-	printf ("All tests passed.\n");
-	return EXIT_SUCCESS;
+void errors_test ()
+{
+	test (test_errors);
 }

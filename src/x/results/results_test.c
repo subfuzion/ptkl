@@ -24,33 +24,27 @@
  * THE SOFTWARE.
  */
 
-#include "args.h"
+#include "results.h"
 #include "test.h"
 
-void test_expect ()
+void test_results ()
 {
-	expect (strlen ("") == 0);
+	result res;
+
+	res = make_string_result ("foo");
+	expect_eq_str ("foo", result_string (res));
+
+	res = make_int_result (10);
+	expect_eq_int (10, result_int (res));
+
+	res = make_error_result ("oops");
+	expect (failed (res));
+	expect_false (succeeded (res));
+	expect_eq_str ("oops", result_error (res).message);
 }
 
-void test_null ()
-{
-	expect_null (nullptr);
-}
 
-void test_not_null ()
+void utils_test ()
 {
-	expect_not_null ("foo");
-}
-
-void test_empty_str ()
-{
-	expect_empty_str ((char *)nullptr);
-}
-
-void expect_test ()
-{
-	test (test_expect);
-	test (test_null);
-	test (test_not_null);
-	test (test_empty_str);
+	test (test_results);
 }

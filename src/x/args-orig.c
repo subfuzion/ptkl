@@ -83,7 +83,8 @@ bool parse_args (const int argc, char **argv, struct opts *opts)
 	opts->runtime.dump_memory = 0;
 	opts->runtime.trace_memory = 0;
 	opts->runtime.empty_run = 0;
-	// TODO: can't make module the default yet due to tests/test_closure.js::test_with()
+	// TODO: can't make module the default yet due to
+	// tests/test_closure.js::test_with()
 	opts->runtime.module = -1;
 	opts->runtime.load_std = 1; // 0
 	opts->runtime.dump_unhandled_promise_rejection = 0;
@@ -108,7 +109,8 @@ bool parse_args (const int argc, char **argv, struct opts *opts)
 		for (; *arg || *longopt; longopt = "") {
 			const char opt = *arg;
 			if (opt) arg++;
-			if (opt == 'h' || opt == '?' || !strcmp (longopt, "help")) {
+			if (opt == 'h' || opt == '?' ||
+			    !strcmp (longopt, "help")) {
 				opts->cmd.help = true;
 				continue;
 			}
@@ -121,7 +123,9 @@ bool parse_args (const int argc, char **argv, struct opts *opts)
 					opts->runtime.expr = argv[optind++];
 					break;
 				}
-				snprintf (opts->error, 256, "%s: missing expression for -e\n", PTKL);
+				snprintf (opts->error, 256,
+					  "%s: missing expression for -e\n",
+					  PTKL);
 				goto done;
 			}
 			if (opt == 'I' || !strcmp (longopt, "include")) {
@@ -129,11 +133,16 @@ bool parse_args (const int argc, char **argv, struct opts *opts)
 					fprintf (stderr, "expecting filename");
 					exit (1);
 				}
-				if (opts->runtime.include_count >= count_elements (opts->runtime.include_list)) {
-					snprintf (opts->error, 256, "too many included files");
+				if (opts->runtime.include_count >=
+				    count_elements (
+					    opts->runtime.include_list)) {
+					snprintf (opts->error, 256,
+						  "too many included files");
 					goto done;
 				}
-				opts->runtime.include_list[opts->runtime.include_count++] = argv[optind++];
+				opts->runtime.include_list
+					[opts->runtime.include_count++] =
+					argv[optind++];
 				continue;
 			}
 			if (opt == 'm' || !strcmp (longopt, "module")) {
@@ -157,7 +166,8 @@ bool parse_args (const int argc, char **argv, struct opts *opts)
 				continue;
 			}
 			if (!strcmp (longopt, "unhandled-rejection")) {
-				opts->runtime.dump_unhandled_promise_rejection = 1;
+				opts->runtime.dump_unhandled_promise_rejection =
+					1;
 				continue;
 			}
 			if (!strcmp (longopt, "bignum")) {
@@ -170,18 +180,22 @@ bool parse_args (const int argc, char **argv, struct opts *opts)
 			}
 			if (!strcmp (longopt, "memory-limit")) {
 				if (optind >= argc) {
-					snprintf (opts->error, 256, "expecting memory limit");
+					snprintf (opts->error, 256,
+						  "expecting memory limit");
 					goto done;
 				}
-				opts->runtime.memory_limit = (size_t)strtod (argv[optind++], nullptr);
+				opts->runtime.memory_limit = (size_t)strtod (
+					argv[optind++], nullptr);
 				continue;
 			}
 			if (!strcmp (longopt, "stack-size")) {
 				if (optind >= argc) {
-					snprintf (opts->error, 256, "expecting stack size");
+					snprintf (opts->error, 256,
+						  "expecting stack size");
 					goto done;
 				}
-				opts->runtime.stack_size = (size_t)strtod (argv[optind++], nullptr);
+				opts->runtime.stack_size = (size_t)strtod (
+					argv[optind++], nullptr);
 				continue;
 			}
 			if (opt == 'v' || !strcmp (longopt, "version")) {
@@ -189,10 +203,14 @@ bool parse_args (const int argc, char **argv, struct opts *opts)
 				goto done;
 			}
 			if (opt) {
-				snprintf (opts->error, 256, "%s: unknown option '-%c'", PTKL, opt);
+				snprintf (opts->error, 256,
+					  "%s: unknown option '-%c'", PTKL,
+					  opt);
 				goto done;
 			} else {
-				snprintf (opts->error, 256, "%s: unknown option '--%s'", PTKL, longopt);
+				snprintf (opts->error, 256,
+					  "%s: unknown option '--%s'", PTKL,
+					  longopt);
 				goto done;
 			}
 		}

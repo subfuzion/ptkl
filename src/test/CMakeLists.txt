@@ -6,13 +6,12 @@ project(
 )
 
 set(PTKLTEST_SOURCES
-	../libstd/include/test.h
-	test_main.c
-	adt_test.c
-	cli_test.c
-	expect_test.c
-	string_test.c
-	utils_test.c
+	src/testmain.c
+	src/tests/adt_test.c
+	src/tests/cli_test.c
+	src/tests/errors_test.c
+	src/tests/expect_test.c
+	src/tests/string_test.c
 )
 
 add_executable(

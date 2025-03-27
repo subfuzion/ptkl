@@ -13,7 +13,7 @@ add_definitions(
 
 set(
 	PTKL_SRC
-	ptkl.c
+	src/ptkl.c
 )
 
 add_executable(

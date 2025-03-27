@@ -1,5 +1,5 @@
 /*
- * ptkl - Partikle Runtime
+ * Unit tests for Partikle Runtime
  *
  * MIT License
  *
@@ -24,52 +24,33 @@
  * THE SOFTWARE.
  */
 
-#ifndef RESULTS_H
-#define RESULTS_H
+#include <assert.h>
 
-#include "dstring.h"
+#include "errors.h"
+#include "test.h"
 
-typedef struct error {
-	char *message;
-} error;
+extern void adt_test ();
+extern void cli_test ();
+extern void errors_test ();
+extern void expect_test ();
+extern void string_test ();
 
-typedef union result {
-	error *error;
-	bool bool_val;
-	char char_val;
-	dstring dstring_val;
-	int int_val;
-	long long_val;
-	double double_val;
-	void *pointer;
-} result;
+int main ()
+{
+	register_signal_panic_handlers ();
+	printf ("Running tests\n\n");
 
-/* result constructors */
+	test_suite tests[] = {
+		{.name = "libstd: test framework tests", .fn = expect_test},
+		{.name = "libstd: adt tests", .fn = adt_test},
+		{.name = "libstd: errors tests", .fn = errors_test},
+		{.name = "libstd: string tests", .fn = string_test},
+		{.name = "libcli: CLI tests", .fn = cli_test},
+		{},
+	};
 
-result make_error_result (const char *err);
-result make_bool_result (bool val);
-result make_char_result (char ch);
-result make_dstring_result (const char *string);
-result make_int_result (int n);
-result make_long_result (long n);
-result make_double_result (double val);
-result make_pointer_result (void *pointer);
+	run_tests (tests);
 
-/* result accessors */
-
-error *result_error (const result res);
-bool result_bool (const result res);
-char result_char (const result res);
-dstring result_dstring (const result res);
-int result_int (const result res);
-long result_long (const result res);
-double result_double (const result res);
-void *result_pointer (const result res);
-
-/* result helpers */
-
-bool succeeded (const result res);
-bool failed (const result res);
-void check (const result res);
-
-#endif // RESULTS_H
+	printf ("All tests passed.\n");
+	return EXIT_SUCCESS;
+}

@@ -28,15 +28,19 @@
 
 #include "errors.h"
 #include "results.h"
-
-static thread_local error g_result_error = {};
+#include "strings.h"
 
 /* result constructors */
 
 result make_error_result (const char *err)
 {
-	g_result_error.message = err ? strdup (err) : "unknown error";
-	return (result){.error = &g_result_error};
+	return (result){
+		.error =
+			{
+				.message = string_new (err ? err
+							   : "unknown error"),
+			},
+	};
 }
 
 
@@ -54,7 +58,7 @@ result make_char_result (char ch)
 
 result make_dstring_result (const char *string)
 {
-	return (result){.dstring_val = dstring_new (string)};
+	return (result){.string_val = string_new (string)};
 }
 
 
@@ -84,7 +88,7 @@ result make_pointer_result (void *pointer)
 
 /* result accessors */
 
-error *result_error (const result res)
+error result_error (const result res)
 {
 	return res.error;
 }
@@ -102,9 +106,9 @@ char result_char (const result res)
 }
 
 
-dstring result_dstring (const result res)
+string result_dstring (const result res)
 {
-	return res.dstring_val;
+	return res.string_val;
 }
 
 
@@ -136,17 +140,17 @@ void *result_pointer (const result res)
 
 bool succeeded (const result res)
 {
-	return res.error != &g_result_error;
+	return res.type != ERROR;
 }
 
 
 bool failed (const result res)
 {
-	return res.error == &g_result_error;
+	return res.type == ERROR;
 }
 
 
 void check (const result res)
 {
-	if (failed (res)) panic (res.error->message);
+	if (failed (res)) panic (res.error.message);
 }

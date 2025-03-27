@@ -17,14 +17,13 @@ set(
 	sds/sds.h
 	sds/sds.c
 	sds/sdsalloc.h
-	errors.c
-	types/buffer.c
-	types/dstring.c
-	types/list.c
-	types/map.c
-	types/results.c
-	types/stack.c
-	types/vector.c
+	src/errors.c
+	src/types/buffer.c
+	src/types/list.c
+	src/types/map.c
+	src/types/stack.c
+	src/types/strings.c
+	src/types/vector.c
 )
 
 add_library(

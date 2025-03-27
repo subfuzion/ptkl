@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-#include "args.h"
+#include "cli.h"
 #include "test.h"
 
 
@@ -89,14 +89,14 @@ cli CLI = nullptr;
 
 static void setup ()
 {
-	//CLI = cli_new ("ptkl", "0.1.0", "Partikle CLI");
+	// CLI = cli_new ("ptkl", "0.1.0", "Partikle CLI");
 }
 
 
 static void teardown ()
 {
 	if (CLI) {
-		//cli_destroy (CLI);
+		// cli_destroy (CLI);
 		CLI = nullptr;
 	}
 }
@@ -104,20 +104,20 @@ static void teardown ()
 
 static void test_cli_new ()
 {
-	setup();
+	setup ();
 	// expect_eq_str ("ptkl", CLI->name->str);
 	// expect_eq_str ("0.1.0", CLI->version->str);
 	// expect_eq_str ("Partikle CLI", CLI->description->str);
 	// expect_not_null (CLI->commands);
 	// expect_not_null (CLI->options);
 	// expect_not_null (CLI->args);
-	teardown();
+	teardown ();
 }
 
 
 static void test_cli_destroy ()
 {
-	setup();
+	setup ();
 	// cli_destroy (CLI);
 	// expect_null (CLI->name);
 	// expect_null (CLI->version);
@@ -129,13 +129,13 @@ static void test_cli_destroy ()
 	/* always set to null after destroy */
 	/* in this case, so teardown doesn't try to free twice */
 	CLI = nullptr;
-	teardown();
+	teardown ();
 }
 
 
 static void test_cli_add_command ()
 {
-	setup();
+	setup ();
 
 	// command cmd = cli_add_command (CLI, "foo", "bar");
 	// expect_not_null (cmd);
@@ -143,7 +143,7 @@ static void test_cli_add_command ()
 	// command found = map_get (CLI->commands, "foo");
 	// expect_eq_str ("foo", found->name->str);
 
-	teardown();
+	teardown ();
 }
 
 
@@ -153,7 +153,7 @@ static void test_cli_add_option ()
 
 static void test_cli_parse ()
 {
-	setup();
+	setup ();
 
 	// /* command line */
 	// char *args[] = {
@@ -173,7 +173,7 @@ static void test_cli_parse ()
 	// expect_eq_str ("foo", (char *)vector_get (CLI->args, 0));
 	// expect_eq_str ("bar", (char *)vector_get (CLI->args, 1));
 
-	teardown();
+	teardown ();
 }
 
 

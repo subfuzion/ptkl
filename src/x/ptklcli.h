@@ -196,8 +196,10 @@ struct ptkl_arg {
 
 void ptkl_cli_add_command (struct ptkl_cli *cli, struct ptkl_command *cmd);
 void ptkl_command_add_arg (struct ptkl_command *cmd, struct ptkl_arg *arg);
-void ptkl_command_add_option (struct ptkl_command *cmd, struct ptkl_option *opt);
-void ptkl_command_add_subcommand (struct ptkl_command *cmd, struct ptkl_command *subcommand);
+void ptkl_command_add_option (struct ptkl_command *cmd,
+			      struct ptkl_option *opt);
+void ptkl_command_add_subcommand (struct ptkl_command *cmd,
+				  struct ptkl_command *subcommand);
 
 int ptkl_cli_run (struct ptkl_cli *cli, int argc, char **argv);
 void ptkl_cli_help (const struct ptkl_cli *cli);

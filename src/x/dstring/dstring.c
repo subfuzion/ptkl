@@ -34,7 +34,8 @@ dstring dstring_new (const char *str)
 {
 	dstring s = malloc (sizeof (struct dstring));
 	if (!s) {
-		fprintf (stderr, "panic: %s: malloc failed for: %s\n", __func__, str);
+		fprintf (stderr, "panic: %s: malloc failed for: %s\n", __func__,
+			 str);
 		exit (1);
 	}
 	memset (s, 0, sizeof (struct dstring));
@@ -49,13 +50,16 @@ void dstring_free (dstring s)
 	/* printf ("%s: free \"%s\"\n", __func__, s->str); */
 	s->count = 0;
 	sdsfree (s->str);
+	s->str = nullptr;
+	free (s);
 }
 
 
 void dstring_addref (dstring s)
 {
 	if (s->str) {
-		/* printf ("%s: from %d to %d\n", __func__, s->count, s->count + 1); */
+		/* printf ("%s: from %d to %d\n", __func__, s->count, s->count +
+		 * 1); */
 		s->count++;
 	}
 }
@@ -67,7 +71,6 @@ void dstring_release (dstring s)
 	s->count--;
 	if (s->count < 1) {
 		dstring_free (s);
-		s->str = nullptr;
 	}
 }
 

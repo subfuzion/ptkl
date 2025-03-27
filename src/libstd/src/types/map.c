@@ -58,7 +58,9 @@ void map_init (map *m)
 	m->size = 0;
 	m->buckets = calloc (m->capacity, sizeof (mapnode *));
 	if (m->buckets == nullptr) {
-		fprintf (stderr, "Error: map_init: failed to allocate memory for buckets\n");
+		fprintf (stderr,
+			 "Error: map_init: failed to allocate memory for "
+			 "buckets\n");
 		exit (EXIT_FAILURE);
 	}
 }
@@ -67,7 +69,8 @@ void map_init (map *m)
 bool map_put (map *m, const char *key, void *value)
 {
 	/* check load factor to determine whether resizing is necessary */
-	if ((double)m->size / (double)m->capacity >= MAX_LOAD_FACTOR && !map_resize (m, m->capacity * 2)) {
+	if ((double)m->size / (double)m->capacity >= MAX_LOAD_FACTOR &&
+	    !map_resize (m, m->capacity * 2)) {
 		fprintf (stderr, "Error: map_put: unable to resize map\n");
 		goto fail;
 	}
@@ -75,13 +78,15 @@ bool map_put (map *m, const char *key, void *value)
 	const unsigned long index = hash (key) % m->capacity;
 	mapnode *new_node = malloc (sizeof (mapnode));
 	if (new_node == nullptr) {
-		fprintf (stderr, "Error: map_put: unable to allocate new mapnode\n");
+		fprintf (stderr,
+			 "Error: map_put: unable to allocate new mapnode\n");
 		goto fail;
 	}
 
 	new_node->key = strdup (key);
 	if (new_node->key == nullptr) {
-		fprintf (stderr, "Error: map_put: unable to allocate new key\n");
+		fprintf (stderr,
+			 "Error: map_put: unable to allocate new key\n");
 		free (new_node);
 		goto fail;
 	}
@@ -185,7 +190,8 @@ static bool map_resize (map *m, const size_t new_capacity)
 		mapnode *current = m->buckets[i];
 		while (current != nullptr) {
 			mapnode *next = current->next;
-			const unsigned long new_index = hash (current->key) % new_capacity;
+			const unsigned long new_index =
+				hash (current->key) % new_capacity;
 			current->next = new_buckets[new_index];
 			new_buckets[new_index] = current;
 			current = next;
