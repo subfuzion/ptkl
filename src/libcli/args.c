@@ -117,7 +117,7 @@ command cli_add_command (cli cli, const char *name, const char *description)
 	memset (cmd, 0, sizeof (struct command));
 	cmd->name = dstring_new (name);
 	cmd->description = dstring_new (description);
-	map_put(cli->commands, name, cmd);
+	map_put (cli->commands, name, cmd);
 	return cmd;
 }
 
