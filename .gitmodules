@@ -1,9 +1,6 @@
-[submodule "src/fork/quickjs"]
-	path = src/fork/quickjs
-	url = git@github.com:subfuzion/quickjs.git
 [submodule "src/libqjs/quickjs"]
 	path = src/libqjs/quickjs
 	url = git@github.com:subfuzion/quickjs.git
-[submodule "src/libstring/sds"]
-	path = src/libstring/sds
+[submodule "src/libstd/sds"]
+	path = src/libstd/sds
 	url = git@github.com:antirez/sds.git
