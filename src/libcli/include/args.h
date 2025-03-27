@@ -25,8 +25,6 @@
 #ifndef ARGS_H
 #define ARGS_H
 
-#include <stddef.h>
-
 #include "dstring.h"
 #include "map.h"
 #include "vector.h"
@@ -71,45 +69,18 @@ struct ptkl_option {
 	char error[256];
 };
 
-typedef struct ptkl_cli {
-	char *name;
-	char *version;
-	char *description;
+typedef struct cli {
+	dstring name;
+	dstring version;
+	dstring description;
 
 	map *options;
-} *PartikleCLI;
+} *cli;
 
-void cli_init (struct ptkl_cli *cli, const char *name, const char *version, const char *description);
-bool cli_add_option (struct ptkl_cli *cli, struct ptkl_option_spec spec);
-bool cli_parse (struct ptkl_cli *cli, int argc, char **argv);
+cli cli_new (const char *name, const char *version, const char *description);
+bool cli_add_option (cli cli, struct ptkl_option_spec spec);
+bool cli_parse (cli cli, int argc, char **argv);
 
 bool parse_option (struct ptkl_option *opt);
-
-
-#define STRDUP(str) (str) ? strdup (str) : nullptr
-
-
-#define FREE(var)                                                                                                      \
-	do {                                                                                                           \
-		if (var) {                                                                                             \
-			free (var);                                                                                    \
-			var = nullptr;                                                                                 \
-		}                                                                                                      \
-	} while (0)
-
-#define FREE_FN(var, free_fn)                                                                                          \
-	do {                                                                                                           \
-		if (var) {                                                                                             \
-			free_fn (var);                                                                                 \
-			var = nullptr;                                                                                 \
-		}                                                                                                      \
-	} while (0)
-
-#define PANIC(msg)                                                                                                     \
-	do {                                                                                                           \
-		fprintf (stderr, "%s: %s\n", __func__, msg);                                                           \
-		exit (EXIT_FAILURE);                                                                                   \
-	} while (0)
-
 
 #endif /* ARGS_H */

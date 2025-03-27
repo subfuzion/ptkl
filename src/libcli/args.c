@@ -26,26 +26,41 @@
 
 #include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "args.h"
 #include "errors.h"
 
-void cli_init (struct ptkl_cli *cli, const char *name, const char *version, const char *description)
+#define FREE(var)                                                                                                      \
+	do {                                                                                                           \
+		if (var) {                                                                                             \
+			free (var);                                                                                    \
+			var = nullptr;                                                                                 \
+		}                                                                                                      \
+	} while (0)
+
+#define FREE_FN(var, free_fn)                                                                                          \
+	do {                                                                                                           \
+		if (var) {                                                                                             \
+			free_fn (var);                                                                                 \
+			var = nullptr;                                                                                 \
+		}                                                                                                      \
+	} while (0)
+
+static void cli_init (cli cli, const char *name, const char *version, const char *description)
 {
-	cli->name = STRDUP (name);
-	cli->version = STRDUP (version);
-	cli->description = STRDUP (description);
+	cli->name = dstring_new (name);
+	cli->version = dstring_new (version);
+	cli->description = dstring_new (description);
 
 	map *options = malloc (sizeof (map));
-	if (!options) PANIC ("Out of memory");
+	if (!options) panic ("Out of memory");
 	map_init (options);
 	cli->options = options;
 }
 
 
-void cli_free (struct ptkl_cli *cli)
+static void cli_free (cli cli)
 {
 	FREE (cli->name);
 	FREE (cli->version);
@@ -54,22 +69,22 @@ void cli_free (struct ptkl_cli *cli)
 }
 
 
-PartikleCLI cli_new (const char *name, const char *version, const char *description)
+cli cli_new (const char *name, const char *version, const char *description)
 {
-	PartikleCLI cli = malloc (sizeof (struct ptkl_cli));
+	cli cli = malloc (sizeof (struct cli));
 	if (!cli) panic ("Out of memory");
 	cli_init (cli, name, version, description);
 	return cli;
 }
 
 
-void cli_destroy (PartikleCLI cli)
+void cli_destroy (cli cli)
 {
 	cli_free (cli);
 }
 
 
-bool cli_parse (struct ptkl_cli *cli, int argc, char **argv)
+bool cli_parse (cli cli, int argc, char **argv)
 {
 	int optind = 1;
 	// while (optind < argc && *argv[optind] == '-') {

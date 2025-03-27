@@ -29,12 +29,6 @@
 #include "args.h"
 #include "test.h"
 
-#include "dstring.h"
-
-
-void test_ok ()
-{}
-
 void test_boolean_option ()
 {
 	const struct ptkl_option_spec spec = {
@@ -91,9 +85,18 @@ void test_integer_option_fail ()
 }
 
 
+void test_scratch ()
+{
+	cli cli = cli_new ("ptkl", "0.1.0", "Partikle CLI");
+	expect_eq_str ("ptkl", cli->name->str);
+	expect_eq_str ("0.1.0", cli->version->str);
+	expect_eq_str ("Partikle CLI", cli->description->str);
+
+}
+
 void cli_test ()
 {
-	test (test_ok);
+	test (test_scratch);
 
 	// test (test_boolean_option);
 	// test (test_integer_option);

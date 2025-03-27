@@ -27,15 +27,17 @@
 #ifndef RESULTS_H
 #define RESULTS_H
 
+#include "dstring.h"
+
 typedef struct error {
 	char *message;
 } error;
 
-typedef union ptkl_result {
+typedef union result {
 	error *error;
 	bool bool_val;
 	char char_val;
-	char *string_val;
+	dstring dstring_val;
 	int int_val;
 	long long_val;
 	double double_val;
@@ -47,7 +49,7 @@ typedef union ptkl_result {
 result make_error_result (const char *err);
 result make_bool_result (bool val);
 result make_char_result (char ch);
-result make_string_result (const char *string);
+result make_dstring_result (const char *string);
 result make_int_result (int n);
 result make_long_result (long n);
 result make_double_result (double val);
@@ -58,7 +60,7 @@ result make_pointer_result (void *pointer);
 error *result_error (const result res);
 bool result_bool (const result res);
 char result_char (const result res);
-char *result_string (const result res);
+dstring result_dstring (const result res);
 int result_int (const result res);
 long result_long (const result res);
 double result_double (const result res);

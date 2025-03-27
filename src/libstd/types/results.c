@@ -26,8 +26,8 @@
 
 #include <string.h>
 
-#include "errors.h"
 #include "results.h"
+#include "errors.h"
 
 static thread_local error g_result_error = {};
 
@@ -52,9 +52,9 @@ result make_char_result (char ch)
 }
 
 
-result make_string_result (const char *string)
+result make_dstring_result (const char *string)
 {
-	return (result){.string_val = strdup (string)};
+	return (result){.dstring_val = dstring_new (string)};
 }
 
 
@@ -102,9 +102,9 @@ char result_char (const result res)
 }
 
 
-char *result_string (const result res)
+dstring result_dstring (const result res)
 {
-	return res.string_val;
+	return res.dstring_val;
 }
 
 

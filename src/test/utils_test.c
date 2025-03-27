@@ -39,8 +39,8 @@ void test_results ()
 {
 	result res;
 
-	res = make_string_result ("foo");
-	expect_eq_str ("foo", result_string (res));
+	res = make_dstring_result ("foo");
+	expect_eq_str ("foo", result_dstring (res)->str);
 
 	res = make_int_result (10);
 	expect_eq_int (10, result_int (res));
