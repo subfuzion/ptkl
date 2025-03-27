@@ -30,10 +30,43 @@
 #include <string.h>
 
 #include "args.h"
+#include "errors.h"
+
+void cli_init (struct ptkl_cli *cli, const char *name, const char *version, const char *description)
+{
+	cli->name = STRDUP (name);
+	cli->version = STRDUP (version);
+	cli->description = STRDUP (description);
+
+	map *options = malloc (sizeof (map));
+	if (!options) PANIC ("Out of memory");
+	map_init (options);
+	cli->options = options;
+}
 
 
-void init_cli (struct ptkl_cli *cli, const char *version, const char *description)
-{}
+void cli_free (struct ptkl_cli *cli)
+{
+	FREE (cli->name);
+	FREE (cli->version);
+	FREE (cli->description);
+	FREE_FN (cli->options, map_free);
+}
+
+
+PartikleCLI cli_new (const char *name, const char *version, const char *description)
+{
+	PartikleCLI cli = malloc (sizeof (struct ptkl_cli));
+	if (!cli) panic ("Out of memory");
+	cli_init (cli, name, version, description);
+	return cli;
+}
+
+
+void cli_destroy (PartikleCLI cli)
+{
+	cli_free (cli);
+}
 
 
 bool cli_parse (struct ptkl_cli *cli, int argc, char **argv)
@@ -45,6 +78,7 @@ bool cli_parse (struct ptkl_cli *cli, int argc, char **argv)
 	}
 	return 0;
 }
+
 
 bool parse_option (struct ptkl_option *opt)
 {
