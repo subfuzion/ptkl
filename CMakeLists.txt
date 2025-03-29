@@ -67,3 +67,12 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 
+
+###############################################################################
+# Set compiled log level at the top level for convenience
+
+target_compile_definitions(
+	libstd
+	PUBLIC
+	LOG_LEVEL=LOG_LEVEL_TRACE
+)

@@ -132,7 +132,6 @@ void panic (const char *fmt, ...)
 	va_list args;
 	va_start (args, fmt);
 
-	fprintf (stderr, "panic: ");
 	vfprintf (stderr, fmt, args);
 	fprintf (stderr, "\n");
 
@@ -147,8 +146,6 @@ void fatal (const char *fmt, ...)
 	va_list args;
 	va_start (args, fmt);
 
-	/* prefer printing "error" instead "fatal" */
-	fprintf (stderr, "error: ");
 	vfprintf (stderr, fmt, args);
 	fprintf (stderr, "\n");
 

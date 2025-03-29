@@ -32,21 +32,6 @@
 #include "strings.h"
 
 
-static void command_push_error (command cmd, string error)
-{
-	stack_push (cmd->errors, error);
-}
-
-
-static void command_push_errorf (command cmd, const char *fmt, ...)
-{
-	va_list (args);
-	va_start (args, fmt);
-	command_push_error (cmd, sdscatvprintf (sdsempty (), fmt, args));
-	va_end (args);
-}
-
-
 command command_new (const char *name, const char *help, command_fn fn)
 {
 	command cmd = malloc (sizeof (struct command));
@@ -67,15 +52,20 @@ command command_new (const char *name, const char *help, command_fn fn)
 	if (cmd->errors == nullptr) panic ("out of memory");
 	stack_init (cmd->errors);
 
-	/* options map */
-	cmd->flags = malloc (sizeof (map));
+	/* options vector */
+	cmd->flags = malloc (sizeof (vector));
 	if (cmd->flags == nullptr) panic ("out of memory");
-	map_init (cmd->flags);
+	vector_init (cmd->flags);
 
 	/* command map */
 	cmd->commands = malloc (sizeof (map));
 	if (cmd->commands == nullptr) panic ("out of memory");
 	map_init (cmd->commands);
+
+	/* args vector */
+	cmd->args = malloc (sizeof (vector));
+	if (cmd->args == nullptr) panic ("out of memory");
+	vector_init (cmd->args);
 
 	return cmd;
 }
@@ -106,14 +96,14 @@ void command_free (command cmd)
 	stack_free (cmd->errors);
 
 
-	/* free options */
-	m = cmd->flags;
-	values = malloc (sizeof (char *) * map_size (m));
-	map_values (m, values);
-	for (int i = 0; i < map_size (m); i++) {
-		free (values[i]);
+	/* free flags */
+	for (int i = 0; i < vector_size (cmd->flags); i++) {
+		flag f = vector_get (cmd->flags, i);
+		string_free (f->long_flag);
+		string_free (f->help);
+		free (f);
 	}
-	map_free (cmd->flags);
+	vector_free (cmd->flags);
 
 	/* free commands */
 	m = cmd->commands;
@@ -136,7 +126,12 @@ void command_set (command cmd, const char *key, const char *value)
 
 string command_get (command cmd, const char *name)
 {
-	return map_get (cmd->settings, name);
+	while (cmd != nullptr) {
+		string value = map_get (cmd->settings, name);
+		if (value != nullptr) return value;
+		cmd = cmd->parent;
+	}
+	return nullptr;
 }
 
 
@@ -153,20 +148,33 @@ void command_print_errors (command cmd)
 }
 
 
-flag command_add_flag (command cmd, const char *name, const char *long_option,
-		       char short_option, flag_arg has_arg)
+static flag find_flag (command cmd, char short_flag, const char *long_flag)
+{
+	for (int i = 0; i < vector_size (cmd->flags); i++) {
+		flag f = vector_get (cmd->flags, i);
+		if (f->short_flag == short_flag ||
+		    (long_flag != nullptr &&
+		     strcmp (long_flag, f->long_flag) == 0)) {
+			return f;
+		}
+	}
+	return nullptr;
+}
+
+flag command_add_flag (command cmd, char short_option, const char *long_option,
+		       flag_arg has_arg, const char *help)
 {
 	flag f = malloc (sizeof (struct flag));
 	if (f == nullptr) panic ("out of memory");
 	memset (f, 0, sizeof (struct flag));
 
 	f->command = cmd;
-	f->name = string_new (name);
-	f->long_option = string_new (long_option);
-	f->short_option = short_option;
+	f->long_flag = string_new (long_option);
+	f->short_flag = short_option;
 	f->has_arg = has_arg;
+	f->help = string_new (help);
 
-	map_put (cmd->flags, name, f);
+	vector_add (cmd->flags, f);
 	return f;
 }
 
@@ -181,105 +189,328 @@ void command_add_command (command cmd, const char *name, const char *help,
 }
 
 
-static command parse_args (command cmd)
+void command_push_error (command cmd, const char *error)
 {
-	int argc = cmd->argc;
-	char **argv = cmd->argv;
-	opterr = 0;
-	int c;
+	stack_push (cmd->errors, string_new (error));
+}
 
-	while (1) {
-		int option_index = 0;
-		/* TODO: add command and options dynamically */
-		static struct option long_options[] = {
-			{"version", no_argument, nullptr},
-			{"help", required_argument, nullptr, 'h'},
-			{"foo", no_argument},
-			{}};
 
-		c = getopt_long (argc, argv, ":h:v", long_options,
-				 &option_index);
+void command_push_error_string (command cmd, string error)
+{
+	stack_push (cmd->errors, error);
+}
 
-		if (c == -1) break;
 
-		/* note: remember optarg holds an option argument */
+void command_push_errorf (command cmd, const char *fmt, ...)
+{
+	va_list (args);
+	va_start (args, fmt);
+	command_push_error (cmd, sdscatvprintf (sdsempty (), fmt, args));
+	va_end (args);
+}
 
-		switch (c) {
-		/* long options that don't have a corresponding short option */
-		case 0: {
-			const char *name = long_options[option_index].name;
-			cmd = map_get (cmd->commands, name);
-			if (cmd != nullptr) break;
-			command_push_errorf (
-				cmd, "missing long option handler for %s",
-				name);
-			break;
+
+/**
+ * Transforms command flags into a format suitable for calling getopt_long().
+ *
+ * For example:
+ *
+ *     struct option long_options[] = {
+ *             { "version",  no_argument,        nullptr,  'v' },
+ *             { "help",     no_argument,        nullptr,  'h' },
+ *             { "foo",      required_argument,  nullptr,  'f' },
+ *             {},
+ *     };
+ *
+ *     char *short_options = ":vhf:";
+ *
+ *    int optindex;
+ *    int c = getopt_long (argc, argv, short_options, long_options, &optindex);
+ *
+ *    Reference:
+ *    https://man7.org/linux/man-pages/man3/getopt.3.html
+ */
+
+struct getopt_options {
+	struct option *long_options;
+	string short_options;
+};
+
+struct getopt_options *new_getopt_options (command cmd)
+{
+	struct getopt_options *options =
+		malloc (sizeof (struct getopt_options));
+	if (options == nullptr) panic ("out of memory");
+	memset (options, 0, sizeof (struct getopt_options));
+
+	size_t flag_count = vector_size (cmd->flags);
+
+	/* prepare long_options to store results of flags enumeration */
+	/* add room for terminating empty option */
+	size_t total_count = flag_count + 1;
+	struct option *long_options =
+		malloc (sizeof (struct option) * total_count);
+	if (long_options == nullptr) panic ("out of memory");
+	memset (long_options, 0, sizeof (struct option) * total_count);
+
+	string short_options = string_new (":");
+
+	/* transform flags to long_options */
+	int long_option_count = 0;
+	for (int i = 0; i < flag_count; i++) {
+		flag f = vector_get (cmd->flags, i);
+		char *long_option = f->long_flag;
+		char short_option = f->short_flag;
+		flag_arg has_arg = f->has_arg;
+
+		/*
+		if (long_option != nullptr) {
+			printf ("flag: long: %s, short: %c, has_arg: %d\n",
+				long_option, short_option, has_arg);
+		}
+		*/
+
+
+		long_options[i] = (struct option){long_option, short_option,
+						  nullptr, has_arg};
+		long_option_count++;
+
+		if (short_option != 0) {
+			short_options = string_cat_fmt (short_options, "%c",
+							short_option);
+			if (has_arg == REQUIRED_ARGUMENT) {
+				short_options = string_cat (short_options, ":");
+			} else if (has_arg == OPTIONAL_ARGUMENT) {
+				short_options =
+					string_cat (short_options, "::");
+			}
 		}
 
-		case 'v': {
-			cmd = map_get (cmd->commands, "version");
-			break;
-		}
 
-		case 'h': {
-			cmd = map_get (cmd->commands, "help");
-			break;
-		}
-
-		case '?': {
-			command_push_errorf (cmd, "unknown option: %s",
-					     argv[optind - 1]);
-			break;
-		}
-
-		case ':': {
-			command_push_errorf (cmd,
-					     "missing option argument for: %s",
-					     argv[optind - 1]);
-			break;
-		}
-
-		default: {
-			command_push_errorf (cmd,
-					     "missing option handler for: %s",
-					     argv[optind - 1]);
-			break;
-		}
-		}
+		// printf ("short_options: \"%s\"\n", short_options);
 	}
 
-	if (optind < argc) {
-		if (cmd) {
-			while (optind < argc) {
-				vector_add (cmd->args, argv[optind++]);
-			}
-		} else {
-			/* unhandled command or unexpected arguments */
-			string err = string_format ("unknown command:");
-			while (optind < argc) {
-				err = string_cat_fmt (err, " %s",
-						      argv[optind++]);
-			}
-			command_push_error (cmd, err);
-		}
-	}
+	/* terminate long_options for getopt */
+	long_options[long_option_count] = (struct option){};
 
-	/* should never happen! */
-	if (cmd == nullptr && stack_size (cmd->errors) == 0)
-		command_push_error (cmd, "unknown error");
+	/* store results */
+	options->long_options = long_options;
+	options->short_options = short_options;
 
-	return cmd;
+	return options;
+}
+
+void free_getopt_options (struct getopt_options *opts)
+{
+	if (opts == nullptr) return;
+	if (opts->long_options != nullptr) free (opts->long_options);
+	if (opts->short_options != nullptr) string_free (opts->short_options);
+	free (opts);
 }
 
 
 bool command_run (command cmd, int argc, char **argv)
 {
+	bool ok = false;
+	opterr = 0;
+	int c = 0;
+	flag f = nullptr;
+
+	/* TODO: getopt mutates argv, so save a copy for handing off if we fork
+	 */
 	cmd->argc = argc;
 	cmd->argv = argv;
 
-	if (!parse_args (cmd)) {
-		return false;
+	/* collect any unhandled flags in case they apply to a subcommand */
+	vector unhandled_flags;
+	vector_init (&unhandled_flags);
+
+	/* flag handlers to run after parsing all the args */
+	vector pending_flag_handlers;
+	vector_init (&pending_flag_handlers);
+
+	/* transform command flags to getopt options */
+	struct getopt_options *options = new_getopt_options (cmd);
+
+	while (1) {
+		int long_options_i;
+		struct option *long_options = options->long_options;
+		string short_options = options->short_options;
+
+		c = getopt_long (argc, argv, short_options, long_options,
+				 &long_options_i);
+
+		/* No more options */
+		if (c == -1) break;
+
+		/* If the short option has a handler, invoke it */
+		f = find_flag (cmd, c, nullptr);
+		if (f != nullptr && f->fn != nullptr) {
+			vector_add (&pending_flag_handlers, f);
+			continue;
+		}
+
+		switch (c) {
+		case 0: {
+			/*
+			 * Check the long option. If it has a corresponding
+			 * short option, then the handler was already invoked
+			 * above.
+			 *
+			 * TODO: add support for repeating flags
+			 *
+			 * When we reach this point, the following name and
+			 * flag pointers are guaranteed to not be null (but
+			 * still need to confirm the flag handler pointer).
+			 */
+			const char *name = long_options[long_options_i].name;
+			f = find_flag (cmd, 0, name);
+			if (f->short_flag == 0 && f->fn != nullptr) {
+				vector_add (&pending_flag_handlers, f);
+			}
+			break;
+		}
+
+		case '?': {
+			/* unhandled option */
+			vector_add (&unhandled_flags, argv[optind - 1]);
+			break;
+		}
+
+		case ':': {
+			/* TODO: optarg holds an option argument */
+			command_push_errorf (
+				cmd, "missing expected argument for option: %s",
+				argv[optind - 1]);
+			goto done;
+		}
+
+		default: {
+			command_push_errorf (cmd, "unexpected: %s",
+					     argv[optind - 1]);
+			goto done;
+		}
+		}
 	}
 
-	return cmd->fn (cmd);
+	/* Collect remaining non-option args to pass them to this command or to
+	 * a subcommand (along with any unhandled flags) */
+	vector args;
+	vector_init (&args);
+
+	while (optind < argc) {
+		char *arg = argv[optind++];
+		vector_add (&args, arg);
+	}
+
+	/*
+	 * The command's argv has been parsed, so if there are remaining args or
+	 * unhandled flags:
+	 *
+	 * - If there are any unhandled flags, there must be a subcommand that
+	 *   can handle them, otherwise it's an error.
+	 *
+	 * - If the first of the remaining args matches a subcommand name, then
+	 *   set up the subcommand's argc, argv, and call parse_args
+	 *
+	 * - If there is no match for a subcommand, then as long as there are
+	 *   no unhandled flags, call this command's handler with the remaining
+	 *   args. If the command doesn't expect any args, or if the args are
+	 *   otherwise not valid, the command is responsible for reporting the
+	 *   error.
+	 *
+	 * - Otherwise, report an error for the unhandled flags.
+	 */
+
+	bool has_subcommands = map_size (cmd->commands) > 0;
+	bool has_unhandled_flags = vector_size (&unhandled_flags) > 0;
+	bool has_args = vector_size (&args) > 0;
+
+	/* Run the command */
+	if (!has_unhandled_flags && !has_args) {
+		goto run;
+	}
+
+	/* If nothing to process unhandled flags, error */
+	if (has_unhandled_flags && !has_subcommands) {
+		command_push_errorf (cmd, "unknown option: %s",
+				     vector_get (&unhandled_flags, 0));
+		goto done;
+	}
+
+	/* check if first arg matches a subcommand, if so, run that */
+	command subcmd = map_get (cmd->commands, vector_get (&args, 0));
+	if (subcmd != nullptr) {
+		/* get total count of flags and args to pass to subcommand */
+		int sub_argc = (int)vector_size (&args);
+		sub_argc += (int)vector_size (&unhandled_flags);
+
+		/* prepare to run subcommand */
+		char **sub_argv = (char **)malloc (sub_argc * sizeof (char *));
+		if (sub_argv == nullptr) panic ("out of memory");
+		memset (sub_argv, 0, sub_argc * sizeof (char *));
+
+		/* increment index across loops */
+		int index = 0;
+
+		/* add args */
+		for (int i = 0; i < vector_size (&args); i++) {
+			char *arg = vector_get (&args, i);
+			sub_argv[index++] = arg;
+		}
+
+		/* add options (continue index from previous loop) */
+		for (int i = 0; i < vector_size (&unhandled_flags); i++) {
+			char *opt = vector_get (&unhandled_flags, i);
+			sub_argv[index++] = opt;
+		}
+
+		/* run the subcommand */
+		optind = 0;
+		ok = command_run (subcmd, sub_argc, sub_argv);
+		if (!ok) command_print_errors (subcmd);
+		goto done;
+	}
+
+	/* Since no subcommand handled the args, add them to this command */
+	for (int i = 0; i < vector_size (&args); i++) {
+		vector_add (cmd->args, vector_get (&args, i));
+	}
+	vector_free (&args);
+
+run:
+
+	/* If we reached this point, we're almost ready to run the command */
+
+	/* 1. Run any pending flag callbacks */
+	for (int i = 0; i < vector_size (&pending_flag_handlers); i++) {
+		f = vector_get (&pending_flag_handlers, i);
+		/* TODO: still need to ensure optarg gets added to f->arg */
+		if (f->fn != nullptr) f->fn (f);
+	}
+
+	/* 2. Check that there are no reported errors */
+	if (stack_size (cmd->errors) > 0) {
+		goto done;
+	}
+
+	/* 3. Run the command. */
+	if (cmd->fn != nullptr) {
+		cmd->fn (cmd);
+	}
+
+	/* 4. Check again that there are no reported errors */
+	if (stack_size (cmd->errors) > 0) {
+		goto done;
+	}
+
+	/* Success! */
+	ok = true;
+
+done:
+	vector_free (&unhandled_flags);
+	vector_free (&pending_flag_handlers);
+	free_getopt_options (options);
+
+	return ok;
 }

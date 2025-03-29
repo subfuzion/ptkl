@@ -32,19 +32,23 @@ typedef struct command *command;
 typedef struct flag *flag;
 
 /* flag handler callback function: flag_fn */
-typedef bool (*flag_fn) (flag);
+typedef void (*flag_fn) (flag);
 
 typedef enum flag_arg {
-	NONE,
-	REQUIRED,
-	OPTIONAL,
+	NO_ARGUMENT,
+	REQUIRED_ARGUMENT,
+	OPTIONAL_ARGUMENT,
 } flag_arg;
 
+/* use "flag" internally to avoid confusion with getopt struct option */
 typedef struct flag {
-	string name;
-	string long_option;
-	char short_option;
+	char short_flag;
+	string long_flag;
 	flag_arg has_arg;
+	string help;
+
+	/* the original string obtained by getopt */
+	char *text;
 
 	/* the flag's argument value, if it takes one, after parsing */
 	string arg;
@@ -57,7 +61,7 @@ typedef struct flag {
 } *flag;
 
 /* command handler callback function: command_fn */
-typedef bool (*command_fn) (command);
+typedef void (*command_fn) (command);
 
 typedef struct command {
 	string name;
@@ -69,7 +73,7 @@ typedef struct command {
 	char **argv;
 
 	/* flags after parsing argv */
-	map *flags;
+	vector *flags;
 
 	/* args after parsing argv (for command or args[0] subcommand) */
 	vector *args;
@@ -93,14 +97,18 @@ string command_get (command cmd, const char *name);
 
 bool command_run (command cmd, int argc, char **argv);
 
+
+void command_push_error (command cmd, const char *error);
+void command_push_error_string (command cmd, string error);
+void command_push_errorf (command cmd, const char *fmt, ...);
 void command_print_errors (command cmd);
 
 /**
  * Add a flag to command.
  * At least one of long_option (not null) or short_option (not 0) is required.
  */
-flag command_add_flag (command cmd, const char *name, const char *long_option,
-		       char short_option, flag_arg has_arg);
+flag command_add_flag (command cmd, char short_option, const char *long_option,
+		       flag_arg has_arg, const char *help);
 
 /**
  * Set an optional callback function for a flag. This is mostly convenient for
