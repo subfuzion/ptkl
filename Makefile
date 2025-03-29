@@ -144,6 +144,7 @@ cmake-test-debug: cmake-debug
 	@cd $(BUILDDIR)/debug && ctest --verbose
 
 cmake-test-debug-run: cmake-debug
+	@clear
 	@$(BUILDDIR)/debug/bin/ptkltest
 
 cmake-release:

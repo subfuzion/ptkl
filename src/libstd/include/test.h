@@ -70,14 +70,15 @@ static inline void run_tests (const test_suite *tests)
  * Test expectations
  */
 
-#define PASS_PREFIX "\r\x1b[K✅ "
+#define PASS_PREFIX "\r\x1b[K✔️ \033[37m"
 #define FAIL_PREFIX "\r\x1b[K❌ "
+#define POSTFIX "\033[39m"
 
 #define test(t)                                                                \
 	do {                                                                   \
 		printf ("▷ %s ... ", #t);                                      \
 		t ();                                                          \
-		printf ("%s %s\n", PASS_PREFIX, #t);                           \
+		printf ("%s %s%s\n", PASS_PREFIX, #t, POSTFIX);                \
 	} while (0)
 
 #define expect_true(expr)                                                      \
