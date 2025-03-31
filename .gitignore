@@ -11,3 +11,10 @@ cmake-build-debug*
 cmake-build-release*
 # ctest
 Testing/
+
+# binaries in examples
+examples/ptkl
+examples/ptklc
+examples/hello
+examples/hello_module
+examples/test_fib
