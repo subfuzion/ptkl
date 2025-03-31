@@ -24,10 +24,17 @@
  * THE SOFTWARE.
  */
 
+
 #include "command.h"
 #include "log.h"
+#include "qjsc.h"
 
 void compile (command cmd)
 {
 	TODO ("migrate from partikle poc");
+	test_compiler ();
+	for (int i = 0; i < vector_size (cmd->args); i++) {
+		char *arg = vector_get (cmd->args, i);
+		printf ("arg[%d]: %s\n", i, arg);
+	}
 }

@@ -66,6 +66,11 @@ typedef struct flag {
 /* command handler callback function: command_fn */
 typedef void (*command_fn) (command);
 
+typedef enum command_args {
+	COMMAND_ARGS_ANY = -1,
+	COMMAND_ARGS_NONE = 0,
+} command_args;
+
 typedef struct command {
 	string name;
 	string help;
@@ -101,7 +106,11 @@ void command_free (command cmd);
 void command_set (command cmd, const char *key, const char *value);
 string command_get (command cmd, const char *name);
 
-void command_expect_args (command cmd, int count);
+/**
+ * The number of arguments the command expects
+ * @param count Set a specific count (>= 0) or any amount (-1)
+ */
+void command_expect_args (command cmd, command_args count);
 
 bool command_run (command cmd, int argc, char **argv);
 

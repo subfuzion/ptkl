@@ -14,6 +14,8 @@ include_directories(include quickjs)
 
 set(
 	QJS_SRC
+	src/compiler.c
+	src/engine.c
 	quickjs/cutils.c
 	quickjs/dtoa.c
 	quickjs/libregexp.c
@@ -39,7 +41,6 @@ target_include_directories(
 	libqjs
 	PUBLIC
 	include
-	quickjs
 )
 target_link_libraries(
 	libqjs

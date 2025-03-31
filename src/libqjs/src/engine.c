@@ -1,9 +1,11 @@
 /*
- * ptkl - Partikle Runtime
+ * Partikle JavaScript engine
  *
  * MIT License
  *
  * Copyright (c) 2025 Tony Pujals
+ * Copyright (c) 2017-2021 Charlie Gordon
+ * Copyright (c) 2017-2021 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,17 +26,10 @@
  * THE SOFTWARE.
  */
 
-
-#include "command.h"
 #include "log.h"
-#include "qjs.h"
+#include "qjsc.h"
 
-void run (command cmd)
+void test_engine ()
 {
-	TODO ("migrate from partikle poc");
-	test_engine ();
-	for (int i = 0; i < vector_size (cmd->args); i++) {
-		char *arg = vector_get (cmd->args, i);
-		printf ("arg[%d]: %s\n", i, arg);
-	}
+	INFO ("engine test");
 }

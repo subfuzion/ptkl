@@ -32,4 +32,4 @@
  */
 void ptkl_init ();
 
-#endif
+#endif /* PTKL_H */

@@ -24,8 +24,11 @@
  * THE SOFTWARE.
  */
 
+
 #include "command.h"
 #include "ptkl.h"
+#include "qjs.h"
+#include "qjsc.h"
 
 #include "commands.h"
 
@@ -69,8 +72,14 @@ int main (const int argc, char **argv)
 	command_add (cmd, "version", "print version", version);
 
 	/* subcommand group */
-	command_add (cmd, "run", "run a JavaScript program", run);
-	command_add (cmd, "compile", "compile a JavaScript program", compile);
+	auto run_cmd =
+		command_add (cmd, "run", "run a JavaScript program", run);
+	command_expect_args (run_cmd, COMMAND_ARGS_ANY);
+
+	auto compile_cmd = command_add (
+		cmd, "compile", "compile a JavaScript program", compile);
+	command_expect_args (compile_cmd, COMMAND_ARGS_ANY);
+
 	command_add (cmd, "serve", "serve the current program", serve);
 
 	/* subcommand group */
