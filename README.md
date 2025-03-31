@@ -17,3 +17,57 @@ costs.
     - Command shell
     - JavaScript REPL
     - Admin console for deployment and monitoring
+
+## Components
+
+Commands
+
+- ptkl - command line interface (CLI)
+- ptkltest - tests
+
+Libraries
+
+- libcli - command line interface library
+- libptkl - the core runtime C library
+- libqjs - adapter for the QuickJS engine
+- libstd - common data types; logging, testing
+
+## Contributing
+
+Prerequisites
+
+- gcc or clang (clang is significantly faster)
+- cmake
+- clang-tidy (for formatting)
+
+The project uses cmake for the build system.
+However, a Makefile is provided to simplify
+various build tasks.
+
+```text
+
+# Get source
+clone https://github.com/subfuzion/ptkl
+git submodule init
+
+# Initialize build
+make cmake-init
+
+# Make debug build
+make cmake-debug
+
+# Output
+# bin -> ./build/debug/bin
+# lib -> ./build/debug/lib
+
+# Watch - run only one or the other
+./watchmake
+./watchtest
+
+# Clean everything
+make cleanall
+
+# Formatting code
+make format
+
+```
