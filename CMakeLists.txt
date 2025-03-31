@@ -74,5 +74,5 @@ set(CMAKE_C_VISIBILITY_PRESET hidden)
 target_compile_definitions(
 	libstd
 	PUBLIC
-	LOG_LEVEL=LOG_LEVEL_TRACE
+	LOG_LEVEL=LOG_LEVEL_ERROR
 )

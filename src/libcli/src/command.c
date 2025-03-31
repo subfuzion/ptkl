@@ -135,6 +135,12 @@ string command_get (command cmd, const char *name)
 }
 
 
+void command_expect_args (command cmd, int count)
+{
+	cmd->expect_args = count;
+}
+
+
 void command_print_errors (command cmd)
 {
 	stack *errors = cmd->errors;
@@ -161,8 +167,8 @@ static flag find_flag (command cmd, char short_flag, const char *long_flag)
 	return nullptr;
 }
 
-flag command_add_flag (command cmd, char short_option, const char *long_option,
-		       flag_arg has_arg, const char *help)
+flag command_flag (command cmd, char short_option, const char *long_option,
+		   flag_arg has_arg, const char *help)
 {
 	flag f = malloc (sizeof (struct flag));
 	if (f == nullptr) panic ("out of memory");
@@ -179,13 +185,21 @@ flag command_add_flag (command cmd, char short_option, const char *long_option,
 }
 
 
-void command_add_command (command cmd, const char *name, const char *help,
-			  command_fn fn)
+void flag_add_callback (flag f, flag_fn fn, bool should_exit)
+{
+	f->fn = fn;
+	f->should_exit = should_exit;
+}
+
+
+command command_add (command cmd, const char *name, const char *help,
+		     command_fn fn)
 {
 
 	command subcmd = command_new (name, help, fn);
 	subcmd->parent = cmd;
 	map_put (cmd->commands, name, subcmd);
+	return subcmd;
 }
 
 
@@ -287,7 +301,7 @@ struct getopt_options *new_getopt_options (command cmd)
 		}
 
 
-		// printf ("short_options: \"%s\"\n", short_options);
+		TRACE ("short_options: \"%s\"\n", short_options);
 	}
 
 	/* terminate long_options for getopt */
@@ -332,6 +346,7 @@ bool command_run (command cmd, int argc, char **argv)
 	/* transform command flags to getopt options */
 	struct getopt_options *options = new_getopt_options (cmd);
 
+	TRACE ("start parse loop");
 	while (1) {
 		int long_options_i;
 		struct option *long_options = options->long_options;
@@ -345,13 +360,16 @@ bool command_run (command cmd, int argc, char **argv)
 
 		/* If the short option has a handler, invoke it */
 		f = find_flag (cmd, c, nullptr);
+		TRACE ("look up short option: '%c' (%s)", c, c == 0 ? "0" : "");
 		if (f != nullptr && f->fn != nullptr) {
+			TRACE ("add pending flag handler for: %c", c);
 			vector_add (&pending_flag_handlers, f);
 			continue;
 		}
 
 		switch (c) {
 		case 0: {
+			TRACE ("case 0");
 			/*
 			 * Check the long option. If it has a corresponding
 			 * short option, then the handler was already invoked
@@ -364,34 +382,46 @@ bool command_run (command cmd, int argc, char **argv)
 			 * still need to confirm the flag handler pointer).
 			 */
 			const char *name = long_options[long_options_i].name;
+			TRACE ("long option: %s", name);
 			f = find_flag (cmd, 0, name);
-			if (f->short_flag == 0 && f->fn != nullptr) {
-				vector_add (&pending_flag_handlers, f);
-			}
+			// if (f->short_flag == 0 && f->fn != nullptr) {
+			TRACE ("add pending flag handler for: %s", name);
+			vector_add (&pending_flag_handlers, f);
+			//}
+			TRACE ("case 0 break");
 			break;
 		}
 
 		case '?': {
+			TRACE ("case ?");
 			/* unhandled option */
 			vector_add (&unhandled_flags, argv[optind - 1]);
+			TRACE ("case ? break");
 			break;
 		}
 
 		case ':': {
+			trace ("case :");
 			/* TODO: optarg holds an option argument */
 			command_push_errorf (
 				cmd, "missing expected argument for option: %s",
 				argv[optind - 1]);
+
+			trace ("case : goto done");
 			goto done;
 		}
 
 		default: {
+			trace ("case default");
 			command_push_errorf (cmd, "unexpected: %s",
 					     argv[optind - 1]);
+			trace ("case default goto done");
 			goto done;
 		}
 		}
 	}
+
+	TRACE ("done with parse loop");
 
 	/* Collect remaining non-option args to pass them to this command or to
 	 * a subcommand (along with any unhandled flags) */
@@ -401,6 +431,7 @@ bool command_run (command cmd, int argc, char **argv)
 	while (optind < argc) {
 		char *arg = argv[optind++];
 		vector_add (&args, arg);
+		TRACE ("collecting args: %s", arg);
 	}
 
 	/*
@@ -426,21 +457,47 @@ bool command_run (command cmd, int argc, char **argv)
 	bool has_unhandled_flags = vector_size (&unhandled_flags) > 0;
 	bool has_args = vector_size (&args) > 0;
 
+	TRACE ("has_subcommands: %s", has_subcommands ? "true" : "false");
+	TRACE ("has_unhandled_flags: %s",
+	       has_unhandled_flags ? "true" : "false");
+	TRACE ("has_args: %s", has_args ? "true" : "false");
+
 	/* Run the command */
 	if (!has_unhandled_flags && !has_args) {
+		TRACE ("no unhandled flags and no args, goto run");
 		goto run;
 	}
 
 	/* If nothing to process unhandled flags, error */
 	if (has_unhandled_flags && !has_subcommands) {
+		TRACE ("unhandled flags and no subcommands, push error and "
+		       "goto done");
 		command_push_errorf (cmd, "unknown option: %s",
 				     vector_get (&unhandled_flags, 0));
 		goto done;
 	}
 
+	/* If unhandled flags and no args to match against a subcommand, error
+	 */
+	if (has_unhandled_flags && !has_args) {
+		TRACE ("unexpected option: %s",
+		       vector_get (&unhandled_flags, 0));
+		command_push_errorf (cmd, "unexpected option: %s",
+				     vector_get (&unhandled_flags, 0));
+		goto done;
+	}
+
 	/* check if first arg matches a subcommand, if so, run that */
+	TRACE ("has_args: %s", has_args ? "true" : "false");
+	TRACE ("map_get");
+	TRACE ("size of args: %lu", vector_size (&args));
 	command subcmd = map_get (cmd->commands, vector_get (&args, 0));
+	TRACE ("DONE map_get");
+	TRACE ("there are args, first check to see if first arg matches a "
+	       "subcommand");
 	if (subcmd != nullptr) {
+		TRACE ("subcommand match: %s", subcmd->name);
+
 		/* get total count of flags and args to pass to subcommand */
 		int sub_argc = (int)vector_size (&args);
 		sub_argc += (int)vector_size (&unhandled_flags);
@@ -466,48 +523,95 @@ bool command_run (command cmd, int argc, char **argv)
 		}
 
 		/* run the subcommand */
+		TRACE ("running subcommand: %s", subcmd->name);
 		optind = 0;
 		ok = command_run (subcmd, sub_argc, sub_argv);
-		if (!ok) command_print_errors (subcmd);
+		if (!ok) {
+			TRACE ("subcommand %s failed, printing errors, goto "
+			       "done",
+			       subcmd->name);
+			command_print_errors (subcmd);
+		}
 		goto done;
 	}
 
-	/* Since no subcommand handled the args, add them to this command */
+	/* Since no subcommand handled the args, add the args to this command */
+	TRACE ("no matching subcommand, check if this command expects any "
+	       "args");
+	if (cmd->expect_args == 0) {
+		TRACE ("the command doesn't expect any args, so add error and "
+		       "goto done");
+		command_push_errorf (cmd, "unexpected argument: %s",
+				     vector_get (&args, 0));
+		goto done;
+	}
+	if (cmd->expect_args > 0 && vector_size (&args) > cmd->expect_args) {
+		TRACE ("too many args, expected up to %d, got %d, add error "
+		       "and goto done",
+		       cmd->expect_args, vector_size (&args));
+		command_push_errorf (cmd,
+				     "too many arguments (expected up "
+				     "to %d, got %d)",
+				     cmd->expect_args, vector_size (&args));
+		goto done;
+	}
 	for (int i = 0; i < vector_size (&args); i++) {
+		TRACE ("  adding: %s\n", vector_get (&args, i));
 		vector_add (cmd->args, vector_get (&args, i));
 	}
+
 	vector_free (&args);
 
 run:
+	TRACE ("run: running command: %s", cmd->name);
 
 	/* If we reached this point, we're almost ready to run the command */
 
 	/* 1. Run any pending flag callbacks */
+	TRACE ("  1. run any pending callbacks for: %s", cmd->name);
 	for (int i = 0; i < vector_size (&pending_flag_handlers); i++) {
 		f = vector_get (&pending_flag_handlers, i);
 		/* TODO: still need to ensure optarg gets added to f->arg */
-		if (f->fn != nullptr) f->fn (f);
+		if (f->fn != nullptr) {
+			TRACE ("    running: -%c, --%s", f->short_flag,
+			       f->long_flag);
+			f->fn (f);
+			if (f->should_exit) {
+				ok = true;
+				goto done;
+			}
+		}
 	}
 
 	/* 2. Check that there are no reported errors */
+	TRACE ("  2. check for reported errors for: %s", cmd->name);
 	if (stack_size (cmd->errors) > 0) {
+		TRACE ("    there are errors (%d), goto done",
+		       stack_size (cmd->errors));
 		goto done;
 	}
 
 	/* 3. Run the command. */
+	TRACE ("  3. run the command: %s (valid fn: %s)", cmd->name,
+	       cmd->fn != nullptr ? "true" : "false");
 	if (cmd->fn != nullptr) {
 		cmd->fn (cmd);
 	}
 
 	/* 4. Check again that there are no reported errors */
+	TRACE ("  4. check again for reported errors for: %s", cmd->name);
 	if (stack_size (cmd->errors) > 0) {
+		TRACE ("    there are errors (%d), goto done",
+		       stack_size (cmd->errors));
 		goto done;
 	}
 
 	/* Success! */
+	TRACE ("success!");
 	ok = true;
 
 done:
+	TRACE ("done: clean up, and return if ok: %s", ok ? "true" : "false");
 	vector_free (&unhandled_flags);
 	vector_free (&pending_flag_handlers);
 	free_getopt_options (options);

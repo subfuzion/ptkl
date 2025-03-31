@@ -56,6 +56,9 @@ typedef struct flag {
 	/* optional callback function */
 	flag_fn fn;
 
+	/* should exit after running callback function (ex: version, help) */
+	bool should_exit;
+
 	/* command this flag belongs to */
 	command command;
 } *flag;
@@ -74,6 +77,9 @@ typedef struct command {
 
 	/* flags after parsing argv */
 	vector *flags;
+
+	/* how many args to expect (-1 for any number, 0 for none, etc.) */
+	int expect_args;
 
 	/* args after parsing argv (for command or args[0] subcommand) */
 	vector *args;
@@ -95,6 +101,8 @@ void command_free (command cmd);
 void command_set (command cmd, const char *key, const char *value);
 string command_get (command cmd, const char *name);
 
+void command_expect_args (command cmd, int count);
+
 bool command_run (command cmd, int argc, char **argv);
 
 
@@ -107,8 +115,8 @@ void command_print_errors (command cmd);
  * Add a flag to command.
  * At least one of long_option (not null) or short_option (not 0) is required.
  */
-flag command_add_flag (command cmd, char short_option, const char *long_option,
-		       flag_arg has_arg, const char *help);
+flag command_flag (command cmd, char short_option, const char *long_option,
+		   flag_arg has_arg, const char *help);
 
 /**
  * Set an optional callback function for a flag. This is mostly convenient for
@@ -116,12 +124,12 @@ flag command_add_flag (command cmd, char short_option, const char *long_option,
  * but might be useful for other use cases. Flag callbacks run before the
  * callback for the command they belong to.
  */
-void flag_add_callback (flag f, flag_fn fn);
+void flag_add_callback (flag f, flag_fn fn, bool should_exit);
 
 /**
  * Add a subcommand to command.
  */
-void command_add_command (command cmd, const char *name, const char *help,
-			  command_fn fn);
+command command_add (command cmd, const char *name, const char *help,
+		     command_fn fn);
 
 #endif /* COMMAND_H */
