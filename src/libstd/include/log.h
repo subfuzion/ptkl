@@ -29,6 +29,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 /**
  * Use the log MACROS defined at the end instead of the log
@@ -106,6 +107,7 @@
 #define LOG_LEVEL_INFO 3
 #define LOG_LEVEL_DEBUG 4
 #define LOG_LEVEL_TRACE 5
+#define LOG_LEVEL_TODO -1
 
 /**
  * Register handlers to augment log stack trace.
@@ -262,10 +264,16 @@ static inline void trace (const char *fmt, ...)
 			env_level = LOG_LEVEL_DEBUG;                           \
 		} else if (strncasecmp (env_level_str, "trace", 5) == 0) {     \
 			env_level = LOG_LEVEL_TRACE;                           \
+		} else if (strncasecmp (env_level_str, "todo", 4) == 0) {      \
+			env_level = LOG_LEVEL_TODO;                            \
 		} else {                                                       \
 			/* do nothing */                                       \
 		}                                                              \
-		if (env_level >= ll) {                                         \
+		if (ll == LOG_LEVEL_TODO) {                                    \
+			fprintf (stderr, "%s: %s:%d: %s(): ", "TODO ",         \
+				 __FILE_NAME__, __LINE__, __func__);           \
+			trace (format __VA_OPT__ (, ) __VA_ARGS__);            \
+		} else if (env_level >= ll) {                                  \
 			char *level = nullptr;                                 \
 			switch (ll) {                                          \
 			case LOG_LEVEL_ERROR: level = "ERROR"; break;          \
@@ -297,5 +305,8 @@ static inline void trace (const char *fmt, ...)
 
 #define LOG_TRACE(format, ...)                                                 \
 	LOG (LOG_LEVEL_TRACE, format __VA_OPT__ (, ) __VA_ARGS__)
+
+#define TODO(format, ...)                                                      \
+	LOG (LOG_LEVEL_TODO, format __VA_OPT__ (, ) __VA_ARGS__)
 
 #endif /* LOG_H */

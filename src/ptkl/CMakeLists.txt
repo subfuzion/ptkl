@@ -11,9 +11,20 @@ add_definitions(
 	-DPTKL="ptkl"
 )
 
+include_directories(include)
+
 set(
 	PTKL_SRC
-	src/ptkl.c
+	src/main.c
+	src/commands/compile.c
+	src/commands/console.c
+	src/commands/data.c
+	src/commands/logs.c
+	src/commands/repl.c
+	src/commands/run.c
+	src/commands/serve.c
+	src/commands/service.c
+	src/commands/storage.c
 )
 
 add_executable(
@@ -25,6 +36,11 @@ set_target_properties(
 	PROPERTIES
 	OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 	C_STANDARD 23
+)
+target_include_directories(
+	ptkl
+	PUBLIC
+	include
 )
 target_link_libraries(
 	ptkl
@@ -40,6 +56,7 @@ target_compile_options(
 	$<$<CONFIG:Debug>:-Wall -Werror -O1 -g>
 	$<$<CONFIG:Release>:-Wall -Werror -O3>
 )
+
 #set(
 #	CMAKE_C_FLAGS
 #	"${CMAKE_C_FLAGS} -Wall -Werror -O1 -g -Werror -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer"

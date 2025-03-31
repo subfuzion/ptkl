@@ -32,12 +32,15 @@
 #include "strings.h"
 
 /* TODO: refactor (command help can now be auto-generated) */
+/* TODO: help and version are built-ins, move to libcli */
+
 static inline void help (command cmd)
 {
 	string name = cmd->name;
 	string version = command_get (cmd, "version");
 
-	printf ("Partikle Runtime (version %s)\n"
+	printf ("ptkl %s\n"
+		"Partikle is a lightweight JavaScript engine and web runtime\n"
 		"\n"
 		"Usage: %s [OPTIONS] [COMMANDS]\n"
 		"\n"
@@ -53,8 +56,10 @@ static inline void help (command cmd)
 		"  compile            compile a JavaScript program\n"
 		"  serve              serve the current program\n"
 		"\n"
-		"  service            manage services (web, job, agent, flow)\n"
-		"  storage            manage data (file, kv, sql)\n"
+		"  service            manage services (web, job, agent)\n"
+		"  storage            manage storage (file)\n"
+		"  data               manage data (kv, doc, sql)\n"
+		"  logs               monitor and query logs\n"
 		"\n"
 		"Interactive:\n"
 		"  console            open the admin console\n"
