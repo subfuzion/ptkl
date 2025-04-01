@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Debug PTKL",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/ptkl",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Debug Tests",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/ptkltest",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build"
+        }
+    ]
+}

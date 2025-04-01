@@ -27,7 +27,16 @@
 #include "command.h"
 #include "log.h"
 
-void service (command cmd)
+static void service (command cmd)
 {
 	TODO ("implement");
+}
+
+command service_new (command parent, const char *group)
+{
+	command cmd =
+		command_add (parent, "service",
+			     "manage services (web, job, agent)", service);
+	if (group != nullptr) command_set_group (cmd, group);
+	return cmd;
 }

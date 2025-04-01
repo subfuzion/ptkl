@@ -25,8 +25,8 @@
  */
 
 
-#include "command.h"
 #include "ptkl.h"
+#include "command.h"
 #include "qjs.h"
 #include "qjsc.h"
 
@@ -40,58 +40,51 @@
  *   3. Add the extern declaration below (sorted)
  *   4. Add the command in main()
  */
-extern void compile (command cmd);
-extern void console (command cmd);
-extern void data (command cmd);
-extern void logs (command cmd);
-extern void repl (command cmd);
-extern void run (command cmd);
-extern void serve (command cmd);
-extern void service (command cmd);
-extern void storage (command cmd);
+
+/* Main command configuration */
+extern command main_command_new (const char *name, const char *group);
+
+/* Subcommand configuration functions */
+extern command compile_new (command parent, const char *group);
+extern command console_new (command parent, const char *group);
+extern command data_new (command parent, const char *group);
+extern command help_new (command parent, const char *group);
+extern command logs_new (command parent, const char *group);
+extern command repl_new (command parent, const char *group);
+extern command run_new (command parent, const char *group);
+extern command serve_new (command parent, const char *group);
+extern command service_new (command parent, const char *group);
+extern command storage_new (command parent, const char *group);
+extern command version_new (command parent, const char *group);
 
 int main (const int argc, char **argv)
 {
+	/* Command group names */
+	const char *GROUP_GENERAL = "Commands";
+	const char *GROUP_DEVELOPMENT = "Development Commands";
+	const char *GROUP_SERVICES = "Service Commands";
+	const char *GROUP_INTERACTIVE = "Interactive Commands";
+
 	ptkl_init ();
 
-	auto name = argv[0];
-	auto description = "Partikle is a lightweight runtime for the web";
+	auto cmd = main_command_new (argv[0], NULL);
 
-	auto cmd = command_new (name, description, default_command);
-	command_set (cmd, "version", CONFIG_VERSION);
+	/* Built-in commands */
+	help_new (cmd, GROUP_GENERAL);
+	version_new (cmd, GROUP_GENERAL);
 
-	flag vf = command_flag (cmd, 'v', "version", NO_ARGUMENT,
-				"print version");
-	flag_add_callback (vf, version_flag, true);
+	/* Development commands */
+	run_new (cmd, GROUP_DEVELOPMENT);
+	serve_new (cmd, GROUP_DEVELOPMENT);
+	compile_new (cmd, GROUP_DEVELOPMENT);
 
-	flag hf = command_flag (cmd, 'h', "help", NO_ARGUMENT, "print help");
-	flag_add_callback (hf, help_flag, true);
+	service_new (cmd, GROUP_SERVICES);
+	storage_new (cmd, GROUP_SERVICES);
+	data_new (cmd, GROUP_SERVICES);
+	logs_new (cmd, GROUP_SERVICES);
 
-	/* subcommand group */
-	command_add (cmd, "help", "print help", help);
-	command_add (cmd, "version", "print version", version);
-
-	/* subcommand group */
-	auto run_cmd =
-		command_add (cmd, "run", "run a JavaScript program", run);
-	command_expect_args (run_cmd, COMMAND_ARGS_ANY);
-
-	auto compile_cmd = command_add (
-		cmd, "compile", "compile a JavaScript program", compile);
-	command_expect_args (compile_cmd, COMMAND_ARGS_ANY);
-
-	command_add (cmd, "serve", "serve the current program", serve);
-
-	/* subcommand group */
-	command_add (cmd, "service", "manage services (web, job, agent",
-		     service);
-	command_add (cmd, "storage", "manage storage (file)", service);
-	command_add (cmd, "data", "manage data (kv, doc, sql)", data);
-	command_add (cmd, "logs", "monitor and query logs", data);
-
-	/* subcommand group */
-	command_add (cmd, "console", "open the admin console", console);
-	command_add (cmd, "repl", "start a JavaScript shell", repl);
+	console_new (cmd, GROUP_INTERACTIVE);
+	repl_new (cmd, GROUP_INTERACTIVE);
 
 	bool ok = command_run (cmd, argc, argv);
 	if (!ok) command_print_errors (cmd);
