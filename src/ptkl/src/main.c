@@ -57,6 +57,7 @@ int main (const int argc, char **argv)
 	auto name = argv[0];
 	auto description = "Partikle is a lightweight runtime for the web";
 
+	/* ptkl command */
 	auto cmd = command_new (name, description, default_command);
 	command_set (cmd, "version", CONFIG_VERSION);
 
@@ -68,7 +69,12 @@ int main (const int argc, char **argv)
 	flag_add_callback (hf, help_flag, true);
 
 	/* subcommand group */
-	command_add (cmd, "help", "print help", help);
+
+	/* help command */
+	auto help_cmd = command_add (cmd, "help", "print help", help);
+	command_expect_args (help_cmd, COMMAND_ARGS_ANY);
+
+	/* version command */
 	command_add (cmd, "version", "print version", version);
 
 	/* subcommand group */

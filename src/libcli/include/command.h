@@ -141,4 +141,5 @@ void flag_add_callback (flag f, flag_fn fn, bool should_exit);
 command command_add (command cmd, const char *name, const char *help,
 		     command_fn fn);
 
+
 #endif /* COMMAND_H */
