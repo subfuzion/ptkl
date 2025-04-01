@@ -18,6 +18,24 @@ costs.
     - JavaScript REPL
     - Admin console for deployment and monitoring
 
+Purpose
+
+Partikle is designed for running JavaScript in a secure, hosted sandbox
+environment without requiring virtual machines, containers, or V8
+isolates.
+
+By design, this restricts Partikle from being a JavaScript environment
+for general purpose development. Partikle apps run in a sandbox
+much like a browser's, with no access to the underlying operating
+system resources.
+
+Partikle apps start fast and consume minimal system resources. The
+runtime environment provides built-built in support for:
+
+- s3 compatible storage
+- key-value database
+- sql database
+
 ## Components
 
 Commands
