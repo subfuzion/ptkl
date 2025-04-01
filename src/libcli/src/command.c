@@ -109,6 +109,7 @@ void command_free (command cmd)
 	values = malloc (sizeof (char *) * map_size (m));
 	map_values (m, values);
 	for (int i = 0; i < map_size (m); i++) {
+		/* this vector always stories a copy of the value */
 		free (values[i]);
 	}
 	map_free (cmd->commands);
@@ -119,6 +120,7 @@ void command_free (command cmd)
 
 void command_set (command cmd, const char *key, const char *value)
 {
+	/* always duplicate value, this vector frees */
 	map_put (cmd->settings, key, string_new (value));
 }
 
@@ -230,7 +232,7 @@ void command_push_errorf (command cmd, const char *fmt, ...)
  *
  *     struct option long_options[] = {
  *             { "version",  no_argument,        nullptr,  'v' },
- *             { "help",     no_argument,        nullptr,  'h' },
+ *             { "help",     optional_argument,  nullptr,  'h' },
  *             { "foo",      required_argument,  nullptr,  'f' },
  *             {},
  *     };
