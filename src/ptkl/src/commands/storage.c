@@ -27,7 +27,14 @@
 #include "command.h"
 #include "log.h"
 
-void storage (command cmd)
+static void storage (command cmd)
 {
 	TODO ("implement");
+}
+
+command storage_new (command parent)
+{
+	command cmd = command_add (parent, "storage", "manage storage (file)",
+				   storage);
+	return cmd;
 }

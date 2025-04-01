@@ -27,7 +27,14 @@
 #include "command.h"
 #include "log.h"
 
-void data (command cmd)
+static void data (command cmd)
 {
 	TODO ("implement");
+}
+
+command data_new (command parent)
+{
+	command cmd = command_add (parent, "data", "manage data (kv, doc, sql)",
+				   data);
+	return cmd;
 }

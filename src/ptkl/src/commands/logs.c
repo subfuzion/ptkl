@@ -27,7 +27,14 @@
 #include "command.h"
 #include "log.h"
 
-void logs (command cmd)
+static void logs (command cmd)
 {
 	TODO ("implement");
+}
+
+command logs_new (command parent)
+{
+	command cmd =
+		command_add (parent, "logs", "monitor and query logs", logs);
+	return cmd;
 }

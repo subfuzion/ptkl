@@ -29,7 +29,7 @@
 #include "log.h"
 #include "qjsc.h"
 
-void compile (command cmd)
+static void compile (command cmd)
 {
 	TODO ("migrate from partikle poc");
 	test_compiler ();
@@ -37,4 +37,12 @@ void compile (command cmd)
 		char *arg = vector_get (cmd->args, i);
 		printf ("arg[%d]: %s\n", i, arg);
 	}
+}
+
+command compile_new (command parent)
+{
+	command cmd = command_add (parent, "compile",
+				   "compile a JavaScript program", compile);
+	command_expect_args (cmd, COMMAND_ARGS_ANY);
+	return cmd;
 }

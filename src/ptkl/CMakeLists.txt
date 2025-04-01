@@ -15,7 +15,8 @@ include_directories(include)
 
 set(
 	PTKL_SRC
-	src/main.c
+	src/ptkl.c
+	src/commands/main.c
 	src/commands/compile.c
 	src/commands/console.c
 	src/commands/data.c

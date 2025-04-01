@@ -27,7 +27,14 @@
 #include "command.h"
 #include "log.h"
 
-void console (command cmd)
+static void console (command cmd)
 {
 	TODO ("implement");
+}
+
+command console_new (command parent)
+{
+	command cmd = command_add (parent, "console", "open the admin console",
+				   console);
+	return cmd;
 }

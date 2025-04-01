@@ -27,7 +27,14 @@
 #include "command.h"
 #include "log.h"
 
-void serve (command cmd)
+static void serve (command cmd)
 {
 	TODO ("implement");
+}
+
+command serve_new (command parent)
+{
+	command cmd = command_add (parent, "serve", "serve the current program",
+				   serve);
+	return cmd;
 }
