@@ -57,10 +57,14 @@ command command_new (const char *name, const char *help, command_fn fn)
 	if (cmd->flags == nullptr) panic ("out of memory");
 	vector_init (cmd->flags);
 
-	/* command map */
+	/* command map and vector */
 	cmd->commands = malloc (sizeof (map));
 	if (cmd->commands == nullptr) panic ("out of memory");
 	map_init (cmd->commands);
+
+	cmd->ordered_commands = malloc (sizeof (vector));
+	if (cmd->ordered_commands == nullptr) panic ("out of memory");
+	vector_init (cmd->ordered_commands);
 
 	/* args vector */
 	cmd->args = malloc (sizeof (vector));
@@ -114,6 +118,11 @@ void command_free (command cmd)
 	}
 	map_free (cmd->commands);
 	free (values);
+
+	/* free ordered commands vector - no need to free values since they're
+	 * the same command objects stored in the map above and already freed */
+	vector_free (cmd->ordered_commands);
+
 	free (cmd);
 }
 
@@ -196,10 +205,10 @@ void flag_add_callback (flag f, flag_fn fn, bool should_exit)
 command command_add (command cmd, const char *name, const char *help,
 		     command_fn fn)
 {
-
 	command subcmd = command_new (name, help, fn);
 	subcmd->parent = cmd;
 	map_put (cmd->commands, name, subcmd);
+	vector_add (cmd->ordered_commands, subcmd);
 	return subcmd;
 }
 

@@ -90,7 +90,8 @@ typedef struct command {
 	vector *args;
 
 	/* subcommands */
-	map *commands;
+	map *commands; /* for lookup by name */
+	vector *ordered_commands; /* for iteration in order */
 	struct command *parent;
 
 	/* settings: map[char *] -> string */

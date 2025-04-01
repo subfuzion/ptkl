@@ -44,16 +44,10 @@ static void help (command cmd)
 		}
 	}
 	printf ("\nCommands:\n");
-	size_t num_commands = map_size (cmd->commands);
-	char **keys = malloc (num_commands * sizeof (char *));
-	void **values = malloc (num_commands * sizeof (void *));
-	map_items (cmd->commands, keys, values);
-	for (size_t i = 0; i < num_commands; i++) {
-		command subcmd = values[i];
+	for (size_t i = 0; i < vector_size (cmd->ordered_commands); i++) {
+		command subcmd = vector_get (cmd->ordered_commands, i);
 		printf ("  %s\t%s\n", subcmd->name, subcmd->help);
 	}
-	free (keys);
-	free (values);
 }
 
 static void version (command cmd)
