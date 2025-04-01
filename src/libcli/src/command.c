@@ -78,7 +78,6 @@ void command_free (command cmd)
 	string_free (cmd->name);
 	string_free (cmd->help);
 
-	/* TODO: add back after testing */
 	map *m;
 	void **values;
 
@@ -113,7 +112,7 @@ void command_free (command cmd)
 		free (values[i]);
 	}
 	map_free (cmd->commands);
-
+	free (values);
 	free (cmd);
 }
 
