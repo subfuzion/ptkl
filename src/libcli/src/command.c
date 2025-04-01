@@ -40,6 +40,7 @@ command command_new (const char *name, const char *help, command_fn fn)
 
 	cmd->name = string_new (name);
 	cmd->help = string_new (help);
+	cmd->group = nullptr; /* no group by default */
 	cmd->fn = fn;
 
 	/* settings */
@@ -75,12 +76,21 @@ command command_new (const char *name, const char *help, command_fn fn)
 }
 
 
+void command_set_group (command cmd, const char *group)
+{
+	if (cmd->group != nullptr) {
+		string_free (cmd->group);
+	}
+	cmd->group = string_new (group);
+}
+
 void command_free (command cmd)
 {
 	if (cmd == nullptr) return;
 
 	string_free (cmd->name);
 	string_free (cmd->help);
+	string_free (cmd->group); /* safe to call on nullptr */
 
 	map *m;
 	void **values;

@@ -2,33 +2,13 @@
  * ptkl - Partikle Runtime
  *
  * MIT License
- *
  * Copyright (c) 2025 Tony Pujals
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
  */
 
 #include <stdio.h>
 #include <string.h>
 #include "command.h"
 #include "map.h"
-#include "ptkl.h"
 #include "vector.h"
 
 static size_t get_max_width (command cmd)
@@ -99,22 +79,19 @@ static void help (command cmd)
 	map *shown_groups = malloc (sizeof (map));
 	map_init (shown_groups);
 
-	/* Show commands by group */
+	/* Then show commands by group */
 	for (size_t i = 0; i < vector_size (cmd->ordered_commands); i++) {
 		command subcmd = vector_get (cmd->ordered_commands, i);
-		if (subcmd->group != nullptr &&
-		    map_get (shown_groups, subcmd->group) == nullptr) {
-			/* First time seeing this group, print header and all
-			 * commands */
+		if (subcmd->group && !map_get (shown_groups, subcmd->group)) {
 			printf ("\n%s:\n", subcmd->group);
-			map_put (shown_groups, subcmd->group, (void *)1);
+			map_set (shown_groups, subcmd->group, (void *)1);
 
-			/* Print all commands in this group */
+			/* Show all commands in this group */
 			for (size_t j = 0;
 			     j < vector_size (cmd->ordered_commands); j++) {
 				command cmd2 =
 					vector_get (cmd->ordered_commands, j);
-				if (cmd2->group != nullptr &&
+				if (cmd2->group &&
 				    strcmp (cmd2->group, subcmd->group) == 0) {
 					print_aligned (cmd2->name, cmd2->help,
 						       width);
@@ -124,16 +101,7 @@ static void help (command cmd)
 	}
 
 	map_free (shown_groups);
-}
-
-static void version (command cmd)
-{
-	printf ("%s version %s\n", cmd->name, command_get (cmd, "version"));
-}
-
-static void default_command (command cmd)
-{
-	help (cmd);
+	free (shown_groups);
 }
 
 static void help_flag (flag f)
@@ -141,30 +109,17 @@ static void help_flag (flag f)
 	help (f->command);
 }
 
-static void version_flag (flag f)
+command help_new (command parent, const char *group)
 {
-	version (f->command);
+	auto help_cmd = command_add (parent, "help", "print help", help);
+	command_expect_args (help_cmd, COMMAND_ARGS_ANY);
+	if (group) command_set_group (help_cmd, group);
+	return help_cmd;
 }
 
-command main_command_new (const char *name)
+command help_flag_new (command parent)
 {
-	auto description = "Partikle is a lightweight runtime for the web";
-	command cmd = command_new (name, description, default_command);
-	command_set (cmd, "version", CONFIG_VERSION);
-
-	/* Configure flags */
-	flag vf = command_flag (cmd, 'v', "version", NO_ARGUMENT,
-				"print version");
-	flag_add_callback (vf, version_flag, true);
-
-	flag hf = command_flag (cmd, 'h', "help", NO_ARGUMENT, "print help");
+	flag hf = command_flag (parent, 'h', "help", NO_ARGUMENT, "print help");
 	flag_add_callback (hf, help_flag, true);
-
-	/* Add built-in commands */
-	auto help_cmd = command_add (cmd, "help", "print help", help);
-	command_expect_args (help_cmd, COMMAND_ARGS_ANY);
-
-	command_add (cmd, "version", "print version", version);
-
-	return cmd;
+	return parent;
 }

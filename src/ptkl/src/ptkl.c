@@ -45,37 +45,42 @@
 extern command main_command_new (const char *name);
 
 /* Subcommand configuration functions */
-extern command compile_new (command parent);
-extern command console_new (command parent);
-extern command data_new (command parent);
-extern command logs_new (command parent);
-extern command repl_new (command parent);
-extern command run_new (command parent);
-extern command serve_new (command parent);
-extern command service_new (command parent);
-extern command storage_new (command parent);
+extern command compile_new (command parent, const char *group);
+extern command console_new (command parent, const char *group);
+extern command data_new (command parent, const char *group);
+extern command logs_new (command parent, const char *group);
+extern command repl_new (command parent, const char *group);
+extern command run_new (command parent, const char *group);
+extern command serve_new (command parent, const char *group);
+extern command service_new (command parent, const char *group);
+extern command storage_new (command parent, const char *group);
 
 int main (const int argc, char **argv)
 {
+	/* Command group names */
+	const char *GROUP_PROGRAM = "Program Execution";
+	const char *GROUP_SERVICE = "Service Management";
+	const char *GROUP_DEV = "Development Tools";
+
 	ptkl_init ();
 
 	auto cmd = main_command_new (argv[0]);
 
-	/* subcommand group */
 	/* Command groups */
-	run_new (cmd);
-	compile_new (cmd);
-	serve_new (cmd);
+	/* Program Execution group */
+	run_new (cmd, GROUP_PROGRAM);
+	compile_new (cmd, GROUP_PROGRAM);
+	serve_new (cmd, GROUP_PROGRAM);
 
 	/* Service management group */
-	service_new (cmd);
-	storage_new (cmd);
-	data_new (cmd);
-	logs_new (cmd);
+	service_new (cmd, GROUP_SERVICE);
+	storage_new (cmd, GROUP_SERVICE);
+	data_new (cmd, GROUP_SERVICE);
+	logs_new (cmd, GROUP_SERVICE);
 
 	/* Development tools group */
-	console_new (cmd);
-	repl_new (cmd);
+	console_new (cmd, GROUP_DEV);
+	repl_new (cmd, GROUP_DEV);
 
 	bool ok = command_run (cmd, argc, argv);
 	if (!ok) command_print_errors (cmd);

@@ -39,10 +39,13 @@ static void compile (command cmd)
 	}
 }
 
-command compile_new (command parent)
+command compile_new (command parent, const char *group)
 {
 	command cmd = command_add (parent, "compile",
 				   "compile a JavaScript program", compile);
 	command_expect_args (cmd, COMMAND_ARGS_ANY);
+	if (group != nullptr) {
+		command_set_group (cmd, group);
+	}
 	return cmd;
 }

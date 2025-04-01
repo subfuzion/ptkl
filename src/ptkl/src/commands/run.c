@@ -39,10 +39,13 @@ static void run (command cmd)
 	}
 }
 
-command run_new (command parent)
+command run_new (command parent, const char *group)
 {
 	command cmd =
 		command_add (parent, "run", "run a JavaScript program", run);
 	command_expect_args (cmd, COMMAND_ARGS_ANY);
+	if (group != nullptr) {
+		command_set_group (cmd, group);
+	}
 	return cmd;
 }

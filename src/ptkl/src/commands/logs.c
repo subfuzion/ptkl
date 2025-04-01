@@ -32,9 +32,12 @@ static void logs (command cmd)
 	TODO ("implement");
 }
 
-command logs_new (command parent)
+command logs_new (command parent, const char *group)
 {
 	command cmd =
 		command_add (parent, "logs", "monitor and query logs", logs);
+	if (group != nullptr) {
+		command_set_group (cmd, group);
+	}
 	return cmd;
 }
