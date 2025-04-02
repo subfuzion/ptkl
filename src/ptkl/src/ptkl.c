@@ -42,7 +42,7 @@
  */
 
 /* Main command configuration */
-extern command main_command_new (const char *name);
+extern command main_command_new (const char *name, const char *group);
 
 /* Subcommand configuration functions */
 extern command compile_new (command parent, const char *group);
@@ -66,7 +66,7 @@ int main (const int argc, char **argv)
 
 	ptkl_init ();
 
-	auto cmd = main_command_new (argv[0]);
+	auto cmd = main_command_new (argv[0], NULL);
 
 	run_new (cmd, GROUP_DEVELOPMENT);
 	serve_new (cmd, GROUP_DEVELOPMENT);

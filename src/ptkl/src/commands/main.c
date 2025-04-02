@@ -20,7 +20,7 @@ static void default_command (command cmd)
 	help (cmd);
 }
 
-command main_command_new (const char *name)
+command main_command_new (const char *name, const char *group)
 {
 	auto description = "Partikle is a lightweight runtime for the web";
 	command cmd = command_new (name, description, default_command);
@@ -34,5 +34,6 @@ command main_command_new (const char *name)
 	help_new (cmd, NULL);
 	version_new (cmd, NULL);
 
+	if (group) command_set_group (cmd, group);
 	return cmd;
 }
