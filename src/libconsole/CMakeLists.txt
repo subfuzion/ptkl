@@ -8,6 +8,7 @@ find_package(Curses REQUIRED)
 # Set source files
 set(SOURCES
     src/console.c
+    src/editline.c
 )
 
 # Create shared library
@@ -21,8 +22,9 @@ target_include_directories(${PROJECT_NAME}
         ${CURSES_INCLUDE_DIR}
 )
 
-# Link against ncurses
+# Link against ncurses and readline
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${CURSES_LIBRARIES}
+        readline
 )
