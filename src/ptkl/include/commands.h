@@ -27,4 +27,25 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include "command.h"
+
+/* Command groups */
+#define GROUP_BUILTIN "Built-in Commands"
+#define GROUP_DEVELOPMENT "Development Commands"
+#define GROUP_SERVICES "Service Commands"
+#define GROUP_INTERACTIVE "Interactive Commands"
+
+/* Command constructors */
+command compile_new (command parent, const char *group);
+command console_command_new (command parent, const char *group);
+command data_new (command parent, const char *group);
+command help_new (command parent, const char *group);
+command logs_new (command parent, const char *group);
+command repl_new (command parent, const char *group);
+command run_new (command parent, const char *group);
+command serve_new (command parent, const char *group);
+command service_new (command parent, const char *group);
+command storage_new (command parent, const char *group);
+command version_new (command parent, const char *group);
+
 #endif /* COMMANDS_H */

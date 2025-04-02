@@ -49,6 +49,7 @@ target_link_libraries(
 	ptkl
 	PUBLIC
 	libcli
+	libconsole
 	libptkl
 	libqjs
 	libstd

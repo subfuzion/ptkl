@@ -46,7 +46,7 @@ extern command main_command_new (const char *name, const char *group);
 
 /* Subcommand configuration functions */
 extern command compile_new (command parent, const char *group);
-extern command console_new (command parent, const char *group);
+extern command console_command_new (command parent, const char *group);
 extern command data_new (command parent, const char *group);
 extern command help_new (command parent, const char *group);
 extern command logs_new (command parent, const char *group);
@@ -59,19 +59,15 @@ extern command version_new (command parent, const char *group);
 
 int main (const int argc, char **argv)
 {
-	/* Command group names */
-	const char *GROUP_GENERAL = "Commands";
-	const char *GROUP_DEVELOPMENT = "Development Commands";
-	const char *GROUP_SERVICES = "Service Commands";
-	const char *GROUP_INTERACTIVE = "Interactive Commands";
+
 
 	ptkl_init ();
 
 	auto cmd = main_command_new (argv[0], NULL);
 
 	/* Built-in commands */
-	help_new (cmd, GROUP_GENERAL);
-	version_new (cmd, GROUP_GENERAL);
+	help_new (cmd, GROUP_BUILTIN);
+	version_new (cmd, GROUP_BUILTIN);
 
 	/* Development commands */
 	run_new (cmd, GROUP_DEVELOPMENT);
@@ -83,7 +79,7 @@ int main (const int argc, char **argv)
 	data_new (cmd, GROUP_SERVICES);
 	logs_new (cmd, GROUP_SERVICES);
 
-	console_new (cmd, GROUP_INTERACTIVE);
+	console_command_new (cmd, GROUP_INTERACTIVE);
 	repl_new (cmd, GROUP_INTERACTIVE);
 
 	bool ok = command_run (cmd, argc, argv);
