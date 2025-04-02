@@ -27,15 +27,7 @@
 #include "command.h"
 #include "log.h"
 
-static void storage (command cmd)
+void storage (command cmd)
 {
 	TODO ("implement");
-}
-
-command storage_new (command parent, const char *group)
-{
-	command cmd = command_add (parent, "storage", "manage storage (file)",
-				   storage);
-	if (group != nullptr) command_set_group (cmd, group);
-	return cmd;
 }

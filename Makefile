@@ -140,10 +140,6 @@ cmake-debug: format
 	@cmake --build $(BUILDDIR)/debug
 	@echo [ OK ] $(BUILDDIR)/debug/bin/
 
-cmake-debug-run: cmake-debug
-	@clear
-	@$(BUILDDIR)/debug/bin/ptkl
-
 cmake-test-debug: cmake-debug
 	#$(BUILDDIR)/debug/bin/ptkltest
 	@cd $(BUILDDIR)/debug && ctest --verbose

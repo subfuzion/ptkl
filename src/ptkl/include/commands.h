@@ -27,4 +27,75 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include "command.h"
+#include "log.h"
+#include "strings.h"
+
+/* TODO: refactor (command help can now be auto-generated) */
+/* TODO: help and version are built-ins, move to libcli */
+
+static inline void help (command cmd)
+{
+	string name = cmd->name;
+	string version = command_get (cmd, "version");
+
+	printf ("ptkl %s\n"
+		"Partikle is a lightweight JavaScript engine and web runtime\n"
+		"\n"
+		"Usage: %s [OPTIONS] [COMMANDS]\n"
+		"\n"
+		"Options:\n"
+		"  -v  --version      print version\n"
+		"  -h  --help         print help\n"
+		"\n"
+		"Commands:\n"
+		"  help               print help\n"
+		"  version            print version\n"
+		"\n"
+		"  run                run a JavaScript program\n"
+		"  compile            compile a JavaScript program\n"
+		"  serve              serve the current program\n"
+		"\n"
+		"  service            manage services (web, job, agent)\n"
+		"  storage            manage storage (file)\n"
+		"  data               manage data (kv, doc, sql)\n"
+		"  logs               monitor and query logs\n"
+		"\n"
+		"Interactive:\n"
+		"  console            open the admin console\n"
+		"  repl               start a JavaScript shell\n"
+		"\n",
+		version, name);
+}
+
+
+/* Delegate `-h,--help` flags to `help` command */
+static inline void help_flag (flag f)
+{
+	help (f->command);
+}
+
+
+/* Handle `version` command */
+static inline void version (command cmd)
+{
+	string version = command_get (cmd, "version");
+	printf ("%s %s\n", cmd->name, version);
+}
+
+
+/* Delegate `-v,--version` flags to `version` command  */
+static inline void version_flag (flag f)
+{
+	version (f->command);
+}
+
+
+/* Delegate default command to help */
+static inline void default_command (command cmd)
+{
+	/* TODO: start REPL instead of printing help when ready */
+	help (cmd);
+}
+
 #endif /* COMMANDS_H */

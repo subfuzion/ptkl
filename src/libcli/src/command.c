@@ -40,7 +40,6 @@ command command_new (const char *name, const char *help, command_fn fn)
 
 	cmd->name = string_new (name);
 	cmd->help = string_new (help);
-	cmd->group = nullptr; /* no group by default */
 	cmd->fn = fn;
 
 	/* settings */
@@ -58,14 +57,10 @@ command command_new (const char *name, const char *help, command_fn fn)
 	if (cmd->flags == nullptr) panic ("out of memory");
 	vector_init (cmd->flags);
 
-	/* command map and vector */
+	/* command map */
 	cmd->commands = malloc (sizeof (map));
 	if (cmd->commands == nullptr) panic ("out of memory");
 	map_init (cmd->commands);
-
-	cmd->ordered_commands = malloc (sizeof (vector));
-	if (cmd->ordered_commands == nullptr) panic ("out of memory");
-	vector_init (cmd->ordered_commands);
 
 	/* args vector */
 	cmd->args = malloc (sizeof (vector));
@@ -76,21 +71,12 @@ command command_new (const char *name, const char *help, command_fn fn)
 }
 
 
-void command_set_group (command cmd, const char *group)
-{
-	if (cmd->group != nullptr) {
-		string_free (cmd->group);
-	}
-	cmd->group = string_new (group);
-}
-
 void command_free (command cmd)
 {
 	if (cmd == nullptr) return;
 
 	string_free (cmd->name);
 	string_free (cmd->help);
-	string_free (cmd->group); /* safe to call on nullptr */
 
 	map *m;
 	void **values;
@@ -128,11 +114,6 @@ void command_free (command cmd)
 	}
 	map_free (cmd->commands);
 	free (values);
-
-	/* free ordered commands vector - no need to free values since they're
-	 * the same command objects stored in the map above and already freed */
-	vector_free (cmd->ordered_commands);
-
 	free (cmd);
 }
 
@@ -215,10 +196,10 @@ void flag_add_callback (flag f, flag_fn fn, bool should_exit)
 command command_add (command cmd, const char *name, const char *help,
 		     command_fn fn)
 {
+
 	command subcmd = command_new (name, help, fn);
 	subcmd->parent = cmd;
 	map_put (cmd->commands, name, subcmd);
-	vector_add (cmd->ordered_commands, subcmd);
 	return subcmd;
 }
 

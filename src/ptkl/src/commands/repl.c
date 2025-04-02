@@ -27,15 +27,7 @@
 #include "command.h"
 #include "log.h"
 
-static void repl (command cmd)
+void repl (command cmd)
 {
 	TODO ("migrate from partikle poc");
-}
-
-command repl_new (command parent, const char *group)
-{
-	command cmd =
-		command_add (parent, "repl", "start a JavaScript shell", repl);
-	if (group != nullptr) command_set_group (cmd, group);
-	return cmd;
 }

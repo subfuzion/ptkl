@@ -27,15 +27,7 @@
 #include "command.h"
 #include "log.h"
 
-static void console (command cmd)
+void console (command cmd)
 {
 	TODO ("implement");
-}
-
-command console_new (command parent, const char *group)
-{
-	command cmd = command_add (parent, "console", "open the admin console",
-				   console);
-	if (group != nullptr) command_set_group (cmd, group);
-	return cmd;
 }

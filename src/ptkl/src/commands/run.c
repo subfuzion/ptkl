@@ -29,7 +29,7 @@
 #include "log.h"
 #include "qjs.h"
 
-static void run (command cmd)
+void run (command cmd)
 {
 	TODO ("migrate from partikle poc");
 	test_engine ();
@@ -37,13 +37,4 @@ static void run (command cmd)
 		char *arg = vector_get (cmd->args, i);
 		printf ("arg[%d]: %s\n", i, arg);
 	}
-}
-
-command run_new (command parent, const char *group)
-{
-	command cmd =
-		command_add (parent, "run", "run a JavaScript program", run);
-	command_expect_args (cmd, COMMAND_ARGS_ANY);
-	if (group != nullptr) command_set_group (cmd, group);
-	return cmd;
 }

@@ -74,7 +74,6 @@ typedef enum command_args {
 typedef struct command {
 	string name;
 	string help;
-	string group; /* category/group this command belongs to */
 	command_fn fn;
 
 	/* the original args passed to the command */
@@ -91,8 +90,7 @@ typedef struct command {
 	vector *args;
 
 	/* subcommands */
-	map *commands; /* for lookup by name */
-	vector *ordered_commands; /* for iteration in order */
+	map *commands;
 	struct command *parent;
 
 	/* settings: map[char *] -> string */
@@ -107,13 +105,6 @@ void command_free (command cmd);
 
 void command_set (command cmd, const char *key, const char *value);
 string command_get (command cmd, const char *name);
-
-/**
- * Set the group/category that a command belongs to.
- * @param cmd The command to set the group for
- * @param group The name of the group
- */
-void command_set_group (command cmd, const char *group);
 
 /**
  * The number of arguments the command expects
@@ -149,6 +140,5 @@ void flag_add_callback (flag f, flag_fn fn, bool should_exit);
  */
 command command_add (command cmd, const char *name, const char *help,
 		     command_fn fn);
-
 
 #endif /* COMMAND_H */
