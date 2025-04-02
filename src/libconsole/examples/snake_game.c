@@ -59,7 +59,7 @@ void draw_game(void)
     terminal_clear();
     
     /* Draw border */
-    terminal_set_color(TERM_COLOR_BLUE, TERM_COLOR_DEFAULT);
+    terminal_set_text_colors();
     for (int y = 0; y < GAME_HEIGHT + 2; y++) {
         for (int x = 0; x < GAME_WIDTH + 2; x++) {
             terminal_move_cursor(x, y);
@@ -81,12 +81,11 @@ void draw_game(void)
     terminal_move_cursor(food.x + 1, food.y + 1);
     printf("*");
     
-    /* Reset color */
-    terminal_reset_color();
-    
-    /* Move cursor to bottom */
+    /* Draw status */
     terminal_move_cursor(0, GAME_HEIGHT + 3);
+    terminal_set_status_colors();
     printf("Score: %d  (Use arrow keys to move, 'q' to quit)", snake.length - INITIAL_LENGTH);
+    terminal_set_default_colors();
     fflush(stdout);
 }
 

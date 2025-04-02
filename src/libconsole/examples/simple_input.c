@@ -13,14 +13,18 @@ int main(void)
         return 1;
     }
 
-    printf("Type characters (press 'q' to quit):\n");
+    terminal_set_status_colors();
+    printf("Type characters (press 'q' to quit)\n");
+    terminal_set_default_colors();
     
     while (1) {
         int ch = terminal_getch();
         if (ch == 'q') break;
         
         if (ch != -1) {
+            terminal_set_text_colors();
             printf("You typed: %c (ASCII: %d)\n", ch, ch);
+            terminal_set_default_colors();
         }
     }
 

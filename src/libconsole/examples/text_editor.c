@@ -33,19 +33,20 @@ void init_editor(void)
 void draw_status_bar(void)
 {
     terminal_move_cursor(0, term_height - 1);
-    terminal_set_color(TERM_COLOR_BLACK, TERM_COLOR_WHITE);
+    terminal_set_status_colors();
     
     char status[MAX_LINE_LENGTH];
     snprintf(status, sizeof(status), "Line %d/%d  Col %d  [Press Ctrl+Q to quit]",
              editor.cursor_y + 1, editor.num_lines, editor.cursor_x + 1);
              
     printf("%-*s", term_width, status);
-    terminal_reset_color();
+    terminal_set_default_colors();
 }
 
 void draw_editor(void)
 {
     terminal_clear();
+    terminal_set_text_colors();
     
     /* Calculate visible lines */
     int visible_lines = term_height - 1;  /* -1 for status bar */

@@ -49,6 +49,12 @@ void terminal_show_cursor(void);
 void terminal_get_size(int *width, int *height);
 void terminal_set_mode(int mode);
 void terminal_set_color(int fg, int bg);
+
+/* Theme colors */
+void terminal_set_text_colors(void);
+void terminal_set_status_colors(void);
+void terminal_set_error_colors(void);
+void terminal_set_default_colors(void);
 void terminal_reset_color(void);
 
 #endif /* PTKL_TERMINAL_H */
