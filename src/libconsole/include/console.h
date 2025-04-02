@@ -22,7 +22,8 @@ void console_free (console c);
 bool console_init (console c);
 void console_cleanup (console c);
 
-/* Command bar */
+/* Title and command bar */
+void console_set_title (console c, const char *title);
 void console_set_command_handler (console c, command_handler handler);
 void console_show_command_bar (console c, const char *prompt);
 
@@ -41,5 +42,6 @@ void console_handle_input (console c, int ch);
 /* Output */
 void console_print (console c, const char *fmt, ...);
 void console_error (console c, const char *fmt, ...);
+void console_clear (console c);
 
 #endif /* PTKL_CONSOLE_H */

@@ -10,6 +10,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /* Window dimensions */
 #define MIN_TERM_WIDTH 80
@@ -31,6 +32,10 @@ struct console_t {
 	char cmd_buffer[256]; /* Command input buffer */
 	int cmd_pos; /* Current position in command buffer */
 	command_handler cmd_handler; /* Command handler callback */
+
+	/* Error state */
+	char *error_status; /* Saved status during error */
+	long error_start; /* Time when error was shown */
 };
 
 console console_new (void)
@@ -45,6 +50,8 @@ console console_new (void)
 	c->cmd_buffer[0] = '\0';
 	c->cmd_pos = 0;
 	c->cmd_handler = NULL;
+	c->error_status = NULL;
+	c->error_start = 0;
 
 	return c;
 }
@@ -155,6 +162,24 @@ void console_refresh_windows (console c)
 		wclrtoeol (c->cmd_win);
 		mvwprintw (c->cmd_win, 0, 0, "%s %s", c->cmd_prompt,
 			   c->cmd_buffer);
+
+		/* Position cursor and highlight current character */
+		int prompt_len = strlen(c->cmd_prompt) + 1; /* +1 for the space */
+		int cursor_x = prompt_len + c->cmd_pos;
+		wmove(c->cmd_win, 0, cursor_x);
+
+		/* If at end of input, show block cursor on a space */
+		if (c->cmd_pos == strlen(c->cmd_buffer)) {
+			wattron(c->cmd_win, A_REVERSE);
+			mvwaddch(c->cmd_win, 0, cursor_x, ' ');
+			wattroff(c->cmd_win, A_REVERSE);
+		} else {
+			/* Highlight current character */
+			wattron(c->cmd_win, A_REVERSE);
+			mvwaddch(c->cmd_win, 0, cursor_x, c->cmd_buffer[c->cmd_pos]);
+			wattroff(c->cmd_win, A_REVERSE);
+		}
+
 		wrefresh (c->cmd_win);
 	}
 
@@ -204,9 +229,28 @@ void console_stop (console c)
 	c->running = false;
 }
 
+static void console_clear_error(console c)
+{
+	if (c == NULL || !c->error_status) return;
+
+	/* Restore previous status */
+	free(c->status);
+	c->status = c->error_status;
+	c->error_status = NULL;
+	c->error_start = 0;
+
+	/* Refresh display */
+	console_refresh_windows(c);
+}
+
 void console_handle_input (console c, int ch)
 {
 	if (c == NULL) return;
+
+	/* Clear error state if any input is received */
+	if (c->error_status) {
+		console_clear_error(c);
+	}
 
 	/* If command prompt is active, handle command input */
 	if (c->cmd_prompt) {
@@ -270,8 +314,10 @@ void console_error (console c, const char *fmt, ...)
 {
 	if (c == NULL || fmt == NULL) return;
 
-	/* Save current status */
-	char *old_status = strdup (c->status);
+	/* Save current status if not already in error state */
+	if (!c->error_status) {
+		c->error_status = strdup (c->status);
+	}
 
 	/* Format error message */
 	va_list args;
@@ -284,14 +330,27 @@ void console_error (console c, const char *fmt, ...)
 	free (c->status);
 	c->status = strdup (error_msg);
 
+	/* Record error start time */
+	c->error_start = time(NULL);
+
 	/* Refresh status window */
 	console_refresh_windows (c);
+}
 
-	/* Restore status after a delay */
-	napms (3000); /* Show error for 3 seconds */
-	free (c->status);
-	c->status = old_status;
-	console_refresh_windows (c);
+void console_set_title (console c, const char *title)
+{
+	if (c == NULL) return;
+
+	/* Free existing title */
+	if (c->title) {
+		free(c->title);
+	}
+
+	/* Set new title */
+	c->title = title ? strdup(title) : NULL;
+
+	/* Refresh display */
+	console_refresh_windows(c);
 }
 
 void console_set_command_handler (console c, command_handler handler)
@@ -316,4 +375,13 @@ void console_show_command_bar (console c, const char *prompt)
 
 	/* Refresh windows to show/hide command bar */
 	console_refresh_windows (c);
+}
+
+void console_clear (console c)
+{
+	if (c == NULL) return;
+
+	/* Clear content window */
+	werase(c->content_win);
+	wrefresh(c->content_win);
 }

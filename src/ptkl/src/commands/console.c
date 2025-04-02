@@ -26,24 +26,62 @@
 
 #include "console.h"
 #include "command.h"
+#include "commands.h"
 #include "log.h"
+#include <string.h>
 
-static void handle_command (console c, const char *cmd)
+/* Available commands */
+static const char *COMMANDS[] = {"clear", "quit", NULL};
+
+/* Check if input matches a command uniquely */
+static const char *match_command(const char *input)
 {
-	if (strcmp (cmd, "quit") == 0) {
-		console_stop (c);
-	} else {
-		console_error (c, "Unknown command: %s", cmd);
+	if (!input || !*input) return NULL;
+
+	const char *match = NULL;
+	size_t input_len = strlen(input);
+
+	for (const char **cmd = COMMANDS; *cmd; cmd++) {
+		if (strncmp(input, *cmd, input_len) == 0) {
+			/* If we already found a match, this is ambiguous */
+			if (match) return NULL;
+			match = *cmd;
+		}
+	}
+
+	return match;
+}
+
+static void handle_command (console c, const char *input)
+{
+	const char *cmd = match_command(input);
+	if (!cmd) {
+		console_error(c, "Unknown or ambiguous command: %s", input);
+		return;
+	}
+
+	if (strcmp(cmd, "quit") == 0) {
+		console_stop(c);
+	} else if (strcmp(cmd, "clear") == 0) {
+		console_clear(c);
 	}
 }
 
 static void console_command (command cmd)
 {
+	/* Get version */
+	const char *version = command_get(cmd, "version");
+
 	console c = console_new ();
 	if (!c) {
 		LOG_ERROR ("Failed to create console");
 		return;
 	}
+
+	/* Set title with version */
+	char title[256];
+	snprintf(title, sizeof(title), "Partikle Runtime %s", version);
+	console_set_title(c, title);
 
 	if (!console_init (c)) {
 		LOG_ERROR ("Failed to initialize console");
@@ -56,8 +94,20 @@ static void console_command (command cmd)
 	console_show_command_bar (c, ">");
 
 	/* Print welcome message */
-	console_print (c, "Welcome to the ptkl console\n");
-	console_print (c, "Type 'quit' to exit\n\n");
+	console_print(c, "\n\n");
+
+	/* Print Console Commands */
+	console_print(c, "Console Commands:\n");
+	console_print(c, "  clear      Clear the screen\n");
+	console_print(c, "  help       Show help for commands\n");
+	console_print(c, "  quit       Exit the console\n\n");
+
+	/* Print Service Commands */
+	console_print(c, "%s:\n", GROUP_SERVICES);
+	console_print(c, "  service    Manage services\n");
+	console_print(c, "  storage    Manage storage\n");
+	console_print(c, "  data       Manage data\n");
+	console_print(c, "  logs       View logs\n\n");
 
 	/* Run the console */
 	console_run (c);
