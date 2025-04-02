@@ -47,7 +47,7 @@ static void print_aligned (const char *name, const char *help, size_t width)
 	printf ("%s\n", help);
 }
 
-static void help (command cmd)
+void help (command cmd)
 {
 	size_t width = get_max_width (cmd);
 
@@ -84,7 +84,7 @@ static void help (command cmd)
 		command subcmd = vector_get (cmd->ordered_commands, i);
 		if (subcmd->group && !map_get (shown_groups, subcmd->group)) {
 			printf ("\n%s:\n", subcmd->group);
-			map_set (shown_groups, subcmd->group, (void *)1);
+			map_put (shown_groups, subcmd->group, (void *)1);
 
 			/* Show all commands in this group */
 			for (size_t j = 0;

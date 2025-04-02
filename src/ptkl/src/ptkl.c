@@ -48,39 +48,37 @@ extern command main_command_new (const char *name);
 extern command compile_new (command parent, const char *group);
 extern command console_new (command parent, const char *group);
 extern command data_new (command parent, const char *group);
+extern command help_new (command parent, const char *group);
 extern command logs_new (command parent, const char *group);
 extern command repl_new (command parent, const char *group);
 extern command run_new (command parent, const char *group);
 extern command serve_new (command parent, const char *group);
 extern command service_new (command parent, const char *group);
 extern command storage_new (command parent, const char *group);
+extern command version_new (command parent, const char *group);
 
 int main (const int argc, char **argv)
 {
 	/* Command group names */
-	const char *GROUP_PROGRAM = "Program Execution";
-	const char *GROUP_SERVICE = "Service Management";
-	const char *GROUP_DEV = "Development Tools";
+	const char *GROUP_DEVELOPMENT = "Development";
+	const char *GROUP_SERVICES = "Service Management";
+	const char *GROUP_INTERACTIVE = "Interactive Tools";
 
 	ptkl_init ();
 
 	auto cmd = main_command_new (argv[0]);
 
-	/* Command groups */
-	/* Program Execution group */
-	run_new (cmd, GROUP_PROGRAM);
-	compile_new (cmd, GROUP_PROGRAM);
-	serve_new (cmd, GROUP_PROGRAM);
+	run_new (cmd, GROUP_DEVELOPMENT);
+	serve_new (cmd, GROUP_DEVELOPMENT);
+	compile_new (cmd, GROUP_DEVELOPMENT);
 
-	/* Service management group */
-	service_new (cmd, GROUP_SERVICE);
-	storage_new (cmd, GROUP_SERVICE);
-	data_new (cmd, GROUP_SERVICE);
-	logs_new (cmd, GROUP_SERVICE);
+	service_new (cmd, GROUP_SERVICES);
+	storage_new (cmd, GROUP_SERVICES);
+	data_new (cmd, GROUP_SERVICES);
+	logs_new (cmd, GROUP_SERVICES);
 
-	/* Development tools group */
-	console_new (cmd, GROUP_DEV);
-	repl_new (cmd, GROUP_DEV);
+	console_new (cmd, GROUP_INTERACTIVE);
+	repl_new (cmd, GROUP_INTERACTIVE);
 
 	bool ok = command_run (cmd, argc, argv);
 	if (!ok) command_print_errors (cmd);

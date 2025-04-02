@@ -20,12 +20,14 @@ set(
 	src/commands/compile.c
 	src/commands/console.c
 	src/commands/data.c
+	src/commands/help.c
 	src/commands/logs.c
 	src/commands/repl.c
 	src/commands/run.c
 	src/commands/serve.c
 	src/commands/service.c
 	src/commands/storage.c
+	src/commands/version.c
 )
 
 add_executable(
