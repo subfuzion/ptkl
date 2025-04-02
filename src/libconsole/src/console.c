@@ -16,6 +16,11 @@
 #define MIN_TERM_WIDTH 80
 #define MIN_TERM_HEIGHT 24
 
+/* Forward declarations */
+static void console_free_completions(console c);
+static void console_update_completions(console c);
+static void console_update_status(console c);
+
 struct console_t {
 	/* Main windows */
 	WINDOW *main_win; /* Full screen window */
@@ -36,6 +41,12 @@ struct console_t {
 	/* Error state */
 	char *error_status; /* Saved status during error */
 	long error_start; /* Time when error was shown */
+
+	/* Command completion */
+	command_completion completion_handler; /* Command completion callback */
+	char **completions; /* Array of possible completions */
+	int completion_count; /* Number of completions */
+	int current_completion; /* Currently selected completion */
 };
 
 console console_new (void)
@@ -153,7 +164,9 @@ void console_refresh_windows (console c)
 	/* Refresh status */
 	wmove (c->status_win, 0, 0);
 	wclrtoeol (c->status_win);
-	mvwprintw (c->status_win, 0, 0, "%s", c->status);
+	if (c->status != NULL) {
+		mvwprintw (c->status_win, 0, 0, "%s", c->status);
+	}
 	wrefresh (c->status_win);
 
 	/* Refresh command bar */
@@ -259,26 +272,99 @@ void console_handle_input (console c, int ch)
 		case 127: /* DEL key */
 			if (c->cmd_pos > 0) {
 				c->cmd_buffer[--c->cmd_pos] = '\0';
-				console_refresh_windows (c);
+				console_free_completions(c);
+
+				/* Check for command matches */
+				if (c->completion_handler) {
+					int count;
+					char **matches = c->completion_handler(c, c->cmd_buffer, &count);
+					if (count > 0) {
+						/* Show matches in status bar */
+						c->completions = matches;
+						c->completion_count = count;
+						c->current_completion = -1;
+						console_update_status(c);
+					} else {
+						/* No matches - show error */
+						free(c->status);
+						asprintf(&c->status, "invalid command: %s", c->cmd_buffer);
+						free(matches);
+					}
+				}
+				console_refresh_windows(c);
+			}
+			break;
+
+		case '\t': /* Tab key */
+			if (c->completion_handler) {
+				if (c->completions == NULL) {
+					/* First tab - get completions */
+					c->current_completion = -1;
+					console_update_completions(c);
+					if (c->completion_count > 1) {
+						/* Multiple matches - show first but don't select */
+						c->current_completion = -1;
+					}
+				} else if (c->completion_count > 0) {
+					/* Subsequent tabs - cycle through matches */
+					c->current_completion = (c->current_completion + 1) % c->completion_count;
+					strncpy(c->cmd_buffer, c->completions[c->current_completion], sizeof(c->cmd_buffer) - 1);
+					c->cmd_pos = strlen(c->cmd_buffer);
+					/* Update status bar with new selection */
+					console_update_status(c);
+				}
+				console_refresh_windows(c);
 			}
 			break;
 
 		case '\n':
 		case KEY_ENTER:
 			if (c->cmd_handler) {
-				c->cmd_handler (c, c->cmd_buffer);
+				c->cmd_handler(c, c->cmd_buffer);
 			}
 			c->cmd_buffer[0] = '\0';
 			c->cmd_pos = 0;
-			console_refresh_windows (c);
+			console_free_completions(c);
+			console_refresh_windows(c);
 			break;
 
 		default:
-			if (isprint (ch) &&
-			    c->cmd_pos < sizeof (c->cmd_buffer) - 1) {
+			if (isprint(ch) && c->cmd_pos < sizeof(c->cmd_buffer) - 1) {
 				c->cmd_buffer[c->cmd_pos++] = ch;
 				c->cmd_buffer[c->cmd_pos] = '\0';
-				console_refresh_windows (c);
+				console_free_completions(c);
+
+				/* Check for single completion match */
+				if (c->completion_handler) {
+					int count;
+					char **matches = c->completion_handler(c, c->cmd_buffer, &count);
+					if (count == 1) {
+						/* Single match - use it immediately */
+						strncpy(c->cmd_buffer, matches[0], sizeof(c->cmd_buffer) - 1);
+						c->cmd_pos = strlen(c->cmd_buffer);
+						/* Clear status bar */
+						free(c->status);
+						c->status = NULL;
+						/* Free the matches */
+						for (int i = 0; i < count; i++) {
+							free(matches[i]);
+						}
+						free(matches);
+					} else if (count > 1) {
+						/* Multiple matches - update status bar */
+						c->completions = matches;
+						c->completion_count = count;
+						c->current_completion = -1;
+						console_update_status(c);
+					} else {
+						/* No matches - show invalid command message */
+						free(c->status);
+						asprintf(&c->status, "invalid command: %s", c->cmd_buffer);
+						/* Free the empty matches array */
+						free(matches);
+					}
+				}
+				console_refresh_windows(c);
 			}
 			break;
 		}
@@ -357,6 +443,78 @@ void console_set_command_handler (console c, command_handler handler)
 {
 	if (c == NULL) return;
 	c->cmd_handler = handler;
+}
+
+void console_set_completion_handler (console c, command_completion handler)
+{
+	if (c == NULL) return;
+	c->completion_handler = handler;
+}
+
+static void console_free_completions (console c)
+{
+	if (c == NULL || c->completions == NULL) return;
+
+	/* Free each completion string */
+	for (int i = 0; i < c->completion_count; i++) {
+		free(c->completions[i]);
+	}
+
+	/* Free the array */
+	free(c->completions);
+	c->completions = NULL;
+	c->completion_count = 0;
+	c->current_completion = -1;
+}
+
+static void console_update_status (console c)
+{
+	if (c == NULL || !c->completion_handler) return;
+
+	/* Show completions in status bar if any */
+	if (c->completion_count > 0) {
+		/* Format completions into status message */
+		char status[256] = {0};
+		int pos = 0;
+
+		/* Find max completion length */
+		size_t max_len = 0;
+		for (int i = 0; i < c->completion_count; i++) {
+			size_t len = strlen(c->completions[i]);
+			if (len > max_len) max_len = len;
+		}
+
+		/* Add each completion with fixed-width slots */
+		for (int i = 0; i < c->completion_count; i++) {
+			if (i == c->current_completion) {
+				/* Selected completion with brackets */
+				pos += snprintf(status + pos, sizeof(status) - pos, "[%-*s]  ", (int)max_len, c->completions[i]);
+			} else {
+				/* Non-selected completion with padding */
+				pos += snprintf(status + pos, sizeof(status) - pos, " %-*s   ", (int)max_len, c->completions[i]);
+			}
+			if (pos >= sizeof(status) - 1) break;
+		}
+
+		/* Update status */
+		free(c->status);
+		c->status = strdup(status);
+		console_refresh_windows(c);
+	}
+}
+
+static void console_update_completions (console c)
+{
+	if (c == NULL || !c->completion_handler) return;
+
+	/* Only get new completions if we don't have any */
+	if (c->completions == NULL) {
+		/* Get new completions */
+		c->completions = c->completion_handler(c, c->cmd_buffer, &c->completion_count);
+	}
+
+	/* Update status bar */
+	console_update_status(c);
 }
 
 void console_show_command_bar (console c, const char *prompt)

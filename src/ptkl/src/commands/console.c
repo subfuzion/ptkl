@@ -31,7 +31,48 @@
 #include <string.h>
 
 /* Available commands */
-static const char *COMMANDS[] = {"clear", "quit", NULL};
+static const char *COMMANDS[] = {"clear", "help", "quit", "service", "storage", "data", "logs", NULL};
+
+/* Get matching commands for completion */
+static char **get_matching_commands(const char *prefix, int *count)
+{
+	if (!prefix) {
+		prefix = "";
+	}
+
+	/* Count matching commands first */
+	*count = 0;
+	for (const char **cmd = COMMANDS; *cmd; cmd++) {
+		if (strncmp(prefix, *cmd, strlen(prefix)) == 0) {
+			(*count)++;
+		}
+	}
+
+	if (*count == 0) return NULL;
+
+	/* Allocate array for matches */
+	char **matches = malloc(*count * sizeof(char*));
+	if (!matches) {
+		*count = 0;
+		return NULL;
+	}
+
+	/* Fill matches array */
+	int i = 0;
+	for (const char **cmd = COMMANDS; *cmd; cmd++) {
+		if (strncmp(prefix, *cmd, strlen(prefix)) == 0) {
+			matches[i++] = strdup(*cmd);
+		}
+	}
+
+	return matches;
+}
+
+/* Command completion callback */
+static char **complete_command(console c, const char *prefix, int *count)
+{
+	return get_matching_commands(prefix, count);
+}
 
 /* Check if input matches a command uniquely */
 static const char *match_command(const char *input)
@@ -89,9 +130,10 @@ static void console_command (command cmd)
 		return;
 	}
 
-	/* Set up command handler */
-	console_set_command_handler (c, handle_command);
-	console_show_command_bar (c, ">");
+	/* Set up command handlers */
+	console_set_command_handler(c, handle_command);
+	console_set_completion_handler(c, complete_command);
+	console_show_command_bar(c, ">");
 
 	/* Print welcome message */
 	console_print(c, "\n\n");

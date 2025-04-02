@@ -14,6 +14,7 @@
 typedef struct console_t *console;
 
 /* Command handling */
+typedef char** (*command_completion) (console c, const char *prefix, int *count);
 typedef void (*command_handler) (console c, const char *cmd);
 
 /* Console lifecycle */
@@ -25,6 +26,7 @@ void console_cleanup (console c);
 /* Title and command bar */
 void console_set_title (console c, const char *title);
 void console_set_command_handler (console c, command_handler handler);
+void console_set_completion_handler (console c, command_completion handler);
 void console_show_command_bar (console c, const char *prompt);
 
 /* Window management */
