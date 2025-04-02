@@ -36,8 +36,6 @@ command repl_new (command parent, const char *group)
 {
 	command cmd =
 		command_add (parent, "repl", "start a JavaScript shell", repl);
-	if (group != nullptr) {
-		command_set_group (cmd, group);
-	}
+	if (group != nullptr) command_set_group (cmd, group);
 	return cmd;
 }

@@ -21,7 +21,7 @@ static void version_flag (flag f)
 command version_new (command parent, const char *group)
 {
 	auto cmd = command_add (parent, "version", "print version", version);
-	if (group) command_set_group (cmd, group);
+	if (group != nullptr) command_set_group (cmd, group);
 	return cmd;
 }
 

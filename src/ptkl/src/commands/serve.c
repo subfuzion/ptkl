@@ -36,8 +36,6 @@ command serve_new (command parent, const char *group)
 {
 	command cmd = command_add (parent, "serve", "serve the current program",
 				   serve);
-	if (group != nullptr) {
-		command_set_group (cmd, group);
-	}
+	if (group != nullptr) command_set_group (cmd, group);
 	return cmd;
 }

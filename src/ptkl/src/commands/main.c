@@ -30,10 +30,6 @@ command main_command_new (const char *name, const char *group)
 	version_flag_new (cmd);
 	help_flag_new (cmd);
 
-	/* Add built-in commands */
-	help_new (cmd, NULL);
-	version_new (cmd, NULL);
-
-	if (group) command_set_group (cmd, group);
+	if (group != nullptr) command_set_group (cmd, group);
 	return cmd;
 }

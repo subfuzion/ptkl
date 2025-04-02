@@ -60,14 +60,20 @@ extern command version_new (command parent, const char *group);
 int main (const int argc, char **argv)
 {
 	/* Command group names */
-	const char *GROUP_DEVELOPMENT = "Development";
-	const char *GROUP_SERVICES = "Service Management";
-	const char *GROUP_INTERACTIVE = "Interactive Tools";
+	const char *GROUP_GENERAL = "Commands";
+	const char *GROUP_DEVELOPMENT = "Development Commands";
+	const char *GROUP_SERVICES = "Service Commands";
+	const char *GROUP_INTERACTIVE = "Interactive Commands";
 
 	ptkl_init ();
 
 	auto cmd = main_command_new (argv[0], NULL);
 
+	/* Built-in commands */
+	help_new (cmd, GROUP_GENERAL);
+	version_new (cmd, GROUP_GENERAL);
+
+	/* Development commands */
 	run_new (cmd, GROUP_DEVELOPMENT);
 	serve_new (cmd, GROUP_DEVELOPMENT);
 	compile_new (cmd, GROUP_DEVELOPMENT);

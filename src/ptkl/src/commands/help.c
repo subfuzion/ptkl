@@ -113,7 +113,7 @@ command help_new (command parent, const char *group)
 {
 	auto help_cmd = command_add (parent, "help", "print help", help);
 	command_expect_args (help_cmd, COMMAND_ARGS_ANY);
-	if (group) command_set_group (help_cmd, group);
+	if (group != nullptr) command_set_group (help_cmd, group);
 	return help_cmd;
 }
 
