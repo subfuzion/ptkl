@@ -35,7 +35,9 @@ struct console_t {
 	char *status; /* Status message */
 	char *cmd_prompt; /* Command prompt */
 	char cmd_buffer[256]; /* Command input buffer */
+	char typed_buffer[256]; /* Buffer for actual typed input */
 	int cmd_pos; /* Current position in command buffer */
+	int typed_pos; /* Current position in typed buffer */
 	command_handler cmd_handler; /* Command handler callback */
 
 	/* Error state */
@@ -59,7 +61,9 @@ console console_new (void)
 	c->status = strdup ("Ready");
 	c->cmd_prompt = NULL;
 	c->cmd_buffer[0] = '\0';
+	c->typed_buffer[0] = '\0';
 	c->cmd_pos = 0;
+	c->typed_pos = 0;
 	c->cmd_handler = NULL;
 	c->error_status = NULL;
 	c->error_start = 0;
@@ -268,18 +272,41 @@ void console_handle_input (console c, int ch)
 	/* If command prompt is active, handle command input */
 	if (c->cmd_prompt) {
 		switch (ch) {
+		case 27: /* ESC key */
+			/* Clear command buffer, typed buffer, and status */
+			c->cmd_buffer[0] = '\0';
+			c->cmd_pos = 0;
+			c->typed_buffer[0] = '\0';
+			c->typed_pos = 0;
+			free(c->status);
+			c->status = NULL;
+			console_free_completions(c);
+			console_refresh_windows(c);
+			break;
+
 		case KEY_BACKSPACE:
 		case 127: /* DEL key */
-			if (c->cmd_pos > 0) {
-				c->cmd_buffer[--c->cmd_pos] = '\0';
+			if (c->typed_pos > 0) {
+				c->typed_buffer[--c->typed_pos] = '\0';
+				strncpy(c->cmd_buffer, c->typed_buffer, sizeof(c->cmd_buffer) - 1);
+				c->cmd_pos = c->typed_pos;
 				console_free_completions(c);
 
 				/* Check for command matches */
 				if (c->completion_handler) {
 					int count;
-					char **matches = c->completion_handler(c, c->cmd_buffer, &count);
-					if (count > 0) {
-						/* Show matches in status bar */
+					char **matches = c->completion_handler(c, c->typed_buffer, &count);
+					if (count == 1) {
+						/* Single match - update command buffer if typed buffer is a prefix */
+						if (strncmp(matches[0], c->typed_buffer, strlen(c->typed_buffer)) == 0) {
+							strncpy(c->cmd_buffer, matches[0], sizeof(c->cmd_buffer) - 1);
+							c->cmd_pos = strlen(c->cmd_buffer);
+						}
+						/* Clear status bar */
+						free(c->status);
+						c->status = NULL;
+					} else if (count > 0) {
+						/* Multiple matches - show in status bar */
 						c->completions = matches;
 						c->completion_count = count;
 						c->current_completion = -1;
@@ -287,7 +314,7 @@ void console_handle_input (console c, int ch)
 					} else {
 						/* No matches - show error */
 						free(c->status);
-						asprintf(&c->status, "invalid command: %s", c->cmd_buffer);
+						asprintf(&c->status, "invalid command: %s", c->typed_buffer);
 						free(matches);
 					}
 				}
@@ -324,24 +351,33 @@ void console_handle_input (console c, int ch)
 			}
 			c->cmd_buffer[0] = '\0';
 			c->cmd_pos = 0;
+			c->typed_buffer[0] = '\0';
+			c->typed_pos = 0;
 			console_free_completions(c);
 			console_refresh_windows(c);
 			break;
 
 		default:
-			if (isprint(ch) && c->cmd_pos < sizeof(c->cmd_buffer) - 1) {
-				c->cmd_buffer[c->cmd_pos++] = ch;
-				c->cmd_buffer[c->cmd_pos] = '\0';
+			if (isprint(ch) && c->typed_pos < sizeof(c->typed_buffer) - 1) {
+				/* Update typed buffer */
+				c->typed_buffer[c->typed_pos++] = ch;
+				c->typed_buffer[c->typed_pos] = '\0';
+				
+				/* Always show what was typed */
+				strncpy(c->cmd_buffer, c->typed_buffer, sizeof(c->cmd_buffer) - 1);
+				c->cmd_pos = c->typed_pos;
 				console_free_completions(c);
 
-				/* Check for single completion match */
+				/* Check for completions */
 				if (c->completion_handler) {
 					int count;
-					char **matches = c->completion_handler(c, c->cmd_buffer, &count);
+					char **matches = c->completion_handler(c, c->typed_buffer, &count);
 					if (count == 1) {
-						/* Single match - use it immediately */
-						strncpy(c->cmd_buffer, matches[0], sizeof(c->cmd_buffer) - 1);
-						c->cmd_pos = strlen(c->cmd_buffer);
+						/* Single match - update command buffer if typed buffer is a prefix */
+						if (strncmp(matches[0], c->typed_buffer, strlen(c->typed_buffer)) == 0) {
+							strncpy(c->cmd_buffer, matches[0], sizeof(c->cmd_buffer) - 1);
+							c->cmd_pos = strlen(c->cmd_buffer);
+						}
 						/* Clear status bar */
 						free(c->status);
 						c->status = NULL;
@@ -351,16 +387,15 @@ void console_handle_input (console c, int ch)
 						}
 						free(matches);
 					} else if (count > 1) {
-						/* Multiple matches - update status bar */
+						/* Multiple matches - show in status bar */
 						c->completions = matches;
 						c->completion_count = count;
 						c->current_completion = -1;
 						console_update_status(c);
 					} else {
-						/* No matches - show invalid command message */
+						/* No matches - show error */
 						free(c->status);
-						asprintf(&c->status, "invalid command: %s", c->cmd_buffer);
-						/* Free the empty matches array */
+						asprintf(&c->status, "invalid command: %s", c->typed_buffer);
 						free(matches);
 					}
 				}

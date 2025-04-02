@@ -93,6 +93,22 @@ static const char *match_command(const char *input)
 	return match;
 }
 
+static void print_help(console c)
+{
+	/* Print Console Commands */
+	console_print(c, "\nConsole Commands:\n");
+	console_print(c, "  clear      Clear the screen\n");
+	console_print(c, "  help       Show help for commands\n");
+	console_print(c, "  quit       Exit the console\n\n");
+
+	/* Print Service Commands */
+	console_print(c, "%s:\n", GROUP_SERVICES);
+	console_print(c, "  service    Manage services\n");
+	console_print(c, "  storage    Manage storage\n");
+	console_print(c, "  data       Manage data\n");
+	console_print(c, "  logs       View logs\n\n");
+}
+
 static void handle_command (console c, const char *input)
 {
 	const char *cmd = match_command(input);
@@ -105,6 +121,8 @@ static void handle_command (console c, const char *input)
 		console_stop(c);
 	} else if (strcmp(cmd, "clear") == 0) {
 		console_clear(c);
+	} else if (strcmp(cmd, "help") == 0) {
+		print_help(c);
 	}
 }
 
@@ -135,21 +153,9 @@ static void console_command (command cmd)
 	console_set_completion_handler(c, complete_command);
 	console_show_command_bar(c, ">");
 
-	/* Print welcome message */
+	/* Print welcome message and help */
 	console_print(c, "\n\n");
-
-	/* Print Console Commands */
-	console_print(c, "Console Commands:\n");
-	console_print(c, "  clear      Clear the screen\n");
-	console_print(c, "  help       Show help for commands\n");
-	console_print(c, "  quit       Exit the console\n\n");
-
-	/* Print Service Commands */
-	console_print(c, "%s:\n", GROUP_SERVICES);
-	console_print(c, "  service    Manage services\n");
-	console_print(c, "  storage    Manage storage\n");
-	console_print(c, "  data       Manage data\n");
-	console_print(c, "  logs       View logs\n\n");
+	print_help(c);
 
 	/* Run the console */
 	console_run (c);
