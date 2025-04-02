@@ -66,12 +66,26 @@ void help (command cmd)
 		print_aligned (flag_str, f->help, width);
 	}
 
-	printf ("\nCommands:\n");
-	/* First show commands with no group */
+	/* First check if there are any ungrouped commands */
+	bool has_ungrouped = false;
 	for (size_t i = 0; i < vector_size (cmd->ordered_commands); i++) {
 		command subcmd = vector_get (cmd->ordered_commands, i);
 		if (subcmd->group == nullptr) {
-			print_aligned (subcmd->name, subcmd->help, width);
+			has_ungrouped = true;
+			break;
+		}
+	}
+
+	/* Then show ungrouped commands if any */
+	if (has_ungrouped) {
+		printf ("\nCommands:\n");
+		for (size_t i = 0; i < vector_size (cmd->ordered_commands);
+		     i++) {
+			command subcmd = vector_get (cmd->ordered_commands, i);
+			if (subcmd->group == nullptr) {
+				print_aligned (subcmd->name, subcmd->help,
+					       width);
+			}
 		}
 	}
 
