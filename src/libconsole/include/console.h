@@ -8,13 +8,13 @@
 #ifndef PTKL_CONSOLE_H
 #define PTKL_CONSOLE_H
 
-#include <curses.h>
 #include <stdbool.h>
 
 typedef struct console_t *console;
 
 /* Command handling */
-typedef char** (*command_completion) (console c, const char *prefix, int *count);
+typedef char **(*command_completion) (console c, const char *prefix,
+				      int *count);
 typedef void (*command_handler) (console c, const char *cmd);
 
 /* Console lifecycle */
@@ -30,9 +30,12 @@ void console_set_completion_handler (console c, command_completion handler);
 void console_show_command_bar (console c, const char *prompt);
 
 /* Window management */
-bool console_create_windows (console c);
 void console_refresh_windows (console c);
 void console_resize_windows (console c);
+
+/* Completion management */
+void console_free_completions (console c);
+void console_update_completions (console c);
 
 /* Event loop */
 bool console_run (console c);

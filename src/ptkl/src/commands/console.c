@@ -25,16 +25,17 @@
  */
 
 #include "console.h"
+#include <string.h>
 #include "command.h"
 #include "commands.h"
 #include "log.h"
-#include <string.h>
 
 /* Available commands */
-static const char *COMMANDS[] = {"clear", "help", "quit", "service", "storage", "data", "logs", NULL};
+static const char *COMMANDS[] = {"clear",   "help", "quit", "service",
+				 "storage", "data", "logs", NULL};
 
 /* Get matching commands for completion */
-static char **get_matching_commands(const char *prefix, int *count)
+static char **get_matching_commands (const char *prefix, int *count)
 {
 	if (!prefix) {
 		prefix = "";
@@ -43,7 +44,7 @@ static char **get_matching_commands(const char *prefix, int *count)
 	/* Count matching commands first */
 	*count = 0;
 	for (const char **cmd = COMMANDS; *cmd; cmd++) {
-		if (strncmp(prefix, *cmd, strlen(prefix)) == 0) {
+		if (strncmp (prefix, *cmd, strlen (prefix)) == 0) {
 			(*count)++;
 		}
 	}
@@ -51,7 +52,7 @@ static char **get_matching_commands(const char *prefix, int *count)
 	if (*count == 0) return NULL;
 
 	/* Allocate array for matches */
-	char **matches = malloc(*count * sizeof(char*));
+	char **matches = malloc (*count * sizeof (char *));
 	if (!matches) {
 		*count = 0;
 		return NULL;
@@ -60,8 +61,8 @@ static char **get_matching_commands(const char *prefix, int *count)
 	/* Fill matches array */
 	int i = 0;
 	for (const char **cmd = COMMANDS; *cmd; cmd++) {
-		if (strncmp(prefix, *cmd, strlen(prefix)) == 0) {
-			matches[i++] = strdup(*cmd);
+		if (strncmp (prefix, *cmd, strlen (prefix)) == 0) {
+			matches[i++] = strdup (*cmd);
 		}
 	}
 
@@ -69,21 +70,21 @@ static char **get_matching_commands(const char *prefix, int *count)
 }
 
 /* Command completion callback */
-static char **complete_command(console c, const char *prefix, int *count)
+static char **complete_command (console c, const char *prefix, int *count)
 {
-	return get_matching_commands(prefix, count);
+	return get_matching_commands (prefix, count);
 }
 
 /* Check if input matches a command uniquely */
-static const char *match_command(const char *input)
+static const char *match_command (const char *input)
 {
 	if (!input || !*input) return NULL;
 
 	const char *match = NULL;
-	size_t input_len = strlen(input);
+	size_t input_len = strlen (input);
 
 	for (const char **cmd = COMMANDS; *cmd; cmd++) {
-		if (strncmp(input, *cmd, input_len) == 0) {
+		if (strncmp (input, *cmd, input_len) == 0) {
 			/* If we already found a match, this is ambiguous */
 			if (match) return NULL;
 			match = *cmd;
@@ -93,43 +94,43 @@ static const char *match_command(const char *input)
 	return match;
 }
 
-static void print_help(console c)
+static void print_help (console c)
 {
 	/* Print Console Commands */
-	console_print(c, "\nConsole Commands:\n");
-	console_print(c, "  clear      Clear the screen\n");
-	console_print(c, "  help       Show help for commands\n");
-	console_print(c, "  quit       Exit the console\n\n");
+	console_print (c, "\nConsole Commands:\n");
+	console_print (c, "  clear      Clear the screen\n");
+	console_print (c, "  help       Show help for commands\n");
+	console_print (c, "  quit       Exit the console\n\n");
 
 	/* Print Service Commands */
-	console_print(c, "%s:\n", GROUP_SERVICES);
-	console_print(c, "  service    Manage services\n");
-	console_print(c, "  storage    Manage storage\n");
-	console_print(c, "  data       Manage data\n");
-	console_print(c, "  logs       View logs\n\n");
+	console_print (c, "%s:\n", GROUP_SERVICES);
+	console_print (c, "  service    Manage services\n");
+	console_print (c, "  storage    Manage storage\n");
+	console_print (c, "  data       Manage data\n");
+	console_print (c, "  logs       View logs\n\n");
 }
 
 static void handle_command (console c, const char *input)
 {
-	const char *cmd = match_command(input);
+	const char *cmd = match_command (input);
 	if (!cmd) {
-		console_error(c, "Unknown or ambiguous command: %s", input);
+		console_error (c, "Unknown or ambiguous command: %s", input);
 		return;
 	}
 
-	if (strcmp(cmd, "quit") == 0) {
-		console_stop(c);
-	} else if (strcmp(cmd, "clear") == 0) {
-		console_clear(c);
-	} else if (strcmp(cmd, "help") == 0) {
-		print_help(c);
+	if (strcmp (cmd, "quit") == 0) {
+		console_stop (c);
+	} else if (strcmp (cmd, "clear") == 0) {
+		console_clear (c);
+	} else if (strcmp (cmd, "help") == 0) {
+		print_help (c);
 	}
 }
 
 static void console_command (command cmd)
 {
 	/* Get version */
-	const char *version = command_get(cmd, "version");
+	const char *version = command_get (cmd, "version");
 
 	console c = console_new ();
 	if (!c) {
@@ -139,8 +140,8 @@ static void console_command (command cmd)
 
 	/* Set title with version */
 	char title[256];
-	snprintf(title, sizeof(title), "Partikle Runtime %s", version);
-	console_set_title(c, title);
+	snprintf (title, sizeof (title), "Partikle Runtime %s", version);
+	console_set_title (c, title);
 
 	if (!console_init (c)) {
 		LOG_ERROR ("Failed to initialize console");
@@ -149,13 +150,16 @@ static void console_command (command cmd)
 	}
 
 	/* Set up command handlers */
-	console_set_command_handler(c, handle_command);
-	console_set_completion_handler(c, complete_command);
-	console_show_command_bar(c, ">");
+	console_set_command_handler (c, handle_command);
+	console_set_completion_handler (c, complete_command);
+	console_show_command_bar (c, ">");
 
 	/* Print welcome message and help */
-	console_print(c, "\n\n");
-	print_help(c);
+	console_print (c, "\n\n");
+	print_help (c);
+
+	/* Ensure cursor is in command bar */
+	console_refresh_windows (c);
 
 	/* Run the console */
 	console_run (c);
